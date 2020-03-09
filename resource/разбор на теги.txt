@@ -1,0 +1,12 @@
+дом NOUN,accs,inan,masc,sing  == дом сущ,винительный,  ,муж.р., ед.ч.
+который ADJF,Anph,Apro,Subx,masc,nomn,sing
+построил VERB,indc,masc,past,perf,sing,tran
+джек NOUN,Name,anim,masc,nomn,sing
+. PNCT
+
+
+дом NOUN,accs,inan,masc,sing
+который ADJF,Anph,Apro,Subx,masc,nomn,sing
+построил VERB,indc,masc,past,perf,sing,tran
+джек NOUN,Name,anim,masc,nomn,sing
+. PNCT
