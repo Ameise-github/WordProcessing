@@ -94,8 +94,6 @@ CONJP[+vp] -> CONJ VP
 
 
 PREP[NF=u'в'] -> 'в'
-ADJF[C=loct, G=masc, NUM=sing, PER=3, NF=u'наш'] -> 'нашем'
 NOUN[C=loct, G=masc, NUM=sing, PER=3, NF=u'класс'] -> 'классе'
 VERB[TR=intr, TENSE=pres, G=0, NUM=plur, PER=3, NF=u'учиться'] -> 'учатся'
 NOUN[C=nomn, G=masc, NUM=plur, PER=3, NF=u'ученик'] -> 'ученики'
-.[NF=u'.'] -> '.'

@@ -15,11 +15,11 @@ import pymorphy2
 # sent = nltk.sent_tokenize(text, language='russian')
 # print(sent)
 
-morphAnalyzer = pymorphy2.MorphAnalyzer()
-m = morphAnalyzer.parse('.')
-for y in m:
-    print(y.tag.POS)
-    print(y.tag)
+# morphAnalyzer = pymorphy2.MorphAnalyzer()
+# m = morphAnalyzer.parse('.')
+# for y in m:
+#     print(y.tag.POS)
+#     print(y.tag)
 
 # for w in words:
 #     p: list[str] = morphAnalyzer.parse(w)
@@ -61,3 +61,5 @@ for y in m:
 #             # print(mTag)
 #             print()
 
+parse = nltk.parse.malt.MaltParser()
+parse.

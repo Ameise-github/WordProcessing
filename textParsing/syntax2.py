@@ -230,8 +230,8 @@ class MySyntax:
                             flag = True
                         else:
                             yTag = str(y.tag)
-                            if (yTag == "PNCT"):
-                                strk = str('.') + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                            if (yTag == "PUNCT"):
+                                strk = str('NONLEX') + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
                                 f.writelines(strk)
                                 flag = True
                                 break
