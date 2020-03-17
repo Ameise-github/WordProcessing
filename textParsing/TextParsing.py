@@ -3,13 +3,13 @@
 # МОРФОЛОГИЯ
 from nltk4russian.tagger import PMContextTagger
 from nltk4russian.util import read_corpus_to_nltk
-from nltk import word_tokenize, load_parser, tree
+from nltk import word_tokenize, load_parser
 import pymorphy2
-from textParsing.syntax2 import MySyntax
+from parsing.syntax.syntax import MySyntax
 
 morphAnalyzer = pymorphy2.MorphAnalyzer()
 # Читаем подкорпус НКРЯ из файла с разделителем-табуляцией
-with open('../data/media1.tab', encoding='utf-8') as f:
+with open('../resource/data/media1.tab', encoding='utf-8') as f:
     sents = list(read_corpus_to_nltk(f))
 
 # Обучаем контекстный теггер на получившемся наборе предложений:

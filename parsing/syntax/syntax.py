@@ -1,9 +1,6 @@
 # Программа использует морфологические данные разбора PyMorphy2 и синтаксические правила АОТ для автоматического синтаксического разобра текста на русском языки в NLTK.
 # Python 3, NLTK, pymorphy2
-# -*- coding: utf-8 -*- 
-from nltk.data import path as nltk_data_path
-from nltk import load_parser, word_tokenize
-import pymorphy2 as pm
+# -*- coding: utf-8 -*-
 import codecs
 
 

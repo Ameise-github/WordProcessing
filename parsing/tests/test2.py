@@ -323,4 +323,4 @@ def analyze(file):
     return words_norm_filter
 
 
-analyze("../data/Evgeniy_Onegin.txt")
+analyze("../../resource/data/Evgeniy_Onegin.txt")

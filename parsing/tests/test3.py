@@ -3,13 +3,20 @@ import nltk
 from nltk4russian.tagger import PMContextTagger
 from nltk4russian.util import read_corpus_to_nltk
 import pymorphy2
+from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 
 # text: str = "В нашем классе учатся самые артистичные ученики и ученицы."
-# text: str = "В нашем классе учатся ученики."
+
+
+text: str = "Солнце пригрело. Побежали ручьи. Прилетели грачи. Птицы выводят птенцов. Весело скачет по лесу заяц.Лисица вышла на охоту и чует" \
+            " добычу. Волчица вывела волчат на поляну. Медведица рычит у берлоги. Над цветами летают бабочки и пчелы. Все рады весне и т.д."
 # слово токенизация
-# words = nltk.word_tokenize(".")
+words = nltk.word_tokenize(text)
 # tags = nltk.pos_tag(words, lang='rus')
-# print(tags)
+print(words)
+
+test = GraphematicAnalysis("../../resource/data/text2.txt")
+test.get_sentences("../../resource/data/test_output.txt")
 
 # токенизация предложения
 # sent = nltk.sent_tokenize(text, language='russian')
@@ -60,6 +67,3 @@ import pymorphy2
 #             #       f"normal_form = {mTag.normal_form}; word = {mTag.word}")
 #             # print(mTag)
 #             print()
-
-parse = nltk.parse.malt.MaltParser()
-parse.
