@@ -56,16 +56,15 @@ class GraphematicAnalysis:
         except FileNotFoundError:
             print("Файл не найден")
             return -1
-        text_new = ""
-        prev_char = ""
-        for idx, char in enumerate(text):  # замена всех слов, которые могут быть инициалама на ничто.
-            if prev_char.isupper() and char == ".":
-                char = ""
-            prev_char = char
-            text_new = text_new + char
+        # text_new = ""
+        # prev_char = ""
+        # for idx, char in enumerate(text):  # замена всех слов, которые могут быть инициалама на ничто.
+        #     if prev_char.isupper() and char == ".":
+        #         char = ""
+        #     prev_char = char
+        #     text_new = text_new + char
         self.__phrase_counters = Counter()
-        self.__sentences = [self.__tokenize_ru(sent) for sent in sent_tokenize(
-            text_new)]  # разбиваем текст на предложения, а их разбиваем на слова испольхуя функцию  tokenize_ru
+        self.__sentences = self.__tokenize_ru(text)  # разбиваем текст на предложения, а их разбиваем на слова испольхуя функцию  tokenize_ru
 
     def __tokenize_ru(self, sent):
         """Приватный метод разбиения предложения на слова.
@@ -82,13 +81,13 @@ class GraphematicAnalysis:
             разбитое на слова предложение
         """
 
-        tokens = word_tokenize(sent)
+        tokens = word_tokenize(sent, language="russian")
 
         tokens = [i for i in tokens if (i not in string.punctuation)]
 
         stop_words = stopwords.words('russian')
         stop_words.extend(['что', 'это', 'так', 'вот', 'быть', 'как', 'в', '—', '–', 'к', 'на',
-                           '...'])  # добавляем в список исключаемых слов новые
+                           '...', 'т.д.', 'т.д'])  # добавляем в список исключаемых слов новые
         tokens = [i for i in tokens if (i not in stop_words)]
         tokens = [i.replace("«", "").replace("»", "").replace("\'\'", "").replace("``", "") for i in tokens]
         for i in tokens:
@@ -113,7 +112,7 @@ class GraphematicAnalysis:
         """
         if file_path:
             try:
-                file = open(file_path, 'w')
+                file = open(file_path, 'w', encoding='utf-8')
             except FileNotFoundError:
                 print("Файл не найден")
                 return -1
@@ -165,7 +164,7 @@ class GraphematicAnalysis:
         """
         if file_path:
             try:
-                file = open(file_path, 'w')
+                file = open(file_path, 'w', encoding='utf-8')
             except FileNotFoundError:
                 print("Файл не найден")
                 return -1
@@ -208,12 +207,13 @@ class GraphematicAnalysis:
 
         if file_path:
             try:
-                file = open(file_path, 'w')
+                file = open(file_path, 'w', encoding='utf-8')
             except FileNotFoundError:
                 print("Файл не найден")
                 return -1
             for element in self.__sentences:
                 file.write(", ".join(element) + "\n")
+            file.close()
             return 0
         else:
             return self.__sentences

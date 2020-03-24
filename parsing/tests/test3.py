@@ -6,24 +6,25 @@ import pymorphy2
 from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 
 # text: str = "В нашем классе учатся самые артистичные ученики и ученицы."
+nltk.download('treebank')
 
-
-text: str = "Солнце пригрело. Побежали ручьи. Прилетели грачи. Птицы выводят птенцов. Весело скачет по лесу заяц.Лисица вышла на охоту и чует" \
-            " добычу. Волчица вывела волчат на поляну. Медведица рычит у берлоги. Над цветами летают бабочки и пчелы. Все рады весне и т.д."
+# text: str = "Солнце пригрело. Побежали ручьи. Прилетели грачи. Птицы выводят птенцов. Весело скачет по лесу заяц.Лисица вышла на охоту и чует" \
+#             " добычу. Волчица вывела волчат на поляну. Медведица рычит у берлоги. Над цветами летают бабочки и пчелы. Все рады весне и т.д."
 # слово токенизация
-words = nltk.word_tokenize(text)
+# words = nltk.word_tokenize(text)
 # tags = nltk.pos_tag(words, lang='rus')
-print(words)
+# print(words)
 
-test = GraphematicAnalysis("../../resource/data/text2.txt")
-test.get_sentences("../../resource/data/test_output.txt")
+# test = GraphematicAnalysis("../../resource/data/text2.txt")
+# test.get_sentences("../../resource/data/test_output.txt")
 
 # токенизация предложения
 # sent = nltk.sent_tokenize(text, language='russian')
 # print(sent)
 
 # morphAnalyzer = pymorphy2.MorphAnalyzer()
-# m = morphAnalyzer.parse('.')
+# m = morphAnalyzer.parse('мама')
+# print(m)
 # for y in m:
 #     print(y.tag.POS)
 #     print(y.tag)
