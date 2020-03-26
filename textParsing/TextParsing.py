@@ -3,15 +3,16 @@
 from nltk4russian.tagger import PMContextTagger
 from nltk4russian.util import read_corpus_to_nltk
 from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
-from nltk import load_parser
+from nltk import load_parser, FreqDist
 from nltk.corpus import treebank
 import pymorphy2
+from pathlib import Path
 
 from parsing.syntax.syntax import MySyntax
 
 morphAnalyzer = pymorphy2.MorphAnalyzer()
 textMedia = '../resource/data/media1.tab'
-textOriginal = "../resource/data/text2.txt"
+textOriginal = "../resource/data/test1.txt"
 textOut = "../resource/data/test_output.txt"
 pathToFileGrammer = "../resource/book_grammars/test.fcfg"
 
@@ -27,25 +28,30 @@ graphemAnaliz = GraphematicAnalysis(textOriginal)
 
 # разбиваем текст на токены
 textTokenz = graphemAnaliz.get_sentences()
+for index, token in enumerate(textTokenz):
+    textTokenz[index] = str.lower(token)
 
 # Применим полученную модель морфологии к предложению
 tagsDict: list = t.tag(textTokenz)
-tagVal: list = [lis[1] for lis in tagsDict]
 
 # СИНТАКСИС
 mySyntax = MySyntax(pathToFileGrammer)
 # Преобразование граматики из вида pymorphy в вид nltk
-mySyntax.pm2fcfg(textTokenz, tagVal, pathToFileGrammer, morphAnalyzer)
+mySyntax.pm2fcfg(tagsDict, pathToFileGrammer, morphAnalyzer)
 # построить синтаксический анализатор
-cp = load_parser(pathToFileGrammer)
-
-# for tree in cp.parse(words1):
+# url_path = Path(pathToFileGrammer).absolute().as_uri()
+cp = load_parser(pathToFileGrammer, trace=1)
+# trees = cp.parse(textTokenz)
+# for tree in trees:
 #     print(tree)
-t = treebank.parsed_sents('wsj_0001.mrg')[1]
-t.draw()
 
 # print()
-# n = cp.parse(words1)
+#Нарисовать график
+# n = cp.parse(textTokenz)
 # for obj in n:
 #     print(obj)
 #     d = obj.draw()
+#Подсчет частоты слов
+freq = FreqDist(textTokenz)
+for key,val in freq.items():
+    print (str(key) + ':' + str(val))

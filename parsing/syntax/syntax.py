@@ -146,94 +146,94 @@ class MySyntax:
         f.close()
 
 
-    def pm2fcfg(self, phrase, tag, pathToFile, morphAnalyz):
+    def pm2fcfg(self,tagsDict, pathToFile, morphAnalyz):
         """
+        //TODO ПЕРЕДАВАТЬ СЛОВАРЬ ВМЕСТО ТЕГОВ. СРАВНИВАТЬ СНАЧАЛА СЛОВА, ПОТОМ ПЕРЕБОР ПО ТЕГАМ.
         функция, которая переводит нужную нам информацию из пайморфи в вид, читаемый парсером NLTK
         принимает (токенизированное) словосочетание на входе, записывает правила (lexical productions) в тот же файл с грамматикой
 
         :param phrase: (токенизированное) словосочетание для разбора (или текст)
         :type phrase: []
-        :param tag: список теггов
-        :type tag: list
+        :param tagsDict: список слов и теггов
+        :type tagsDict: list
         :param pathToFile: файл для записи
         :type pathToFile: File
         :param morphAnalyz: объект морфологического анализатора
         :type morphAnalyz: MorphAnalyzer()
         """
         f = codecs.open(pathToFile, mode="a", encoding="utf-8")
-        for t in tag:
-            tStr = t.replace(',', ' ')
+        for word, tag in tagsDict:
+            tStr = tag.replace(',', ' ')
             tList = tStr.split(' ')
             flag = False
-            for x in phrase:  # массив слов
-                # a - список возможных вариантов морфологического разбора слова, предлагаемых пайморфи
-                # от части речи зависит, какие признаки отправляются в грамматику, отсюда условия
-                a = morphAnalyz.parse(x)
-                for y in a: # y - объект, а - лист
-                    yStr = str(y.tag).replace(',', ' ')
-                    yTagList = yStr.split(' ')
-                    if sorted(tList) == sorted(yTagList):
-                        tagPos = y.tag.POS
-                        if (tagPos == "NOUN") or (tagPos == "ADJF") or (tagPos == "PRTF"):
+            # a - список возможных вариантов морфологического разбора слова, предлагаемых пайморфи
+            # от части речи зависит, какие признаки отправляются в грамматику, отсюда условия
+            a = morphAnalyz.parse(word)
+            for y in a: # y - объект, а - лист
+                yStr = str(y.tag).replace(',', ' ')
+                yTagList = yStr.split(' ')
+                if sorted(tList) == sorted(yTagList):
+                    tagPos = y.tag.POS
+                    if (tagPos == "NOUN") or (tagPos == "ADJF") or (tagPos == "PRTF"):
+                        strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
+                            y.tag.number) + ", PER=3" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    elif (tagPos == "ADJS") or (tagPos == "PRTS"):
+                        strk = str(y.tag.POS) + "[G=" + str(y.tag.gender) + ", NUM=" + str(y.tag.number) + ", NF=u'" + str(
+                            y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    elif (tagPos == "NUMR"):
+                        strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
+                            y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    elif (tagPos == "ADVB") or (tagPos == "GRND") or (tagPos == "COMP") or (tagPos == "PRED") or (
+                            tagPos == "PRCL") or (tagPos == "INTJ"):
+                        strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    elif (tagPos == "PREP") or (tagPos == "CONJ"):
+                        strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                        break
+                    elif (tagPos == "NPRO") & (y.normal_form != "это") & (y.normal_form != "нечего"):
+                        if ((y.tag.person[0] == "3") & (y.tag.number == "sing")):
                             strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
-                                y.tag.number) + ", PER=3" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                        elif (tagPos == "ADJS") or (tagPos == "PRTS"):
-                            strk = str(y.tag.POS) + "[G=" + str(y.tag.gender) + ", NUM=" + str(y.tag.number) + ", NF=u'" + str(
+                                y.tag.number) + ", PER=" + str(y.tag.person)[0] + ", NF=u'" + str(
                                 y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                        elif (tagPos == "NUMR"):
-                            strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
-                                y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                        elif (tagPos == "ADVB") or (tagPos == "GRND") or (tagPos == "COMP") or (tagPos == "PRED") or (
-                                tagPos == "PRCL") or (tagPos == "INTJ"):
-                            strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                        elif (tagPos == "PREP") or (tagPos == "CONJ"):
-                            strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                            break
-                        elif (tagPos == "NPRO") & (y.normal_form != "это") & (y.normal_form != "нечего"):
-                            if ((y.tag.person[0] == "3") & (y.tag.number == "sing")):
-                                strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
-                                    y.tag.number) + ", PER=" + str(y.tag.person)[0] + ", NF=u'" + str(
-                                    y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            else:
-                                strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NUM=" + str(y.tag.number) + ", PER=" + \
-                                       str(y.tag.person)[0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
-                        elif (tagPos == "VERB") or (tagPos == "INFN"):
-                            if (y.tag.tense == "past"):
-                                strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
-                                    y.tag.tense) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
-                                    y.tag.number) + ", PER=" + "0" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
-                                    y.word) + "'\n"
-                            elif (y.tag.POS == "INFN"):
-                                strk = str(y.tag.POS) + "[TR=" + str(
-                                    y.tag.transitivity) + ", TENSE=0, G=0, NUM=0, PER=0, NF=u'" + str(
-                                    y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            else:
-                                strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
-                                    y.tag.tense) + ", G=" + "0" + ", NUM=" + str(y.tag.number) + ", PER=" + str(y.tag.person)[
-                                           0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            flag = True
                         else:
-                            yTag = str(y.tag)
-                            if (yTag == "PUNCT"):
-                                strk = str('NONLEX') + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                                f.writelines(strk)
-                                flag = True
-                                break
-                if flag:
-                    break
+                            strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NUM=" + str(y.tag.number) + ", PER=" + \
+                                   str(y.tag.person)[0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    elif (tagPos == "VERB") or (tagPos == "INFN"):
+                        if (y.tag.tense == "past"):
+                            strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
+                                y.tag.tense) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
+                                y.tag.number) + ", PER=" + "0" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
+                                y.word) + "'\n"
+                        elif (y.tag.POS == "INFN"):
+                            strk = str(y.tag.POS) + "[TR=" + str(
+                                y.tag.transitivity) + ", TENSE=0, G=0, NUM=0, PER=0, NF=u'" + str(
+                                y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        else:
+                            strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
+                                y.tag.tense) + ", G=" + "0" + ", NUM=" + str(y.tag.number) + ", PER=" + str(y.tag.person)[
+                                       0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                        f.writelines(strk)
+                        flag = True
+                    else:
+                        yTag = str(y.tag)
+                        if (yTag == "PUNCT"):
+                            strk = str('NONLEX') + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                            f.writelines(strk)
+                            # flag = True
+                            break
+                    if flag:
+                        break
         f.close()
 
 # s:str = "В нашем классе учатся самые артистичные ученики и ученицы"
