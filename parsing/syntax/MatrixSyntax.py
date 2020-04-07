@@ -1,5 +1,8 @@
 import random
-#источник https://habr.com/ru/post/342162/?amp%3Butm_medium=rss&amp%3Butm_campaign=interesting
+from nltk.parse.pchart import PCFG
+
+
+# https://habr.com/ru/post/342162/?amp%3Butm_medium=rss&amp%3Butm_campaign=interesting
 
 class MatrixSyntax:
 
@@ -20,7 +23,7 @@ class MatrixSyntax:
                 # print("%-4s" % wfst[i][j] , end=''),
             print()
 
-    def complete_wfst(self, wfst, tokens, grammar):
+    def complete_wfst(self, wfst, tokens, grammar: PCFG):
         index = dict((p.rhs(), p.lhs()) for p in grammar.productions())
         numtokens = len(tokens)
         for span in range(2, numtokens + 1):
