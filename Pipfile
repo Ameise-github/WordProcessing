@@ -1,0 +1,15 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+nltk4russian = {file = "https://github.com/Ameise-github/nltk4russian/archive/master.zip"}
+nltk = "*"
+pymorphy2 = "*"
+bs4 = "*"
+
+[requires]
+python_version = "3.7"

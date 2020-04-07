@@ -1,0 +1,89 @@
+{
+    "_meta": {
+        "hash": {
+            "sha256": "a415d7170003826338052645982029e44d0752be0189fd7643877adfc1fc8652"
+        },
+        "pipfile-spec": 6,
+        "requires": {
+            "python_version": "3.7"
+        },
+        "sources": [
+            {
+                "name": "pypi",
+                "url": "https://pypi.org/simple",
+                "verify_ssl": true
+            }
+        ]
+    },
+    "default": {
+        "beautifulsoup4": {
+            "hashes": [
+                "sha256:594ca51a10d2b3443cbac41214e12dbb2a1cd57e1a7344659849e2e20ba6a8d8",
+                "sha256:a4bbe77fd30670455c5296242967a123ec28c37e9702a8a81bd2f20a4baf0368",
+                "sha256:d4e96ac9b0c3a6d3f0caae2e4124e6055c5dcafde8e2f831ff194c104f0775a0"
+            ],
+            "version": "==4.9.0"
+        },
+        "bs4": {
+            "hashes": [
+                "sha256:36ecea1fd7cc5c0c6e4a1ff075df26d50da647b75376626cc186e2212886dd3a"
+            ],
+            "index": "pypi",
+            "version": "==0.0.1"
+        },
+        "dawg-python": {
+            "hashes": [
+                "sha256:4941d5df081b8d6fcb4597e073a9f60d5c1ccc9d17cd733e8744d7ecfec94ef3",
+                "sha256:4a5e3286e6261cca02f205cfd5516a7ab10190fa30c51c28d345808f595e3421"
+            ],
+            "version": "==0.7.2"
+        },
+        "docopt": {
+            "hashes": [
+                "sha256:49b3a825280bd66b3aa83585ef59c4a8c82f2c8a522dbe754a8bc8d08c85c491"
+            ],
+            "version": "==0.6.2"
+        },
+        "nltk": {
+            "hashes": [
+                "sha256:bed45551259aa2101381bbdd5df37d44ca2669c5c3dad72439fa459b29137d94"
+            ],
+            "index": "pypi",
+            "version": "==3.4.5"
+        },
+        "nltk4russian": {
+            "file": "https://github.com/Ameise-github/nltk4russian/archive/master.zip"
+        },
+        "pymorphy2": {
+            "hashes": [
+                "sha256:3092c21f5e6f78a3a2fa54011236f975cbff8df29827ed6661cf4bde9aacdb8f",
+                "sha256:549a1141abe01093242b9e11a1f60110ee4818f7fe57c9bb363e504339f382f5"
+            ],
+            "index": "pypi",
+            "version": "==0.8"
+        },
+        "pymorphy2-dicts": {
+            "hashes": [
+                "sha256:70d3e33fa28108a2dfcded787c7a5946c6ab88bb669b3afb20f8c447aadec924",
+                "sha256:be7c6402b5f0919c1c942f07f89a7f53c70f6266a035fa0a561b23807ac79e4a",
+                "sha256:d563f2c7673fc28583550780e21440764eb0168b57d498ec07e346da70ce0b3c"
+            ],
+            "version": "==2.4.393442.3710985"
+        },
+        "six": {
+            "hashes": [
+                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
+                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
+            ],
+            "version": "==1.14.0"
+        },
+        "soupsieve": {
+            "hashes": [
+                "sha256:e914534802d7ffd233242b785229d5ba0766a7f487385e3f714446a07bf540ae",
+                "sha256:fcd71e08c0aee99aca1b73f45478549ee7e7fc006d51b37bec9e9def7dc22b69"
+            ],
+            "version": "==2.0"
+        }
+    },
+    "develop": {}
+}
