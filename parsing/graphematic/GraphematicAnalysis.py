@@ -87,7 +87,7 @@ class GraphematicAnalysis:
 
         stop_words = stopwords.words('russian')
         stop_words.extend(['что', 'это', 'так', 'вот', 'быть', 'как', '—', '–', 'к', 'на',
-                           '...', 'т.д.', 'т.д'])  # добавляем в список исключаемых слов новые
+                           '...', 'т.д.', 'т.д', 'т.к.'])  # добавляем в список исключаемых слов новые
         tokens = [i for i in tokens if (i not in stop_words)]
         tokens = [i.replace("«", "").replace("»", "").replace("\'\'", "").replace("``", "") for i in tokens]
         for i in tokens:

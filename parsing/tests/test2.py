@@ -267,10 +267,10 @@ def read_file(file):
     '''читать текстовый файл'''
     #    print(file)
     try:
-        f = open(file, 'r')
+        f = open(file, 'r',encoding='utf-8')
         text = f.read()
     except:
-        f = open(file, encoding='UTF8')
+        f = open(file, encoding='utf-8')
         text = f.read()
     f.close()
     return text
@@ -323,4 +323,28 @@ def analyze(file):
     return words_norm_filter
 
 
-analyze("../../resource/data/Evgeniy_Onegin.txt")
+# analyze("../../resource/data/Evgeniy_Onegin.txt")
+file="../../resource/data/test1.txt"
+# считать файл
+text = read_file(file)
+# токенизация предложения
+sents = sent_tokenize(text)
+# слово токенизация
+words = word_tokenize(text)
+#делает морфологический анализ
+words_norm, POS = normalize(words)
+v = normalize(words)
+# фильтр
+words_norm_filter = apply_filter(words_norm, filter_stops)
+# фильтр
+words_filter = apply_filter(words, filter_stops)
+print("sents:  \t" + str(sents))
+print("words:  \t" + str(words))
+print("words_norm_filter: \t" + str(words_norm_filter))
+print("words_filter: \t" + str(words_filter))
+print("POS:  \t")
+for p in v:
+    # for w1 in w:
+    #     print(w1)
+    for p1 in p:
+        print(p1)

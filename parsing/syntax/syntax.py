@@ -38,14 +38,14 @@ class MySyntax:
         f.writelines("S[-inv] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]\n")
         f.writelines("S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=0, G=?g]\n")
         f.writelines("S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]\n")
-        # f.writelines("S[-inv, +1] -> NP[C=nomn, NUM=plur, PER=?p] VP[NUM=?n, PER=0, G=None]\n")
+        f.writelines("S[-inv, +1] -> NP[C=nomn, NUM=plur, PER=?p] VP[NUM=?n, PER=0, G=None]\n")
         f.writelines("S[+adj] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] AdjP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[-inv] -> NUMRNP[C=nomn] VP\n")
         f.writelines("S[+inv] -> VP[NUM=?n, PER=0, G=?g] NP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[+inv] -> VP[NUM=?n, PER=?p, G=0] NP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[+advp] -> AdvP S[+advp]\n")
         f.writelines("S[+advp] -> NP[C=gent, NUM=?n, PER=?p, G=?g] AdvP\n")
-        # f.writelines("S[+infn] -> VP[+infn] VP\n")
+        f.writelines("S[+infn] -> VP[+infn] VP\n")
         f.writelines("S[+predp] -> NP[C=datv] PREDP\n")
         f.writelines("S[+comp] -> NP[C=datv] COMP\n")
 
@@ -55,7 +55,7 @@ class MySyntax:
         f.writelines("S[+S] -> S ',' S\n")
         f.writelines("S[+S] -> S ',' VP\n")
 
-        # f.writelines("S[+advp] -> NP[C=datv, NUM=?n, PER=?p, G=?g] VP[+advp]\n")
+        f.writelines("S[+advp] -> NP[C=datv, NUM=?n, PER=?p, G=?g] VP[+advp]\n")
 
         f.writelines("PREDP -> PREDP  VP[TR=?tr, NUM=0, PER=0, G=0]\n")
         f.writelines("PREDP -> AdvP PREDP\n")
@@ -77,7 +77,7 @@ class MySyntax:
 
         f.writelines("AdvP[+conj] -> AdvP CONJ AdvP\n")  # ОДНОР_НАР
         f.writelines("AdvP[+numr] -> AdvP NUMRNP\n")
-        # f.writelines("AdvP -> ADVB ADVB\n")
+        f.writelines("AdvP -> ADVB ADVB\n")
         f.writelines("AdvP -> ADVB AdvP\n")
         f.writelines("AdvP -> ADVB\n")
         f.writelines("PrtfP[C=?c, G=?g, NUM=?n] -> PRTF[C=?c, G=?g, NUM=?n]\n")
@@ -124,7 +124,7 @@ class MySyntax:
         f.writelines("VP[+numr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VP[TENSE=?t, G=?g, NUM=?n, PER=?p] NUMRNP\n")
         f.writelines("VP[+neg, TENSE=?t, G=?g, NUM=?n, PER=?p] -> 'не' VP[TENSE=?t, G=?g, NUM=?n, PER=?p]\n")
         f.writelines("VP[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VERB[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p]\n")
-        # f.writelines("VP[+infn] -> VP VP[+infn]\n")
+        f.writelines("VP[+infn] -> VP VP[+infn]\n")
 
         f.writelines(
             "AdjP[+advb, C=?c, G=?g, NUM=?n] -> AdvP AdjP[C=?c, G=?g, NUM=?n]\n")  # наречие + прилагательное (НАР_ПРИЛ)
@@ -148,7 +148,6 @@ class MySyntax:
 
     def pm2fcfg(self,tagsDict, pathToFile, morphAnalyz):
         """
-        //TODO ПЕРЕДАВАТЬ СЛОВАРЬ ВМЕСТО ТЕГОВ. СРАВНИВАТЬ СНАЧАЛА СЛОВА, ПОТОМ ПЕРЕБОР ПО ТЕГАМ.
         функция, которая переводит нужную нам информацию из пайморфи в вид, читаемый парсером NLTK
         принимает (токенизированное) словосочетание на входе, записывает правила (lexical productions) в тот же файл с грамматикой
 
@@ -170,69 +169,74 @@ class MySyntax:
             # от части речи зависит, какие признаки отправляются в грамматику, отсюда условия
             a = morphAnalyz.parse(word)
             for y in a: # y - объект, а - лист
+                y_word = str(y.word).replace('ё', 'е')
+                y_normal_form = str(y.normal_form).replace('ё', 'е')
+
                 yStr = str(y.tag).replace(',', ' ')
                 yTagList = yStr.split(' ')
                 if sorted(tList) == sorted(yTagList):
+                    strk = ""
                     tagPos = y.tag.POS
                     if (tagPos == "NOUN") or (tagPos == "ADJF") or (tagPos == "PRTF"):
                         strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
-                            y.tag.number) + ", PER=3" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                            y.tag.number) + ", PER=3" + ", NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     elif (tagPos == "ADJS") or (tagPos == "PRTS"):
                         strk = str(y.tag.POS) + "[G=" + str(y.tag.gender) + ", NUM=" + str(y.tag.number) + ", NF=u'" + str(
-                            y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                            y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     elif (tagPos == "NUMR"):
-                        strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
-                            y.word) + "'\n"
-                        f.writelines(strk)
+                        strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NF=u'" + str(y_normal_form) + "'] -> '" + str(
+                            y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     elif (tagPos == "ADVB") or (tagPos == "GRND") or (tagPos == "COMP") or (tagPos == "PRED") or (
                             tagPos == "PRCL") or (tagPos == "INTJ"):
-                        strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                        strk = str(y.tag.POS) + "[NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     elif (tagPos == "PREP") or (tagPos == "CONJ"):
-                        strk = str(y.tag.POS) + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                        strk = str(y.tag.POS) + "[NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
-                        break
-                    elif (tagPos == "NPRO") & (y.normal_form != "это") & (y.normal_form != "нечего"):
+                        # break
+                    elif (tagPos == "NPRO") & (y_normal_form != "это") & (y_normal_form != "нечего"):
                         if ((y.tag.person[0] == "3") & (y.tag.number == "sing")):
                             strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
                                 y.tag.number) + ", PER=" + str(y.tag.person)[0] + ", NF=u'" + str(
-                                y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                                y_normal_form) + "'] -> '" + str(y_word) + "'\n"
                         else:
                             strk = str(y.tag.POS) + "[C=" + str(y.tag.case) + ", NUM=" + str(y.tag.number) + ", PER=" + \
-                                   str(y.tag.person)[0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                                   str(y.tag.person)[0] + ", NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     elif (tagPos == "VERB") or (tagPos == "INFN"):
                         if (y.tag.tense == "past"):
                             strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
                                 y.tag.tense) + ", G=" + str(y.tag.gender) + ", NUM=" + str(
-                                y.tag.number) + ", PER=" + "0" + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(
-                                y.word) + "'\n"
+                                y.tag.number) + ", PER=" + "0" + ", NF=u'" + str(y_normal_form) + "'] -> '" + str(
+                                y_word) + "'\n"
                         elif (y.tag.POS == "INFN"):
                             strk = str(y.tag.POS) + "[TR=" + str(
                                 y.tag.transitivity) + ", TENSE=0, G=0, NUM=0, PER=0, NF=u'" + str(
-                                y.normal_form) + "'] -> '" + str(y.word) + "'\n"
+                                y_normal_form) + "'] -> '" + str(y_word) + "'\n"
                         else:
                             strk = str(y.tag.POS) + "[TR=" + str(y.tag.transitivity) + ", TENSE=" + str(
                                 y.tag.tense) + ", G=" + "0" + ", NUM=" + str(y.tag.number) + ", PER=" + str(y.tag.person)[
-                                       0] + ", NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                        f.writelines(strk)
+                                       0] + ", NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                        # f.writelines(strk)
                         flag = True
                     else:
                         yTag = str(y.tag)
                         if (yTag == "PUNCT"):
-                            strk = str('NONLEX') + "[NF=u'" + str(y.normal_form) + "'] -> '" + str(y.word) + "'\n"
-                            f.writelines(strk)
-                            # flag = True
-                            break
+                            strk = str('NONLEX') + "[NF=u'" + str(y_normal_form) + "'] -> '" + str(y_word) + "'\n"
+                            # f.writelines(strk)
+                            flag = True
+                            # break
                     if flag:
+                        f.writelines(strk)
                         break
         f.close()
 

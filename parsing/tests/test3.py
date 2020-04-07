@@ -6,7 +6,7 @@ import pymorphy2
 from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 
 # text: str = "В нашем классе учатся самые артистичные ученики и ученицы."
-nltk.download('treebank')
+# nltk.download('treebank')
 
 # text: str = "Солнце пригрело. Побежали ручьи. Прилетели грачи. Птицы выводят птенцов. Весело скачет по лесу заяц.Лисица вышла на охоту и чует" \
 #             " добычу. Волчица вывела волчат на поляну. Медведица рычит у берлоги. Над цветами летают бабочки и пчелы. Все рады весне и т.д."
@@ -68,3 +68,7 @@ nltk.download('treebank')
 #             #       f"normal_form = {mTag.normal_form}; word = {mTag.word}")
 #             # print(mTag)
 #             print()
+
+#Просмотр стоп-слов
+tokens = nltk.corpus.stopwords.words('russian')
+print(tokens)

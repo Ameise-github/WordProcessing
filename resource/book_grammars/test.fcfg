@@ -15,12 +15,14 @@ S[-inv] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=0, G=?g]
 S[-inv] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]
 S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=0, G=?g]
 S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]
+S[-inv, +1] -> NP[C=nomn, NUM=plur, PER=?p] VP[NUM=?n, PER=0, G=None]
 S[+adj] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] AdjP[C=nomn, NUM=?n, PER=?p, G=?g]
 S[-inv] -> NUMRNP[C=nomn] VP
 S[+inv] -> VP[NUM=?n, PER=0, G=?g] NP[C=nomn, NUM=?n, PER=?p, G=?g]
 S[+inv] -> VP[NUM=?n, PER=?p, G=0] NP[C=nomn, NUM=?n, PER=?p, G=?g]
 S[+advp] -> AdvP S[+advp]
 S[+advp] -> NP[C=gent, NUM=?n, PER=?p, G=?g] AdvP
+S[+infn] -> VP[+infn] VP
 S[+predp] -> NP[C=datv] PREDP
 S[+comp] -> NP[C=datv] COMP
 S -> CONJ S
@@ -28,6 +30,7 @@ S -> NP[C=nomn, NUM=?n] '-' NP[C=nomn, NUM=?n]
 S[+S] -> S ',' CONJ S
 S[+S] -> S ',' S
 S[+S] -> S ',' VP
+S[+advp] -> NP[C=datv, NUM=?n, PER=?p, G=?g] VP[+advp]
 PREDP -> PREDP  VP[TR=?tr, NUM=0, PER=0, G=0]
 PREDP -> AdvP PREDP
 PREDP -> PRED
@@ -45,6 +48,7 @@ PP[+advb] -> AdvP PP
 PP -> PP AdvP
 AdvP[+conj] -> AdvP CONJ AdvP
 AdvP[+numr] -> AdvP NUMRNP
+AdvP -> ADVB ADVB
 AdvP -> ADVB AdvP
 AdvP -> ADVB
 PrtfP[C=?c, G=?g, NUM=?n] -> PRTF[C=?c, G=?g, NUM=?n]
@@ -78,6 +82,7 @@ VP[+comp, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VP[TENSE=?t, G=?g, NUM=?n, PER=?p] 
 VP[+numr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VP[TENSE=?t, G=?g, NUM=?n, PER=?p] NUMRNP
 VP[+neg, TENSE=?t, G=?g, NUM=?n, PER=?p] -> 'не' VP[TENSE=?t, G=?g, NUM=?n, PER=?p]
 VP[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VERB[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p]
+VP[+infn] -> VP VP[+infn]
 AdjP[+advb, C=?c, G=?g, NUM=?n] -> AdvP AdjP[C=?c, G=?g, NUM=?n]
 AdjP[+advb, C=?c, G=?g, NUM=?n] -> AdjP[C=?c, G=?g, NUM=?n] PP
 AdjP[C=?c, G=?g, NUM=?n, +conj] -> AdjP[C=?c, G=?g, NUM=?n] CONJ AdjP[C=?c, G=?g, NUM=?n]
@@ -94,14 +99,20 @@ CONJP[+vp] -> CONJ VP
 
 
 PREP[NF=u'в'] -> 'в'
-ADJF[C=loct, G=masc, NUM=sing, PER=3, NF=u'наш'] -> 'нашем'
+ADJF[C=loct, G=masc, NUM=sing, PER=3, NF=u'соседний'] -> 'соседнем'
 NOUN[C=loct, G=masc, NUM=sing, PER=3, NF=u'двор'] -> 'дворе'
 VERB[TR=intr, TENSE=past, G=masc, NUM=sing, PER=0, NF=u'расти'] -> 'рос'
 ADJF[C=nomn, G=masc, NUM=sing, PER=3, NF=u'маленький'] -> 'маленький'
 ADJF[C=nomn, G=masc, NUM=sing, PER=3, NF=u'одинокий'] -> 'одинокий'
 NOUN[C=nomn, G=masc, NUM=sing, PER=3, NF=u'одуванчик'] -> 'одуванчик'
-ADJF[C=accs, G=masc, NUM=sing, PER=3, NF=u'этот'] -> 'этот'
-NOUN[C=nomn, G=masc, NUM=sing, PER=3, NF=u'одуванчик'] -> 'одуванчик'
-VERB[TR=tran, TENSE=past, G=None, NUM=plur, PER=0, NF=u'любить'] -> 'любили'
-NOUN[C=datv, G=femn, NUM=plur, PER=3, NF=u'маленькая'] -> 'маленьким'
-ADJF[C=ablt, G=masc, NUM=sing, PER=3, NF=u'одинокий'] -> 'одиноким'
+NPRO[C=nomn, G=masc, NUM=sing, PER=3, NF=u'он'] -> 'он'
+VERB[TR=intr, TENSE=past, G=masc, NUM=sing, PER=0, NF=u'тянуться'] -> 'тянулся'
+NOUN[C=datv, G=neut, NUM=sing, PER=3, NF=u'солнце'] -> 'солнцу'
+ADJF[C=ablt, G=None, NUM=plur, PER=3, NF=u'свой'] -> 'своими'
+ADJF[C=ablt, G=None, NUM=plur, PER=3, NF=u'зеленый'] -> 'зелеными'
+NOUN[C=ablt, G=masc, NUM=plur, PER=3, NF=u'лист'] -> 'листьями'
+NPRO[C=accs, G=masc, NUM=sing, PER=3, NF=u'он'] -> 'его'
+NOUN[C=nomn, G=masc, NUM=plur, PER=3, NF=u'лист'] -> 'листья'
+PRTS[G=None, NUM=plur, NF=u'напитать'] -> 'напитаны'
+ADJF[C=gent, G=femn, NUM=sing, PER=3, NF=u'зеленый'] -> 'зеленой'
+NOUN[C=ablt, G=femn, NUM=sing, PER=3, NF=u'жижа'] -> 'жижей'
