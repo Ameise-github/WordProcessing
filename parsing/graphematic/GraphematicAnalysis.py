@@ -63,8 +63,9 @@ class GraphematicAnalysis:
         #         char = ""
         #     prev_char = char
         #     text_new = text_new + char
+
         self.__phrase_counters = Counter()
-        self.__sentences = self.__tokenize_ru(text)  # разбиваем текст на предложения, а их разбиваем на слова испольхуя функцию  tokenize_ru
+        self.__sentences = self.__tokenize_ru(text.lower())  # разбиваем текст на предложения, а их разбиваем на слова испольхуя функцию  tokenize_ru
 
     def __tokenize_ru(self, sent):
         """Приватный метод разбиения предложения на слова.
@@ -80,7 +81,7 @@ class GraphematicAnalysis:
         :return tuple
             разбитое на слова предложение
         """
-
+        #TODO слова из текста сначала лемматизироать, затем прогонять через токены или наоборот
         tokens = word_tokenize(sent, language="russian")
 
         tokens = [i for i in tokens if (i not in string.punctuation)]
