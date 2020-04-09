@@ -324,7 +324,7 @@ def analyze(file):
 
 
 # analyze("../../resource/data/Evgeniy_Onegin.txt")
-file= "../resource/data/test1.txt"
+file= "../resource/data/text1.txt"
 # считать файл
 text = read_file(file)
 # токенизация предложения

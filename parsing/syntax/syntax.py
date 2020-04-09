@@ -160,6 +160,7 @@ class MySyntax:
         :param morphAnalyz: объект морфологического анализатора
         :type morphAnalyz: MorphAnalyzer()
         """
+        tokenPos = []
         f = codecs.open(pathToFile, mode="a", encoding="utf-8")
         for word, tag in tagsDict:
             tStr = tag.replace(',', ' ')
@@ -237,8 +238,10 @@ class MySyntax:
                             # break
                     if flag:
                         f.writelines(strk)
+                        tokenPos.append(y)
                         break
         f.close()
+        return tokenPos
 
 # s:str = "В нашем классе учатся самые артистичные ученики и ученицы"
 # сюда пишется словосочетание для разбора

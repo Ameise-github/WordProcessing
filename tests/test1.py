@@ -98,7 +98,5 @@ display(wfst1, tokens)
     # ptree = nltk.tree.ParentedTree.convert(tree)
     # print(ptree)
 
-#Подсчет частоты слов
-# freq = FreqDist(textTokenz)
-# for key,val in freq.items():
-#     print (str(key) + ':' + str(val))
+
+
