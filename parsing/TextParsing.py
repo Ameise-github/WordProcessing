@@ -4,27 +4,22 @@ from nltk4russian.tagger import PMContextTagger
 from nltk4russian.util import read_corpus_to_nltk
 from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 from nltk import load_parser, FreqDist, parse
-from parsing.syntax.MatrixSyntax import MatrixSyntax
 import pymorphy2
 from pathlib import Path
+from parsing.semantic.Models import Models
 import nltk
 # Gensim
-import gensim
-import gensim.corpora as corpora
-from gensim.utils import simple_preprocess
-from gensim.models import CoherenceModel
-# Визуализация модели LDA
-import pyLDAvis
-import pyLDAvis.gensim
+from gensim.matutils import hellinger, jaccard
 
+from parsing.syntax.MatrixSyntax import MatrixSyntax
 from parsing.syntax.syntax import MySyntax
 
 trainText = '../resource/data/trainText.tab'
-textOriginal1 = "../resource/data/text3.txt"
-textOriginal2 = "../resource/data/text1.txt"
+textOriginal1 = "../resource/data/text1.txt"
+textOriginal2 = "../resource/data/text3.txt"
 textOriginal3 = "../resource/data/text2.txt"
 textOut = "../resource/data/test_output.txt"
-pathToFileGrammer = "../resource/book_grammars/test.fcfg"
+pathToFileGrammer = "../resource/book_grammars/grammarRU.fcfg"
 
 
 def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer):
@@ -63,7 +58,7 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
     # Перевести строковое значение в значение URL
     url_path = Path(pathToFileGrammer).absolute().as_uri()
     # построить синтаксический анализатор
-    # cp = load_parser(url_path, trace=1)
+    cp = load_parser(url_path, trace=1)
     # Получить синтаксическое дерево
     # trees = cp.parse(textTokenz)
     # for tree in trees:
@@ -75,16 +70,48 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
     for tokenPos in tokenPosList:
         freq_dist_lem_list.append(freq_dist_dic(tokenPos))
 
-    # Получение матрицы синтаксического дерева. ПО статье хабра получение матрицы WFST
-    # grammar = cp.grammar()
-    # grammar.productions()
-    # matrixSyntax = MatrixSyntax()
-    # wfst0 = matrixSyntax.init_wfst(textTokenz, grammar)
-    # wfst1 = matrixSyntax.complete_wfst(wfst0, textTokenz, grammar)
-    # matrixSyntax.display(wfst0, textTokenz)
+    # Пулучение списка лемм
+    data_lemmatized_list = []
+    for tokenPosL in tokenPosList:
+        data_lemmatized_list.append(get_lema_list(tokenPosL))
 
-    # Тема текста
-    theme_text_LDA(textTokenzList, tokenPosList)
+    # Модель LDA для поиска темы в тексте текста
+    models = Models()
+    model_LDA = models.text_LDA(textTokenzList, data_lemmatized_list)
+
+    #Сравнить первый документ(эталон) с другим(и)
+    #Получить мешок слов
+    bow_doc0 = model_LDA.id2word.doc2bow(data_lemmatized_list[0])
+    for i in range(1, len(data_lemmatized_list)):
+        bow_doc_tmp = model_LDA.id2word.doc2bow(data_lemmatized_list[i])
+        # Сравнить документы по моделям LDA
+        index_jaccard = jaccard(bow_doc0, bow_doc_tmp)
+        #Если индекс не больше 0.6 (взяли с потолка) то ищем энтропию
+        if index_jaccard <= 0.6:
+            # print("Документ под номером " + str(i) + " подходит. jaccard  = " + str(index_jaccard))
+            # Получение матрицы синтаксического дерева. ПО статье хабра получение матрицы WFST
+            grammar = cp.grammar()
+            # grammar.productions()
+            matrixSyntax = MatrixSyntax()
+            wfst0 = matrixSyntax.init_wfst(textTokenz, grammar)
+            wfst1 = matrixSyntax.complete_wfst(wfst0, textTokenz, grammar)
+            matrixSyntax.display(wfst0, textTokenz)
+        else:print("текста не равны")
+
+    #Или можно исолзовать этот способ, обределяет подобие точно
+    #Model LSI точно определяет подобие документов чем больше чем лучше, если = 1 то текста равны
+    # model_LSI, index = models.text_LSI(data_lemmatized_list)
+    # vec_doc1 = model_LSI.id2word.doc2bow(data_lemmatized_list[1])
+    # vec_lsi = model_LSI[vec_doc1]  # convert the query to LSI space
+    # sims = index[vec_lsi]  # выполнить запрос сходства с корпусом
+    # print("LSI matrix")
+    # # pprint(list(enumerate(sims)))  # print (document_number, document_similarity) 2-tuples
+    # #Отсортировать в порядке убывания
+    # sims = sorted(enumerate(sims), key=lambda item: -item[1])
+    # for i, s in enumerate(sims):
+    #     print(s, textOriginalList[i])
+
+
 
     # return textTokenz, wfst1
 
@@ -100,95 +127,6 @@ def freq_dist_dic(tokenPosList):
     for k, v in freq_dist_pos.items():
         freq_dist_lem[k] = v / len(freq_dist_pos)
     return freq_dist_lem
-
-
-# Тема текстов метод LDA
-def theme_text_LDA(data_words_tokens, tokenPosList):
-    """
-    Определение темы текстов
-    :param data_words_tokens: лист токенов из тектов
-    :return:
-    """
-    # Модель для получения биграмм и триграмм
-    bigram = gensim.models.Phrases(data_words_tokens, min_count=10, threshold=100)  # выше threshold .
-    trigram = gensim.models.Phrases(bigram[data_words_tokens], threshold=100)
-    # Более быстрый способ получить предложение, разабитое как триграмма / биграмма
-    bigram_mod = gensim.models.phrases.Phraser(bigram)
-    trigram_mod = gensim.models.phrases.Phraser(trigram)
-    # Получение биграмм
-    data_words_bigrams = make_bigrams(data_words_tokens, bigram_mod)
-
-    # Пулучение списка лемм
-    data_lemmatized_list = []
-    for tokenPosL in tokenPosList:
-        data_lemmatized_list.append(get_lema_list(tokenPosL))
-
-    # Создание словаря
-    id2word = corpora.Dictionary(data_lemmatized_list)
-    # Создание корпуса
-    # Частота слов в документах
-    corpus = [id2word.doc2bow(text) for text in data_lemmatized_list]
-    # Построение LDA модели
-    # num_topics = количество запрошенных скрытых тем, которые нужно извлечь из учебного корпуса.
-    # random_state = 100,
-    # update_every = 1, количество документов, которые будут повторяться для каждого обновления
-    # chunksize = 100, это количество документов, которые будут использоваться в каждом обучающем чанке
-    # passes = 10, общее количество проходов обучения
-    # alpha = 'auto', гиперпараметр, которые влияют на разреженность тем
-    # per_word_topics = True модель вычисляет список тем, отсортированных в порядке убывания наиболее вероятных тем для каждого слова, вместе с их значениями ph, умноженными на длину элемента (то есть количество слов).
-    lda_model = gensim.models.ldamodel.LdaModel(corpus=corpus,
-                                                id2word=id2word,
-                                                num_topics=len(data_words_tokens),
-                                                random_state=100,
-                                                update_every=1,
-                                                chunksize=50,
-                                                passes=10,
-                                                alpha='auto',
-                                                per_word_topics=True)
-    # Доминирующая тема в тексте
-    dom_topics = format_topics_sentences(lda_model, corpus)
-
-    # Вывод
-    # Читаемый человеком формат корпуса (термин-частота)
-    # print([[(id2word[id], freq) for id, freq in cp] for cp in corpus])
-    # ключевые слова для каждой темы и вес (важность) каждого ключевого слова
-    # print(lda_model.print_topics())
-    # Визуализация модели LDA
-    # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
-    # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
-
-    print(dom_topics)
-    return lda_model
-
-
-# Поиск доминирующей темы в документе
-def format_topics_sentences(ldamodel, corpus, texts_docs=None):
-    #TODO спросить у Вани про sorted
-    sent_topics = []
-    # Получить основную тему в каждом документе
-    for i, row in enumerate(ldamodel[corpus]):
-        # Сортируем в порядке убывания
-        row = sorted(row, key=lambda x: (x[1]), reverse=True)
-        # Получить Perc Contribution and ключевые слова(Keywords) для каждого документа
-        for j, (topic_num, prop_topic) in enumerate(row):
-            if j == 0:  # => доминирующая тема
-                wp = ldamodel.show_topic(topic_num)
-                topic_keywords = ", ".join([word for word, prop in wp])
-                s = [int(topic_num), round(prop_topic, 4), topic_keywords]
-                sent_topics.append(s)
-            else:
-                break
-    return sent_topics
-
-
-# Получение биграмм
-def make_bigrams(docsTokenList, bigram_mod):
-    return [bigram_mod[docToken] for docToken in docsTokenList]
-
-
-# Получение триграмм
-def make_trigrams(docs, bigram_mod, trigram_mod):
-    return [trigram_mod[bigram_mod[doc]] for doc in docs]
 
 
 # Лемматизация слов

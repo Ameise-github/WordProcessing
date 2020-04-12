@@ -9,7 +9,7 @@ class MySyntax:
         # загружаем PyMorphy2
         # self.m = pm.MorphAnalyzer()
         # открываем (создаем)файл с грамматикой, куда будут записываться правила
-        # self.f = codecs.open("../resource/book_grammars/test.fcfg", mode="w", encoding="utf-8")
+        # self.f = codecs.open("../resource/book_grammars/grammarRU.fcfg", mode="w", encoding="utf-8")
         self.pathToFile = pathToFile
         self.regulationsInFile(self.pathToFile)
 
@@ -252,7 +252,7 @@ class MySyntax:
 # запускаем функцию, описанную выше
 # pm2fcfg(words)
 # построить синтаксический анализатор
-# cp = load_parser('../resource/book_grammars/test.fcfg', trace=1)
+# cp = load_parser('../resource/book_grammars/grammarRU.fcfg', trace=1)
 
 # for tree in cp.parse(words):
 #     print(tree)

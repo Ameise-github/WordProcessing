@@ -44,8 +44,8 @@ def complete_wfst(wfst, tokens, grammar):
     return wfst
 
 
-# grammar = nltk.data.load('file:D:/Projects/ProjectPython/WordProcessing/resource/book_grammars/test.fcfg')
-grammar_file='D:/Projects/ProjectPython/WordProcessing/resource/book_grammars/test.fcfg'
+# grammar = nltk.data.load('file:D:/Projects/ProjectPython/WordProcessing/resource/book_grammars/grammarRU.fcfg')
+grammar_file= '/resource/book_grammars/grammarRU.fcfg'
 cp = nltk.parse.load_parser('file:'+grammar_file, trace=1)
 grammar = cp.grammar()
 # ChartParser
@@ -89,7 +89,7 @@ display(wfst1, tokens)
 #     print(obj)
 #     d = obj.draw()
 #
-# grammar = nltk.data.load('file:D:/Projects/ProjectPython/WordProcessing/resource/book_grammars/test.fcfg')
+# grammar = nltk.data.load('file:D:/Projects/ProjectPython/WordProcessing/resource/book_grammars/grammarRU.fcfg')
 # parser = parse.FeatureEarleyChartParser(grammar)
 # trees = parser.parse(textTokenz)
 # for tree in trees:
