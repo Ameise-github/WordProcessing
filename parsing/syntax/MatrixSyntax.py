@@ -7,6 +7,12 @@ from nltk.parse.pchart import PCFG
 class MatrixSyntax:
 
     def init_wfst(self, tokens, grammar):
+        """
+
+        :param tokens: лист токенов
+        :param grammar: грамматика которая используется для
+        :return:
+        """
         numtokens = len(tokens)
         wfst = [[None for i in range(numtokens + 1)] for j in range(numtokens + 1)]
         for i in range(numtokens):

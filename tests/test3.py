@@ -43,18 +43,6 @@ from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 #     print(i.tag)
 # print()
 
-# Читаем подкорпус НКРЯ из файла с разделителем-табуляцией
-# with open('../data/media1.tab', encoding='utf-8') as f:
-#     sents = list(read_corpus_to_nltk(f))
-# # Обучаем контекстный теггер на получившемся наборе предложений:
-# t = PMContextTagger(train=sents, type_="full")
-# tagsDict: list = t.tag(words)
-# for w, tag in tagsDict:
-#     print(w, morphAnalyzer.lat2cyr(tag))
-#     print(w, tag)
-# val: list = [lis[1] for lis in tagsDict]
-# print(val)
-
 # for w, tag in tagsDict:
 #     # tagStr: str = tag
 #     tagStr = tag.replace(',', ' ')

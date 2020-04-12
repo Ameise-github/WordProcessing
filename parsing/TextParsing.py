@@ -7,7 +7,7 @@ from nltk import load_parser, FreqDist, parse
 import pymorphy2
 from pathlib import Path
 from parsing.semantic.Models import Models
-import nltk
+import numpy
 # Gensim
 from gensim.matutils import hellinger, jaccard
 
@@ -93,6 +93,7 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
             grammar = cp.grammar()
             # grammar.productions()
             matrixSyntax = MatrixSyntax()
+
             wfst0 = matrixSyntax.init_wfst(textTokenz, grammar)
             wfst1 = matrixSyntax.complete_wfst(wfst0, textTokenz, grammar)
             matrixSyntax.display(wfst0, textTokenz)
@@ -140,6 +141,16 @@ def get_lema_list(tokenPosList):
     for token in tokenPosList:
         lema_list.append(token.normal_form)
     return lema_list
+
+
+#Вычисление энтропии
+def entropy(matrix_probability):
+    s = 0
+    for row in matrix_probability:
+        for elem in row:
+            if(elem != 0):
+                s += elem * numpy.log2(elem)
+    return -s
 
 
 def main():
