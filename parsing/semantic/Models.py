@@ -6,6 +6,7 @@ from collections import defaultdict
 import pyLDAvis
 import pyLDAvis.gensim
 
+import numpy as np
 
 
 class Models:
@@ -50,6 +51,7 @@ class Models:
                                                     passes=10,
                                                     alpha='auto',
                                                     per_word_topics=True)
+        tfidf = models.TfidfModel(corpus)
         # Вывод для проверки
         # Читаемый человеком формат корпуса (термин-частота)
         # print([[(id2word[id], freq) for id, freq in cp] for cp in corpus])
@@ -60,6 +62,9 @@ class Models:
         # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
         # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
 
+        # for doc in tfidf[corpus]:
+        #     print([[id2word[id], np.around(freq, decimals=2)] for id, freq in doc])
+        #     print([[id, np.around(freq, decimals=2)] for id, freq in doc])
         return lda_model
 
     # модель LSI

@@ -11,8 +11,12 @@ import numpy
 # Gensim
 from gensim.matutils import hellinger, jaccard
 
+# spacy
+from spacy.tokens import Doc
+import spacy_udpipe
+
 from parsing.syntax.MatrixSyntax import MatrixSyntax
-from parsing.syntax.syntax import MySyntax
+from parsing.syntax.syntax import SyntaxAnalysis
 
 trainText = '../resource/data/trainText.tab'
 textOriginal1 = "../resource/data/text1.txt"
@@ -49,11 +53,13 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
         tagsDictsList.append(contextTegger.tag(textTokenz))
 
     # СИНТАКСИС
-    mySyntax = MySyntax(pathToFileGrammer)
+    #Вариант 1
+    # region
+    syntax_analis = SyntaxAnalysis(pathToFileGrammer)
     # Преобразование граматики из вида pymorphy в вид nltk и получение слов с разбором
     tokenPosList = []
     for tagsDict in tagsDictsList:
-        tokenPosList.append(mySyntax.pm2fcfg(tagsDict, pathToFileGrammer, morphAnalyzer))
+        tokenPosList.append(syntax_analis.pm2fcfg(tagsDict, pathToFileGrammer, morphAnalyzer))
 
     # Перевести строковое значение в значение URL
     url_path = Path(pathToFileGrammer).absolute().as_uri()
@@ -64,7 +70,17 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
     # for tree in trees:
     #     tree.draw()
     #     pprint(tree)
+    # endregion
+    #Вариант 2
+    # region
+    nlp = spacy_udpipe.load_from_path(lang="ru",
+                                       path="../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe",
+                                       meta={"description": "Custom 'ru' model"})
+    docs = []
+    for textT in textTokenzList:
+        docs.append(nlp(' '.join(textT)))
 
+    #endregion
     # Частота слов в тексте(получаем словарь слово-часота)
     freq_dist_lem_list = []
     for tokenPos in tokenPosList:
@@ -73,34 +89,34 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
     # Пулучение списка лемм
     data_lemmatized_list = []
     for tokenPosL in tokenPosList:
-        data_lemmatized_list.append(get_lema_list(tokenPosL))
+        data_lemmatized_list.append(get_lemma_list(tokenPosL))
 
     # Модель LDA для поиска темы в тексте текста
     models = Models()
     model_LDA = models.text_LDA(textTokenzList, data_lemmatized_list)
 
-    #Сравнить первый документ(эталон) с другим(и)
-    #Получить мешок слов
+    # Сравнить первый документ(эталон) с другим(и)
+    # Получить мешок слов
     bow_doc0 = model_LDA.id2word.doc2bow(data_lemmatized_list[0])
     for i in range(1, len(data_lemmatized_list)):
         bow_doc_tmp = model_LDA.id2word.doc2bow(data_lemmatized_list[i])
         # Сравнить документы по моделям LDA
         index_jaccard = jaccard(bow_doc0, bow_doc_tmp)
-        #Если индекс не больше 0.6 (взяли с потолка) то ищем энтропию
-        if index_jaccard <= 0.6:
-            # print("Документ под номером " + str(i) + " подходит. jaccard  = " + str(index_jaccard))
-            # Получение матрицы синтаксического дерева. ПО статье хабра получение матрицы WFST
-            grammar = cp.grammar()
-            # grammar.productions()
-            matrixSyntax = MatrixSyntax()
+        # Если индекс не больше 0.6 (взяли с потолка) то ищем энтропию
+        # if index_jaccard <= 0.6:
+        # print("Документ под номером " + str(i) + " подходит. jaccard  = " + str(index_jaccard))
+        # Получение матрицы синтаксического дерева. ПО статье хабра получение матрицы WFST
+        # grammar = cp.grammar()
+        # # grammar.productions()
+        # matrixSyntax = MatrixSyntax()
+        #
+        # wfst0 = matrixSyntax.init_wfst(textTokenz, grammar)
+        # wfst1 = matrixSyntax.complete_wfst(wfst0, textTokenz, grammar)
+        # matrixSyntax.display(wfst0, textTokenz)
+        # else:print("текста не равны")
 
-            wfst0 = matrixSyntax.init_wfst(textTokenz, grammar)
-            wfst1 = matrixSyntax.complete_wfst(wfst0, textTokenz, grammar)
-            matrixSyntax.display(wfst0, textTokenz)
-        else:print("текста не равны")
-
-    #Или можно исолзовать этот способ, обределяет подобие точно
-    #Model LSI точно определяет подобие документов чем больше чем лучше, если = 1 то текста равны
+    # Или можно исолзовать этот способ, обределяет подобие точно
+    # Model LSI точно определяет подобие документов чем больше чем лучше, если = 1 то текста равны
     # model_LSI, index = models.text_LSI(data_lemmatized_list)
     # vec_doc1 = model_LSI.id2word.doc2bow(data_lemmatized_list[1])
     # vec_lsi = model_LSI[vec_doc1]  # convert the query to LSI space
@@ -112,6 +128,10 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
     # for i, s in enumerate(sims):
     #     print(s, textOriginalList[i])
 
+    matrix_syntax(freq_dist_lem_list, docs)
+    print("Matrix")
+    for x in matrix_syntax[0]:
+        print(x)
 
 
     # return textTokenz, wfst1
@@ -120,10 +140,10 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
 # Частота слов в тексте
 def freq_dist_dic(tokenPosList):
     # Поулчение лемм
-    lema_list = get_lema_list(tokenPosList)
+    lema_list = get_lemma_list(tokenPosList)
     # Получение количество встречаемости слова
     freq_dist_pos = FreqDist(lema_list)
-    # Получение частоты встречаемости слова(слловарь)
+    # Получение частоты встречаемости слова(словарь)
     freq_dist_lem = {}
     for k, v in freq_dist_pos.items():
         freq_dist_lem[k] = v / len(freq_dist_pos)
@@ -131,7 +151,7 @@ def freq_dist_dic(tokenPosList):
 
 
 # Лемматизация слов
-def get_lema_list(tokenPosList):
+def get_lemma_list(tokenPosList):
     """
     Лемматизация слов
     :param tokenPosList: Лист токенов
@@ -139,23 +159,39 @@ def get_lema_list(tokenPosList):
     """
     lema_list = []
     for token in tokenPosList:
-        lema_list.append(token.normal_form)
+        y_normal_form = str(token.normal_form).replace('ё', 'е')
+        lema_list.append(y_normal_form)
     return lema_list
 
 
-#Вычисление энтропии
+# Вычисление энтропии
 def entropy(matrix_probability):
     s = 0
     for row in matrix_probability:
         for elem in row:
-            if(elem != 0):
+            if (elem != 0):
                 s += elem * numpy.log2(elem)
     return -s
 
 
+# Получение матрицы
+def matrix_syntax(freq_dist_lem_list, docs):
+    matrixs = []
+    for i, doc in enumerate(docs):
+        n = len(doc)
+        matrix = numpy.zeros((n, n), dtype=float)
+        for token in doc:
+            for child in token.children:
+                pi1 = freq_dist_lem_list[i][token.lemma_]
+                pi2 = freq_dist_lem_list[i][child.lemma_]
+                matrix[token.i][child.i] = 1 * pi1 * pi2
+        matrixs.append(matrix)
+    return matrixs
+
+
 def main():
     morphAnalyzer = pymorphy2.MorphAnalyzer()
-    textOriginalList = [textOriginal1, textOriginal2, textOriginal3]
+    textOriginalList = [textOriginal1, textOriginal2]
     text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
 
 

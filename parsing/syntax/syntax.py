@@ -4,7 +4,7 @@
 import codecs
 
 
-class MySyntax:
+class SyntaxAnalysis:
     def __init__(self, pathToFile):
         # загружаем PyMorphy2
         # self.m = pm.MorphAnalyzer()
@@ -38,14 +38,14 @@ class MySyntax:
         f.writelines("S[-inv] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]\n")
         f.writelines("S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=0, G=?g]\n")
         f.writelines("S[-inv] -> AdjP[C=nomn, NUM=?n, PER=?p, G=?g] VP[NUM=?n, PER=?p, G=0]\n")
-        f.writelines("S[-inv, +1] -> NP[C=nomn, NUM=plur, PER=?p] VP[NUM=?n, PER=0, G=None]\n")
+        # f.writelines("S[-inv, +1] -> NP[C=nomn, NUM=plur, PER=?p] VP[NUM=?n, PER=0, G=None]\n")
         f.writelines("S[+adj] -> NP[C=nomn, NUM=?n, PER=?p, G=?g] AdjP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[-inv] -> NUMRNP[C=nomn] VP\n")
         f.writelines("S[+inv] -> VP[NUM=?n, PER=0, G=?g] NP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[+inv] -> VP[NUM=?n, PER=?p, G=0] NP[C=nomn, NUM=?n, PER=?p, G=?g]\n")
         f.writelines("S[+advp] -> AdvP S[+advp]\n")
         f.writelines("S[+advp] -> NP[C=gent, NUM=?n, PER=?p, G=?g] AdvP\n")
-        f.writelines("S[+infn] -> VP[+infn] VP\n")
+        # f.writelines("S[+infn] -> VP[+infn] VP\n")
         f.writelines("S[+predp] -> NP[C=datv] PREDP\n")
         f.writelines("S[+comp] -> NP[C=datv] COMP\n")
 
@@ -55,7 +55,7 @@ class MySyntax:
         f.writelines("S[+S] -> S ',' S\n")
         f.writelines("S[+S] -> S ',' VP\n")
 
-        f.writelines("S[+advp] -> NP[C=datv, NUM=?n, PER=?p, G=?g] VP[+advp]\n")
+        # f.writelines("S[+advp] -> NP[C=datv, NUM=?n, PER=?p, G=?g] VP[+advp]\n")
 
         f.writelines("PREDP -> PREDP  VP[TR=?tr, NUM=0, PER=0, G=0]\n")
         f.writelines("PREDP -> AdvP PREDP\n")
@@ -77,7 +77,7 @@ class MySyntax:
 
         f.writelines("AdvP[+conj] -> AdvP CONJ AdvP\n")  # ОДНОР_НАР
         f.writelines("AdvP[+numr] -> AdvP NUMRNP\n")
-        f.writelines("AdvP -> ADVB ADVB\n")
+        # f.writelines("AdvP -> ADVB ADVB\n")
         f.writelines("AdvP -> ADVB AdvP\n")
         f.writelines("AdvP -> ADVB\n")
         f.writelines("PrtfP[C=?c, G=?g, NUM=?n] -> PRTF[C=?c, G=?g, NUM=?n]\n")
@@ -124,7 +124,7 @@ class MySyntax:
         f.writelines("VP[+numr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VP[TENSE=?t, G=?g, NUM=?n, PER=?p] NUMRNP\n")
         f.writelines("VP[+neg, TENSE=?t, G=?g, NUM=?n, PER=?p] -> 'не' VP[TENSE=?t, G=?g, NUM=?n, PER=?p]\n")
         f.writelines("VP[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p] -> VERB[TR=?tr, TENSE=?t, G=?g, NUM=?n, PER=?p]\n")
-        f.writelines("VP[+infn] -> VP VP[+infn]\n")
+        # f.writelines("VP[+infn] -> VP VP[+infn]\n")
 
         f.writelines(
             "AdjP[+advb, C=?c, G=?g, NUM=?n] -> AdvP AdjP[C=?c, G=?g, NUM=?n]\n")  # наречие + прилагательное (НАР_ПРИЛ)

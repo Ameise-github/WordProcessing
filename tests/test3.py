@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import nltk
 # nltk.download('universal_tagset')
 from nltk4russian.tagger import PMContextTagger
@@ -11,8 +13,8 @@ from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 # text: str = "Солнце пригрело. Побежали ручьи. Прилетели грачи. Птицы выводят птенцов. Весело скачет по лесу заяц.Лисица вышла на охоту и чует" \
 #             " добычу. Волчица вывела волчат на поляну. Медведица рычит у берлоги. Над цветами летают бабочки и пчелы. Все рады весне и т.д."
 # слово токенизация
-# text1: str = "Солнце пригрело. Побежали Солнце ручьи. Прилетели грачи. Птицы выводят птенцов. грачи птенцов птенцов."
-# words = nltk.word_tokenize(text1.lower())
+text1: str = "В соседнем дворе рос маленький и одинокий одуванчик."
+words = nltk.word_tokenize(text1.lower())
 # tags = nltk.pos_tag(words, lang='rus')
 
 # print(words)
@@ -24,12 +26,13 @@ from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 # sent = nltk.sent_tokenize(text, language='russian')
 # print(sent)
 
-# morphAnalyzer = pymorphy2.MorphAnalyzer()
+morphAnalyzer = pymorphy2.MorphAnalyzer()
 # m = morphAnalyzer.parse('мама')
-# print(m)
-# for y in m:
-#     print(y.tag.POS)
-#     print(y.tag)
+for p in words:
+    pprint(morphAnalyzer.parse(p))
+    # for y in m:
+    #     print(y.tag.POS)
+    #     print(y.tag)
 
 # for w in words:
 #     p: list[str] = morphAnalyzer.parse(w)
@@ -60,9 +63,8 @@ from parsing.graphematic.GraphematicAnalysis import GraphematicAnalysis
 #             print()
 
 #Просмотр стоп-слов
-tokens = nltk.corpus.stopwords.words('russian')
-print(tokens)
-
+# tokens = nltk.corpus.stopwords.words('russian')
+# nltk.pprint(tokens)
 #Частота слов в тексте
 # print("FreqDist1")
 # freq_dist_pos = nltk.FreqDist(words)
