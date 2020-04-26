@@ -57,13 +57,20 @@ def text_analysis(textOriginalList, trainTextUdpipe):
         entropy_list.append(entropy(matrix))
         entropy_list2.append(entropy(matrix, entropy2=True))
         entropy_list3.append(entropy(matrix, entropy3=True))
-
+    print(entropy_list)
+    print(entropy_list2)
+    print(entropy_list3)
 
     # return
 
 
-# Частота слов в тексте
+# Вероятность слов в тексте
 def freq_dist_dic(doc: Doc):
+    """
+    Вероятность слов в тексте
+    :param doc: полученный документ spacy модели
+    :return:
+    """
     # Поулчение лемм
     lema_list = get_lemma_list(doc)
     # Получение количество встречаемости слова
@@ -79,7 +86,7 @@ def freq_dist_dic(doc: Doc):
 def get_lemma_list(doc: Doc):
     """
     Лемматизация слов
-    :param tokenPosList: Лист токенов
+    :param doc: полученный документ spacy модели
     :return:
     """
     lema_list = []
@@ -89,7 +96,14 @@ def get_lemma_list(doc: Doc):
 
 
 # Вычисление энтропии
-def entropy(matrix_probability, entropy2 = False, entropy3 = False):
+def entropy(matrix_probability, entropy2=False, entropy3=False):
+    """
+    Вычисление энтропии
+    :param matrix_probability: матрица вероятности
+    :param entropy2: для рассчета 2-ого начального момента энтропии
+    :param entropy3: для рассчета 3-ого начального момента энтропии
+    :return:
+    """
     s = 0
     for row in matrix_probability:
         for elem in row:
@@ -105,6 +119,11 @@ def entropy(matrix_probability, entropy2 = False, entropy3 = False):
 
 # Получение матрицы
 def matrix_syntax(docs):
+    """
+    Получение вероятностной матрицы
+    :param docs: list полученных документов spacy модели
+    :return:
+    """
     matrixs = []
     for i, doc in enumerate(docs):
         n = len(doc)
@@ -117,6 +136,37 @@ def matrix_syntax(docs):
                 matrix[token.i][child.i] = 1 * pi1 * pi2
         matrixs.append(matrix)
     return matrixs
+
+
+# Вычисление функий
+def fff(entropy_list, entropy_list2, entropy_list3):
+    CT = dict()
+    for i, entropy in enumerate(entropy_list):
+        tmp_CT = dict()
+        # Расчет значение С1 и С2
+        denominator1 = numpy.power(entropy_list3[i], 2) - 6 * entropy_list3[i] * entropy_list2[i] * entropy_list[i] - 3 * \
+            numpy.power(entropy_list2[i], 2) * numpy.power(entropy_list[i], 2) + 4 * entropy_list3[i] * \
+            numpy.power(entropy_list[i], 3) + 4 * numpy.power(entropy_list2[i], 3)
+        sqrt_d1 = numpy.sqrt(denominator1)
+        numerator1 = 3 * entropy_list2[i] * entropy_list[i] - entropy_list3[i] - 2 * numpy.power(entropy_list[i], 3)
+        fraction1 = numerator1 / sqrt_d1
+        C1 = 0.5 * (1 + fraction1)
+        C2 = 0.5 * (1 - fraction1)
+
+        #Расчет значений T1 и T2
+        denominator2 = 2 * (entropy_list2[i] - numpy.power(entropy_list[i], 2))
+        T1 = (entropy_list3[i] - entropy_list2[i] * entropy_list[i] - sqrt_d1) / denominator2
+        T2 = (entropy_list3[i] - entropy_list2[i] * entropy_list[i] + sqrt_d1) / denominator2
+
+        # Сохранение значений в словари
+        tmp_CT[C1] = C1
+        tmp_CT[C2] = C2
+        tmp_CT[T1] = T1
+        tmp_CT[T2] = T2
+
+        CT[i] = tmp_CT
+
+    return CT
 
 
 def main():
