@@ -17,6 +17,11 @@ import spacy_udpipe
 
 from parsing.syntax.MatrixSyntax import MatrixSyntax
 from parsing.syntax.syntax import SyntaxAnalysis
+from parsing.approximation_CT import approximation_CT
+from parsing.text import Text
+
+from sympy.abc import t
+from sympy import DiracDelta
 
 trainText = '../resource/data/trainText.tab'
 trainTextUdpipe = "../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe"
@@ -27,52 +32,57 @@ textOut = "../resource/data/test_output.txt"
 pathToFileGrammer = "../resource/book_grammars/grammarRU.fcfg"
 
 
-def text_analysis(textOriginalList, trainTextUdpipe):
+def text_analysis(textStandart, textOriginalList, trainTextUdpipe):
     # ГРАФЕМАТИКА
-    # Инициализация графематического анализа. Передача в конструктор исходного текста
-    graphemAnalizList = []
+    texts = []
     for textOriginal in textOriginalList:
-        graphemAnalizList.append(GraphematicAnalysis(textOriginal))
-
-    # разбиваем текст на токены
-    textTokenzList = []
-    for graphemAnaliz in graphemAnalizList:
-        textTokenzList.append(graphemAnaliz.get_sentences())
+        texts.append(Text(textOriginal))
+    text_s = Text(textStandart)
 
     # СИНТАКСИС
     nlp = spacy_udpipe.load_from_path(lang="ru",
                                       path=trainTextUdpipe,
                                       meta={"description": "Custom 'ru' model"})
-    docs = []
-    for textT in textTokenzList:
-        docs.append(nlp(' '.join(textT)))
+    for text in texts:
+        text.doc = nlp(' '.join(text.tokenz))
+    text_s.doc = nlp(' '.join(text_s.tokenz))
+    # Инииализация объектов типа Text
+    approxim_CT = approximation_CT()
+    for text in texts:
+        # Получение леммы
+        text.lemma_text = get_lemma_list(text.doc)
+        # Получение частоты
+        text.freq_dist = freq_dist_dic(text.lemma_text)
+        # Получение матрицы вероятности
+        text.matrix = matrix_syntax(text.doc, text.freq_dist)
+        # Рассчет энтропии
+        text.entropy = entropy(text.matrix)
+        text.entropy2 = entropy(text.matrix, entropy2=True)
+        text.entropy3 = entropy(text.matrix, entropy3=True)
+        # Расчет значений аппроксимации
+        text.CT = approxim_CT.get_approximation_value(text)
 
-    # Получение матрицы вероятности
-    matrices = matrix_syntax(docs)
-    # Рассчет энтропии
-    entropy_list = []
-    entropy_list2 = []
-    entropy_list3 = []
-    for matrix in matrices:
-        entropy_list.append(entropy(matrix))
-        entropy_list2.append(entropy(matrix, entropy2=True))
-        entropy_list3.append(entropy(matrix, entropy3=True))
-    print(entropy_list)
-    print(entropy_list2)
-    print(entropy_list3)
+    # Для текста-эталона
+    text_s.lemma_text = get_lemma_list(text_s.doc)
+    text_s.freq_dist = freq_dist_dic(text_s.lemma_text)
+    text_s.matrix = matrix_syntax(text_s.doc, text_s.freq_dist)
+    text_s.entropy = entropy(text_s.matrix)
+    text_s.entropy2 = entropy(text_s.matrix, entropy2=True)
+    text_s.entropy3 = entropy(text_s.matrix, entropy3=True)
+    text_s.CT = approxim_CT.get_approximation_value(text_s)
+
+    dFxFy(text_s, texts)
 
     # return
 
 
 # Вероятность слов в тексте
-def freq_dist_dic(doc: Doc):
+def freq_dist_dic(lema_list: list):
     """
     Вероятность слов в тексте
-    :param doc: полученный документ spacy модели
-    :return:
+    :param lema_list: список лемм текста
+    :return: словарь
     """
-    # Поулчение лемм
-    lema_list = get_lemma_list(doc)
     # Получение количество встречаемости слова
     freq_dist_pos = FreqDist(lema_list)
     # Получение частоты встречаемости слова(словарь)
@@ -118,60 +128,36 @@ def entropy(matrix_probability, entropy2=False, entropy3=False):
 
 
 # Получение матрицы
-def matrix_syntax(docs):
+def matrix_syntax(doc, freq_dist_lem: dict):
     """
     Получение вероятностной матрицы
-    :param docs: list полученных документов spacy модели
-    :return:
+    :param doc: документ полученный из spacy модели
+    :freq_dist_lem dict: словарь лемм текста
+    :return: матрица ероятности
     """
-    matrixs = []
-    for i, doc in enumerate(docs):
-        n = len(doc)
-        matrix = numpy.zeros((n, n), dtype=float)
-        freq_dist_lem = freq_dist_dic(doc)
-        for token in doc:
-            for child in token.children:
-                pi1 = freq_dist_lem[token.lemma_]
-                pi2 = freq_dist_lem[child.lemma_]
-                matrix[token.i][child.i] = 1 * pi1 * pi2
-        matrixs.append(matrix)
-    return matrixs
+    n = len(doc)
+    matrix = numpy.zeros((n, n), dtype=float)
+    for token in doc:
+        for child in token.children:
+            pi1 = freq_dist_lem[token.lemma_]
+            pi2 = freq_dist_lem[child.lemma_]
+            matrix[token.i][child.i] = 1 * pi1 * pi2
+    return matrix
 
 
-# Вычисление функий
-def fff(entropy_list, entropy_list2, entropy_list3):
-    CT = dict()
-    for i, entropy in enumerate(entropy_list):
-        tmp_CT = dict()
-        # Расчет значение С1 и С2
-        denominator1 = numpy.power(entropy_list3[i], 2) - 6 * entropy_list3[i] * entropy_list2[i] * entropy_list[i] - 3 * \
-            numpy.power(entropy_list2[i], 2) * numpy.power(entropy_list[i], 2) + 4 * entropy_list3[i] * \
-            numpy.power(entropy_list[i], 3) + 4 * numpy.power(entropy_list2[i], 3)
-        sqrt_d1 = numpy.sqrt(denominator1)
-        numerator1 = 3 * entropy_list2[i] * entropy_list[i] - entropy_list3[i] - 2 * numpy.power(entropy_list[i], 3)
-        fraction1 = numerator1 / sqrt_d1
-        C1 = 0.5 * (1 + fraction1)
-        C2 = 0.5 * (1 - fraction1)
+# Нахождение d(Fx,Fy)
+def dFxFy(text_standart: Text, texts: list):
+    f_s = text_standart.CT.return_f()
+    for ts in texts:
+        f = ts.CT.return_f()
+        ff = f_s - f
 
-        #Расчет значений T1 и T2
-        denominator2 = 2 * (entropy_list2[i] - numpy.power(entropy_list[i], 2))
-        T1 = (entropy_list3[i] - entropy_list2[i] * entropy_list[i] - sqrt_d1) / denominator2
-        T2 = (entropy_list3[i] - entropy_list2[i] * entropy_list[i] + sqrt_d1) / denominator2
-
-        # Сохранение значений в словари
-        tmp_CT[C1] = C1
-        tmp_CT[C2] = C2
-        tmp_CT[T1] = T1
-        tmp_CT[T2] = T2
-
-        CT[i] = tmp_CT
-
-    return CT
+    # return d
 
 
 def main():
     textOriginalList = [textOriginal1, textOriginal2]
-    text_analysis(textOriginalList, trainTextUdpipe)
+    text_analysis(textOriginal1, textOriginalList, trainTextUdpipe)
 
 
 if __name__ == '__main__':
