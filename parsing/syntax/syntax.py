@@ -155,7 +155,7 @@ class SyntaxAnalysis:
         :type phrase: []
         :param tagsDict: список слов и теггов
         :type tagsDict: list
-        :param pathToFile: файл для записи
+        :param pathToFile: файл граматики для записи
         :type pathToFile: File
         :param morphAnalyz: объект морфологического анализатора
         :type morphAnalyz: MorphAnalyzer()

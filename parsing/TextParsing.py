@@ -83,7 +83,7 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
 
     # Модель LDA для поиска темы в тексте текста
     models = Models()
-    model_LDA = models.text_LDA(textTokenzList, data_lemmatized_list)
+    model_LDA = models.text_LDA(data_lemmatized_list)
 
     # Сравнить первый документ(эталон) с другим(и)
     # Получить мешок слов
@@ -96,15 +96,15 @@ def text_analysis(trainText, textOriginalList, pathToFileGrammer, morphAnalyzer)
         # if index_jaccard <= 0.6:
         # print("Документ под номером " + str(i) + " подходит. jaccard  = " + str(index_jaccard))
 
-    # Или можно исолзовать этот способ, обределяет подобие точно
-    # Model LSI точно определяет подобие документов чем больше чем лучше, если = 1 то текста равны
+    # Или можно исолзовать этот способ, определяет подобие точно
+    # Model LSI точно определяет подобие документов чем больше тем лучше, если = 1 то текста равны
     # model_LSI, index = models.text_LSI(data_lemmatized_list)
     # vec_doc1 = model_LSI.id2word.doc2bow(data_lemmatized_list[1])
     # vec_lsi = model_LSI[vec_doc1]  # convert the query to LSI space
     # sims = index[vec_lsi]  # выполнить запрос сходства с корпусом
     # print("LSI matrix")
-    # # pprint(list(enumerate(sims)))  # print (document_number, document_similarity) 2-tuples
-    # #Отсортировать в порядке убывания
+    # pprint(list(enumerate(sims)))  # print (document_number, document_similarity) 2-tuples
+    # Отсортировать в порядке убывания
     # sims = sorted(enumerate(sims), key=lambda item: -item[1])
     # for i, s in enumerate(sims):
     #     print(s, textOriginalList[i])

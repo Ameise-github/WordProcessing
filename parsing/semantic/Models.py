@@ -11,7 +11,7 @@ import numpy as np
 
 class Models:
     # Тема текстов метод LDA
-    def text_LDA(self, data_words_tokens, data_lemmatized_list):
+    def text_LDA(self, data_lemmatized_list):
         """
         Определение темы текстов
         сайт https://radimrehurek.com/gensim/auto_examples/tutorials/run_distance_metrics.html#sphx-glr-auto-examples-tutorials-run-distance-metrics-py
@@ -20,13 +20,13 @@ class Models:
         :return:
         """
         # Модель для получения биграмм и триграмм
-        bigram = models.Phrases(data_words_tokens, min_count=10, threshold=100)  # выше threshold .
-        trigram = models.Phrases(bigram[data_words_tokens], threshold=100)
+        # bigram = models.Phrases(data_words_tokens, min_count=10, threshold=100)  # выше threshold .
+        # trigram = models.Phrases(bigram[data_words_tokens], threshold=100)
         # Более быстрый способ получить предложение, разабитое как триграмма / биграмма
-        bigram_mod = models.phrases.Phraser(bigram)
-        trigram_mod = models.phrases.Phraser(trigram)
+        # bigram_mod = models.phrases.Phraser(bigram)
+        # trigram_mod = models.phrases.Phraser(trigram)
         # Получение биграмм
-        data_words_bigrams = self.make_bigrams(data_words_tokens, bigram_mod)
+        # data_words_bigrams = self.make_bigrams(data_words_tokens, bigram_mod)
 
         # Создание словаря
         id2word = corpora.Dictionary(data_lemmatized_list)
@@ -44,24 +44,21 @@ class Models:
             # num_topics = len(data_words_tokens),
         lda_model = models.ldamodel.LdaModel(corpus=corpus,
                                                     id2word=id2word,
-                                                    num_topics=len(data_words_tokens),
+                                                    num_topics=len(data_lemmatized_list),
                                                     random_state=100,
                                                     update_every=1,
                                                     chunksize=50,
                                                     passes=10,
                                                     alpha='auto',
                                                     per_word_topics=True)
-        tfidf = models.TfidfModel(corpus)
+
         # Вывод для проверки
         # Читаемый человеком формат корпуса (термин-частота)
         # print([[(id2word[id], freq) for id, freq in cp] for cp in corpus])
         # ключевые слова для каждой темы и вес (важность) каждого ключевого слова
-        # print("lda_model")
         # pprint(lda_model.print_topics())
-        # Визуализация модели LDA
-        # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
-        # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
 
+        tfidf = models.TfidfModel(corpus)
         # for doc in tfidf[corpus]:
         #     print([[id2word[id], np.around(freq, decimals=2)] for id, freq in doc])
         #     print([[id, np.around(freq, decimals=2)] for id, freq in doc])
@@ -69,8 +66,13 @@ class Models:
 
     # модель LSI
     def text_LSI(self, data_lemmatized_list):
+        """
+        Получение модели LSI и index_matrix
+        :param data_lemmatized_list: список лемм всех текстов
+        :return:
+        """
         #https://radimrehurek.com/gensim/auto_examples/core/run_similarity_queries.html
-        # remove words that appear only once
+        # удалить слова, которые появляются только один раз
         frequency = defaultdict(int)
         for text in data_lemmatized_list:
             for token in text:
@@ -83,16 +85,22 @@ class Models:
 
         dictionary = corpora.Dictionary(texts)
         corpus = [dictionary.doc2bow(text) for text in texts]
-        lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=2)
+        lsi = models.LsiModel(corpus, id2word=dictionary, num_topics=len(data_lemmatized_list))
         index = similarities.MatrixSimilarity(lsi[corpus])
         return lsi, index
-
 
     # Получение биграмм
     def make_bigrams(self, docsTokenList, bigram_mod):
         return [bigram_mod[docToken] for docToken in docsTokenList]
 
-
     # Получение триграмм
     def make_trigrams(self, docs, bigram_mod, trigram_mod):
         return [trigram_mod[bigram_mod[doc]] for doc in docs]
+
+    # Визуализация тематики (модели LDA)
+    def view_topic_LDA(self,lda_model, corpus, id2word, name_file):
+        # Визуализация модели LDA
+        # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+        # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
+        vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
+        pyLDAvis.save_html(vis, name_file)
