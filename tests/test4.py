@@ -68,9 +68,9 @@ doc1 = nlp1(text)
 
 #Построение дерева
 #Строится дерево по 1-му предложению. Выводит код в html
-# print("\nДерево")
-# html = displacy.render(doc1, style="dep")
-# print(html)
+print("\nДерево")
+html = displacy.render(doc1, style="dep")
+print(html)
 
 #Обход по дереву
 # print("\nПроход по дереву:")
@@ -100,7 +100,7 @@ doc1 = nlp1(text)
 # for x in matrix:
 #     print(x)
 #
-print("\nChild token")
-for token in doc1:
-    for child in token.children:
-        print(token.i, token.text, [child.i, child])
+# print("\nChild token")
+# for token in doc1:
+#     for child in token.children:
+#         print(token.i, token.text, [child.i, child])
