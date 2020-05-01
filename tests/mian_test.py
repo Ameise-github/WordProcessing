@@ -1,4 +1,4 @@
-# coding:utf8
+import nltk
 from parsing.text import Text
 from parsing.semantic.Models import Models
 from parsing.text_metric_analysis import text_metric_analysis
@@ -9,7 +9,11 @@ textOriginal2 = "../resource/data/text3.txt"
 textOriginal3 = "../resource/data/text2.txt"
 textOriginal4 = "../resource/data/Evgeniy_Onegin.txt"
 
+
 def main():
+    nltk.download('punkt')
+    nltk.download('stopwords')
+
     textOriginalList = [textOriginal3, textOriginal2]
     models = Models()
     # Преобразовать в объекты Text

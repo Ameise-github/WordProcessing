@@ -10,6 +10,12 @@ nltk4russian = {file = "https://github.com/Ameise-github/nltk4russian/archive/ma
 nltk = "*"
 pymorphy2 = "*"
 bs4 = "*"
+sympy = "*"
+numpy = "*"
+spacy = "*"
+gensim = "*"
+pyldavis = "*"
+spacy-udpipe = "*"
 
 [requires]
 python_version = "3.7"
