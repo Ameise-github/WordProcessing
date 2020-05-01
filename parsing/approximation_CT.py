@@ -1,6 +1,5 @@
 from sympy.abc import t
 from sympy import DiracDelta, Heaviside, exp, cos, sin
-from parsing.text import Text
 import numpy
 
 
@@ -17,7 +16,7 @@ class approximation_CT:
         self.B: float = 0
 
     # Получение аппроксимации
-    def get_approximation_value(self, text: Text):
+    def get_approximation_value(self, text):
         """
         Вычисление значений аппроксимации С и Т
         :param text: объект типа Text
@@ -47,7 +46,7 @@ class approximation_CT:
         # return ct_tmp
 
     # Получение аппроксимации
-    def get_approximation_value_hyperexponential(self, text: Text):
+    def get_approximation_value_hyperexponential(self, text):
         """
         Вычисление значений аппроксимации по гиперэкспоненциальной функции
         :param text: обрабоываемый текст типа Text
