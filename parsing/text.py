@@ -7,9 +7,9 @@ class Text:
     """
     Класс описания модели текста
     """
-    def __init__(self, path_file):
+    def __init__(self, path_file, model=False):
         self.text_path: str = path_file
-        self.tokenz: list = self.graphematic(text_path=self.text_path)
+        self.tokenz: list = self.graphematic(text_path=self.text_path, model=model)
         self.doc: Doc = None
         self.matrix = None
         self.entropy: float = 0
@@ -24,9 +24,12 @@ class Text:
 
 
     # Получение токенов
-    def graphematic(self, text_path: str):
-        # Инициализация графематического анализа. Передача в конструктор исходного текста
-        graphemAnaliz = GraphematicAnalysis(text_path, punct=True)
+    def graphematic(self, text_path: str, model):
+        if(model):
+            graphemAnaliz = GraphematicAnalysis(text_path, punct=False)
+        else:
+            # Инициализация графематического анализа. Передача в конструктор исходного текста
+            graphemAnaliz = GraphematicAnalysis(text_path, punct=True)
         # разбиваем текст на токены
         textTokenzList = graphemAnaliz.get_sentences()
         return textTokenzList

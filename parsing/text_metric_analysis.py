@@ -17,19 +17,12 @@ from parsing.text import Text
 from parsing.semantic.Models import Models
 
 
-
-trainTextUdpipe = "../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe"
-textOriginal1 = "../resource/data/text1.txt"
-textOriginal2 = "../resource/data/text3.txt"
-textOriginal3 = "../resource/data/text2.txt"
-textOriginal4 = "../resource/data/Evgeniy_Onegin.txt"
-
-
 class text_metric_analysis:
     """
-    Класс вычисления подоббия|метрик документов
+    Класс вычисления подобия|метрик документов
     """
-    def __init__(self, trainTextUdpipe, text_standart, textsList):
+
+    def __init__(self, trainTextUdpipe, text_standart, textsList=None, text_new=None):
         """
 
         :param trainTextUdpipe: модель тренировки Udpipe
@@ -39,18 +32,28 @@ class text_metric_analysis:
         self.trainTextUdpipe = trainTextUdpipe
         # Модель для синтаксичского аналза
         self.nlp = spacy_udpipe.load_from_path(lang="ru",
-                                          path=self.trainTextUdpipe,
-                                          meta={"description": "Custom 'ru' model"})
+                                               path=self.trainTextUdpipe,
+                                               meta={"description": "Custom 'ru' model"})
         # Инииализация объектов типа Text
-        for text in textsList:
+        if (textsList == None) and (text_new != None):
             # Получение синтаксической модели
-            text.doc = self.nlp(' '.join(text.tokenz))
+            text_new.doc = self.nlp(' '.join(text_new.tokenz))
             # Получение леммы
-            text.lemma_text = text.get_lemma_list(text.doc)
+            text_new.lemma_text = text_new.get_lemma_list(text_new.doc)
             # Получение частоты
-            text.freq_dist = self.freq_dist_dic(text.lemma_text)
+            text_new.freq_dist = self.freq_dist_dic(text_new.lemma_text)
             # Получение матрицы вероятности
-            text.matrix = self.matrix_syntax(text.doc, text.freq_dist)
+            text_new.matrix = self.matrix_syntax(text_new.doc, text_new.freq_dist)
+        else:
+            for text in textsList:
+                # Получение синтаксической модели
+                text.doc = self.nlp(' '.join(text.tokenz))
+                # Получение леммы
+                text.lemma_text = text.get_lemma_list(text.doc)
+                # Получение частоты
+                text.freq_dist = self.freq_dist_dic(text.lemma_text)
+                # Получение матрицы вероятности
+                text.matrix = self.matrix_syntax(text.doc, text.freq_dist)
         # Для текста-эталона
         text_standart.doc = self.nlp(' '.join(text_standart.tokenz))
         text_standart.lemma_text = text_standart.get_lemma_list(text_standart.doc)
@@ -147,7 +150,7 @@ class text_metric_analysis:
         :param texts: список текстов
         :return:
         """
-        #для отчета
+        # для отчета
         # f_s = text_standart.CT.return_f()
         # for ts in texts:
         #     f = ts.CT.return_f()
@@ -159,13 +162,13 @@ class text_metric_analysis:
         #         p = 1 - d
         #         print(intgrl, d, p)
 
-        #для рассчета
+        # для рассчета
         standrt = (text_standart.CT.C1 * text_standart.CT.T1) + (text_standart.CT.C2 * text_standart.CT.T2)
         for ts in texts:
             tmp = (ts.CT.C1 * ts.CT.T1) + (ts.CT.C2 * ts.CT.T2)
             d = math.sqrt(math.pow((standrt - tmp), 2))
             p = 1 - d
-            if( p < 0):
+            if (p < 0):
                 ts.p = 0.01
             else:
                 ts.p = round(p, 2)
@@ -199,7 +202,7 @@ class text_metric_analysis:
             text.jaccard_coeff = round(jaccard(bow_text_standart, bow_text), 2)
 
     # Вычисление косинусное сходства документов
-    def cosine_similarity(self, text_standart, textsList, models: Models ):
+    def cosine_similarity(self, text_standart, textsList, models: Models):
         """
         Вычисление косинусное сходства документов
         :param text_standart: текст эталон
@@ -224,22 +227,13 @@ class text_metric_analysis:
         for i, (n, c) in enumerate(list_sims[1::]):
             textsList[i].cos_sim = round(c, 2)
 
+    # Вычисление изменений 1-ого документа
+    def calculat_I(self, text_old, text_new):
+        # Рассчет энтропии
+        text_new.entropy = self.entropy(text_new.matrix)
+        text_old.entropy = self.entropy(text_old.matrix)
 
-def main():
-    textOriginalList = [textOriginal3, textOriginal2]
-    models = Models()
-    # Преобразовать в объекты Text
-    textsList = []
-    for textOriginal in textOriginalList:
-        textsList.append(Text(textOriginal))
-    text_standart = Text(textOriginal1)
+        # разность значений информационной энтропии
+        I = text_new.entropy - text_old.entropy
 
-    analysis = text_metric_analysis(trainTextUdpipe, text_standart, textsList)
-    analysis.stochastic_analysis(text_standart, textsList)
-    analysis.distance_metrics_Jaccard(text_standart, textsList, models)
-    analysis.cosine_similarity(text_standart, textsList, models)
-
-
-
-if __name__ == '__main__':
-    main()
+        return round(I, 3)
