@@ -1,13 +1,14 @@
 import typing as t
 import PySide2.QtCore as qc
 import PySide2.QtWidgets as qw
+from PySide2.QtCore import Qt as qq
 from gui.models.comparison import ComparisonFilesModel
 
 
 class ComparisonSetupWidget(qw.QWidget):
     def __init__(self,
                  parent: t.Optional[qw.QWidget] = None,
-                 f: qc.Qt.WindowFlags = qc.Qt.WindowFlags()):
+                 f: qq.WindowFlags = qc.Qt.WindowFlags()):
         super().__init__(parent, f)
 
         # models
@@ -29,6 +30,7 @@ class ComparisonSetupWidget(qw.QWidget):
         ref_file_btn = qw.QPushButton('Выбрать эталонным')
 
         # connections
+
         file_add_btn.clicked.connect(self._file_add_act)
         file_remove_btn.clicked.connect(self._file_remove_act)
         files_show_path_cbx.clicked.connect(self._file_show_path_act)
@@ -56,6 +58,7 @@ class ComparisonSetupWidget(qw.QWidget):
         # setup
 
         self.setLayout(files_vbox)
+        self.setWindowTitle('Анализ и сравнение текстов')
 
         # fields
 
@@ -78,7 +81,7 @@ class ComparisonSetupWidget(qw.QWidget):
             self.files_model.removeRows(idx.row(), 1)
 
     def _file_show_path_act(self):
-        self.files_model.show_path = self.files_show_path_cbx.isChecked()
+        self.files_model.show_paths = self.files_show_path_cbx.isChecked()
 
     def _files_clear_act(self):
         res = qw.QMessageBox.question(self, 'Очистка списка', 'Очистить список файлов?')

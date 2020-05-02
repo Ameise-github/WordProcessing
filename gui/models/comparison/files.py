@@ -6,48 +6,54 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from gui.models import Roles
 
-REF_FILE_COLOR = qg.QColor.fromRgb(46, 139, 87)
+
+class Colors:
+    NOT_EXISTS = qg.QColor('#CC0000')
+    REF_FILE = qg.QColor('#336600')
+    WHITE = qg.QColor(255, 255, 255)
 
 
 class ComparisonFilesModel(qc.QAbstractListModel):
     def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
-        self._files: t.List[str] = []
-        self._ref_file: t.Optional[str] = None
-        self._show_path = False
+        self._files: t.List[pl.Path] = []
+        self._ref_file: t.Optional[pl.Path] = None
+        self._show_paths = False
 
     @property
-    def show_path(self) -> bool:
-        return self._show_path
+    def show_paths(self) -> bool:
+        return self._show_paths
 
-    @show_path.setter
-    def show_path(self, value: bool):
-        self._show_path = value
+    @show_paths.setter
+    def show_paths(self, value: bool):
+        self._show_paths = value
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
 
-    def ref_file(self) -> str:
+    def ref_file(self) -> t.Optional[pl.Path]:
         return self._ref_file
 
     def set_ref_file(self, index: qc.QModelIndex) -> bool:
         if not index.isValid():
             return False
-        self._ref_file = self.data(index, Roles.RawDataRole)
+        self._ref_file = self._files[index.row()]
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
         return True
 
-    def other_files(self) -> t.List[str]:
-        if self._ref_file:
+    def other_files(self) -> t.List[pl.Path]:
+        if self._ref_file is not None:
             files_copy = self._files.copy()
             files_copy.remove(self._ref_file)
             return files_copy
-        return self._files
+        else:
+            return self._files
 
-    def append_file(self, file_path: str):
-        if file_path not in self._files:
+    def append_file(self, path: str):
+        file = pl.Path(path)
+        if file not in self._files:
             row = len(self._files)
             self.beginInsertRows(qc.QModelIndex(), row, row)
-            self._files.append(file_path)
+            self._files.append(file)
             self.endInsertRows()
 
     def rowCount(self, parent: qc.QModelIndex = qc.QModelIndex()) -> int:
@@ -60,20 +66,34 @@ class ComparisonFilesModel(qc.QAbstractListModel):
         row = index.row()
         file = self._files[row]
 
+        is_file_exists = file.exists()
+        is_ref_file = (file == self._ref_file)
+
         if role == qq.DisplayRole:
-            if self._show_path:
-                return file
+            if self._show_paths:
+                return str(file)
             else:
-                return pl.Path(file).name
+                return file.name
         elif role == qq.TextColorRole:
-            if file == self._ref_file:
-                return REF_FILE_COLOR
+            if not is_file_exists:
+                return Colors.NOT_EXISTS
+            elif is_ref_file:
+                return Colors.REF_FILE
         elif role == qq.FontRole:
-            if file == self._ref_file:
-                font = qg.QFont()
+            font = qg.QFont()
+            if not is_file_exists:
+                font.setItalic(True)
+            if is_ref_file:
                 font.setBold(True)
-                return font
-        elif role == Roles.RawDataRole:
+            return font
+        elif role == qq.ToolTipRole:
+            tool_tips = []
+            if not is_file_exists:
+                tool_tips.append('Файл не найден')
+            if is_ref_file:
+                tool_tips.append('Эталонный текст')
+            return '\n'.join(tool_tips)
+        elif role == Roles.DataKeyRole:
             return file
 
         return None
@@ -82,8 +102,8 @@ class ComparisonFilesModel(qc.QAbstractListModel):
         self.beginRemoveRows(parent, row, row + count - 1)
 
         for idx in range(row, row + count):
-            file = self._files[idx]
-            if self._ref_file == file:
+            file_path = self._files[idx]
+            if self._ref_file == file_path:
                 self._ref_file = None
             del self._files[idx]
 
