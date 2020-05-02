@@ -28,6 +28,7 @@ class text_metric_analysis:
         :param trainTextUdpipe: модель тренировки Udpipe
         :param text_standart: текст эталон (Объект Text)
         :param textsList: список текстов для сравнения (список объектов Text)
+        :param text_new: видоизмененный текст для сравнения  (Объект Text)
         """
         self.trainTextUdpipe = trainTextUdpipe
         # Модель для синтаксичского аналза
@@ -176,12 +177,11 @@ class text_metric_analysis:
             # print("tmp = {}; d = {}; p = {}".format(tmp, d, round(p, 2)))
 
     # Вычисление коэфициента Jaccard
-    def distance_metrics_Jaccard(self, text_standart, textsList, models: Models):
+    def distance_metrics_Jaccard(self, text_standart, textsList):
         """
         Вычисление метрики Jaccard
         :param text_standart: текст эталон
         :param textsList: список текстов
-        :param models: объект типа semantic.Models
         :return:
         """
         # Получить список лемм всех текстов
@@ -191,6 +191,7 @@ class text_metric_analysis:
             data_lemmatized_list.append(text.lemma_text)
 
         # Модель LDA для поиска темы в тексте текста
+        models = Models()
         model_LDA = models.text_LDA(data_lemmatized_list)
 
         # Получить мешок слов
@@ -202,12 +203,11 @@ class text_metric_analysis:
             text.jaccard_coeff = round(jaccard(bow_text_standart, bow_text), 2)
 
     # Вычисление косинусное сходства документов
-    def cosine_similarity(self, text_standart, textsList, models: Models):
+    def cosine_similarity(self, text_standart, textsList):
         """
         Вычисление косинусное сходства документов
         :param text_standart: текст эталон
         :param textsList: список текстов
-        :param models: объект типа semantic.Models
         :return:
         """
         # Получить список лемм сех текстов
@@ -217,6 +217,7 @@ class text_metric_analysis:
             data_lemmatized_list.append(text.lemma_text)
 
         # Model LSI точно определяет подобие документов чем больше тем лучше, если = 1 то текста равны
+        models = Models()
         model_LSI, index = models.text_LSI(data_lemmatized_list)
         vec_text_standart = model_LSI.id2word.doc2bow(text_standart.lemma_text)
         vec_lsi_stand_text = model_LSI[vec_text_standart]  # преобразовать запрос в LSI
