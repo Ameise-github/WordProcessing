@@ -16,6 +16,7 @@ spacy = "*"
 gensim = "*"
 pyldavis = "*"
 spacy-udpipe = "*"
+pyside2 = "*"
 
 [requires]
 python_version = "3.7"
