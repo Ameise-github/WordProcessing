@@ -30,15 +30,17 @@ class ComparisonFilesModel(qc.QAbstractListModel):
         self._show_paths = value
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
 
+    @property
     def ref_file(self) -> t.Optional[pl.Path]:
         return self._ref_file
 
-    def set_ref_file(self, index: qc.QModelIndex) -> bool:
-        if not index.isValid():
-            return False
-        self._ref_file = self._files[index.row()]
+    @ref_file.setter
+    def ref_file(self, value: t.Optional[pl.Path]):
+        if value not in self._files:
+            print(f'Path <{value}> not in model file paths')
+            return
+        self._ref_file = value
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
-        return True
 
     def other_files(self) -> t.List[pl.Path]:
         if self._ref_file is not None:

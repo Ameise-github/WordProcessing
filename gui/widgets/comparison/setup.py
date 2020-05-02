@@ -3,6 +3,7 @@ import PySide2.QtCore as qc
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 from gui.models.comparison import ComparisonFilesModel
+from gui.models import Roles
 
 
 class ComparisonSetupWidget(qw.QWidget):
@@ -35,7 +36,7 @@ class ComparisonSetupWidget(qw.QWidget):
         file_remove_btn.clicked.connect(self._file_remove_act)
         files_show_path_cbx.clicked.connect(self._file_show_path_act)
         files_clear_btn.clicked.connect(self._files_clear_act)
-        ref_file_btn.clicked.connect(self._ref_file_act)
+        ref_file_btn.clicked.connect(self._ref_file_assign_act)
 
         # layout
 
@@ -88,7 +89,8 @@ class ComparisonSetupWidget(qw.QWidget):
         if res == qw.QMessageBox.Yes:
             self.files_model.clear()
 
-    def _ref_file_act(self):
+    def _ref_file_assign_act(self):
         indexes: t.List[qc.QModelIndex] = self.files_lw.selectedIndexes()
         for idx in indexes:
-            self.files_model.set_ref_file(idx)
+            file = self.files_model.data(idx, Roles.DataKeyRole)
+            self.files_model.ref_file = file
