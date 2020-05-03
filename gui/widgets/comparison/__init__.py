@@ -1,2 +1,2 @@
-from .setup import ComparisonSetupWidget
+from .setup import ComparisonSetup
 from .file_manager import FileManager

@@ -1,20 +1,17 @@
 import typing as t
 import pathlib as pl
-import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
-from gui.models.comparison import ComparisonFilesModel
-from gui.models import Roles
 from gui.widgets import NoteButton
 from gui.widgets.comparison.file_manager import FileManager
 from gui import settings
 
 
-class ComparisonSetupWidget(qw.QWidget):
+class ComparisonSetup(qw.QWidget):
     def __init__(self,
                  parent: t.Optional[qw.QWidget] = None,
-                 f: qq.WindowFlags = qc.Qt.WindowFlags()):
+                 f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
         # dialogs
