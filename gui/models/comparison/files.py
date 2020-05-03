@@ -42,13 +42,24 @@ class ComparisonFilesModel(qc.QAbstractListModel):
         self._ref_file = value
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
 
+    @property
+    def exist_ref_file(self) -> t.Optional[pl.Path]:
+        r = self._ref_file
+        return r if r and r.exists() else None
+
+    @property
     def other_files(self) -> t.List[pl.Path]:
+        files = self._files.copy()
         if self._ref_file is not None:
-            files_copy = self._files.copy()
-            files_copy.remove(self._ref_file)
-            return files_copy
-        else:
-            return self._files
+            files.remove(self._ref_file)
+        return files
+
+    @property
+    def exist_other_files(self) -> t.List[pl.Path]:
+        files = self._files.copy()
+        if self._ref_file is not None:
+            files.remove(self._ref_file)
+        return [f for f in files if f.exists()]
 
     def append_file(self, path: str):
         file = pl.Path(path)

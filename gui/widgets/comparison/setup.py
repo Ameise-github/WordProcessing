@@ -1,5 +1,7 @@
 import typing as t
+import pathlib as pl
 import PySide2.QtCore as qc
+import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 from gui.models.comparison import ComparisonFilesModel
@@ -57,7 +59,6 @@ class ComparisonSetupWidget(qw.QWidget):
         alg_sep = qw.QFrame()
         alg_sep.setMinimumHeight(1)
         alg_sep.setFrameShape(qw.QFrame.StyledPanel)
-        # alg_sep.setFrameShadow(qw.QFrame.Sunken)
 
         udp_lbl = qw.QLabel('Файл UDPipe модели:')
         udp_file_lned = qw.QLineEdit()
@@ -72,14 +73,22 @@ class ComparisonSetupWidget(qw.QWidget):
         compare_btn = qw.QPushButton('Запуск')
         compare_btn.setMinimumWidth(btn_min_width)
 
+        warning_btn = qw.QPushButton('Внимание!')
+        warning_btn.setObjectName('warning-note')
+        warning_btn.setFlat(True)
+        warning_btn.setStyleSheet('QPushButton { color: rgb(210,105,30); text-align: left; }')
+        warning_btn.setIcon(qg.QIcon.fromTheme('dialog-warning'))
+
         # connections
 
-        file_add_btn.clicked.connect(self._file_add_act)
-        file_remove_btn.clicked.connect(self._file_remove_act)
-        files_show_path_cbx.clicked.connect(self._file_show_path_act)
-        files_clear_btn.clicked.connect(self._files_clear_act)
-        ref_file_btn.clicked.connect(self._ref_file_assign_act)
-        udp_add_btn.clicked.connect(self._udp_set_file_act)
+        file_add_btn.clicked.connect(self._on_add_file)
+        file_remove_btn.clicked.connect(self._on_remove_file)
+        files_show_path_cbx.clicked.connect(self._on_show_path_files)
+        files_clear_btn.clicked.connect(self._on_clear_files)
+        ref_file_btn.clicked.connect(self._on_assign_ref_file)
+        udp_add_btn.clicked.connect(self._on_choose_udp_file)
+        compare_btn.clicked.connect(self._on_run_comparison)
+        warning_btn.clicked.connect(self._on_hide_warning)
 
         # layout
 
@@ -113,18 +122,17 @@ class ComparisonSetupWidget(qw.QWidget):
         opt_vbox.addStretch(1)
         opt_gbx.setLayout(opt_vbox)
 
+        bottom_hbox = qw.QHBoxLayout()
+        bottom_hbox.addWidget(warning_btn, 1)
+        bottom_hbox.addWidget(compare_btn, 0, qq.AlignRight)
+
         files_vbox = qw.QVBoxLayout()
         files_vbox.addLayout(files_ctl_hbox)
         files_vbox.addWidget(files_lw, 1)
         files_vbox.addLayout(ref_file_hbox)
         files_vbox.addWidget(alg_gbx)
         files_vbox.addWidget(opt_gbx)
-        files_vbox.addWidget(compare_btn, 0, qq.AlignRight)
-
-        # setup
-
-        self.setLayout(files_vbox)
-        self.setWindowTitle('Анализ и сравнение текстов')
+        files_vbox.addLayout(bottom_hbox)
 
         # fields
 
@@ -136,36 +144,86 @@ class ComparisonSetupWidget(qw.QWidget):
         self.files_lw = files_lw
         self.files_show_path_cbx = files_show_path_cbx
 
+        self.alg_stochastic_cbx = alg_stochastic_cbx
+        self.alg_jaccard_cbx = alg_jaccard_cbx
+        self.alg_cossim_cbx = alg_cossim_cbx
+
         self.udp_file_lned = udp_file_lned
 
-    def _file_add_act(self):
+        self.warning_btn = warning_btn
+
+        # setup
+
+        self.setLayout(files_vbox)
+        self.setWindowTitle('Анализ и сравнение текстов')
+
+        self._on_hide_warning()
+
+    def _show_warning(self, text: str):
+        self.warning_btn.setText(text)
+        self.warning_btn.show()
+
+    def _on_add_file(self):
         if self.dialog_add_text.exec_():
             files = self.dialog_add_text.selectedFiles()
             for f in files:
                 self.files_model.append_file(f)
 
-    def _file_remove_act(self):
+    def _on_remove_file(self):
         indexes: t.List[qc.QModelIndex] = self.files_lw.selectedIndexes()
         for idx in indexes:
             self.files_model.removeRows(idx.row(), 1)
 
-    def _file_show_path_act(self):
+    def _on_show_path_files(self):
         self.files_model.show_paths = self.files_show_path_cbx.isChecked()
 
-    def _files_clear_act(self):
+    def _on_clear_files(self):
         if self.files_model.rowCount() <= 0:
             return
         res = qw.QMessageBox.question(self, 'Очистка списка', 'Очистить список файлов?')
         if res == qw.QMessageBox.Yes:
             self.files_model.clear()
 
-    def _ref_file_assign_act(self):
+    def _on_assign_ref_file(self):
         indexes: t.List[qc.QModelIndex] = self.files_lw.selectedIndexes()
         for idx in indexes:
             file = self.files_model.data(idx, Roles.DataKeyRole)
             self.files_model.ref_file = file
 
-    def _udp_set_file_act(self):
+    def _on_choose_udp_file(self):
         if self.dialog_set_udp.exec_():
             file = self.dialog_set_udp.selectedFiles()[0]
             self.udp_file_lned.setText(file)
+
+    def _on_run_comparison(self):
+        ref_file = self.files_model.exist_ref_file
+        other_files = self.files_model.exist_other_files
+
+        chk_stochastic = self.alg_stochastic_cbx.isChecked()
+        chk_jaccard = self.alg_jaccard_cbx.isChecked()
+        chk_cossim = self.alg_cossim_cbx.isChecked()
+
+        udp_file = self.udp_file_lned.text()
+        if not udp_file:
+            udp_file = settings.DEFAULT_UDPIPE_FILE
+        else:
+            udp_file = pl.Path(udp_file)
+
+        try:
+            if not ref_file:
+                if len(other_files) <= 1:
+                    raise ValueError('Доступно менее двух текстов')
+                raise ValueError('Эталонный текст недоступен')
+            if not (chk_stochastic or chk_jaccard or chk_cossim):
+                raise ValueError('Не выбран алгоритм сравнения')
+            if not udp_file.exists():
+                raise ValueError('Файл UDPipe недоступен')
+        except ValueError as v:
+            self._show_warning(v.args[0])
+            return
+        self._on_hide_warning()
+
+        # TODO показать окно выполнения
+
+    def _on_hide_warning(self):
+        self.warning_btn.hide()
