@@ -43,13 +43,17 @@ class ComparisonSetupWidget(qw.QWidget):
 
         file_add_btn = qw.QPushButton('Добавить...')
         file_add_btn.setMinimumWidth(btn_min_width)
+        file_add_btn.setIcon(qg.QIcon.fromTheme('list-add'))
         file_remove_btn = qw.QPushButton('Удалить')
         file_remove_btn.setMinimumWidth(btn_min_width)
+        file_remove_btn.setIcon(qg.QIcon.fromTheme('list-remove'))
         files_show_path_cbx = qw.QCheckBox('Показать полный путь')
         files_clear_btn = qw.QPushButton('Очистить')
         files_clear_btn.setMinimumWidth(btn_min_width)
+        files_clear_btn.setIcon(qg.QIcon.fromTheme('edit-clear'))
 
         ref_file_btn = qw.QPushButton('Выбрать эталонным')
+        ref_file_btn.setIcon(qg.QIcon.fromTheme('go-up'))
 
         alg_gbx = qw.QGroupBox('Алгоритмы сравнений')
         alg_stochastic_cbx = qw.QCheckBox('Стохастический')
@@ -66,12 +70,14 @@ class ComparisonSetupWidget(qw.QWidget):
         udp_file_lned.setPlaceholderText(settings.DEFAULT_UDPIPE_FILE.name)
         udp_add_btn = qw.QPushButton('Обзор...')
         udp_add_btn.setMinimumWidth(btn_min_width)
+        udp_add_btn.setIcon(qg.QIcon.fromTheme('document-open'))
 
         opt_gbx = qw.QGroupBox('Опционально')
         opt_define_topic_cbx = qw.QCheckBox('Определить тематику')
 
         compare_btn = qw.QPushButton('Запуск')
         compare_btn.setMinimumWidth(btn_min_width)
+        compare_btn.setIcon(qg.QIcon.fromTheme('system-run'))
 
         warning_btn = qw.QPushButton('Внимание!')
         warning_btn.setObjectName('warning-note')
