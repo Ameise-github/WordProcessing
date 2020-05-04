@@ -64,14 +64,13 @@ class text_analysis:
         return tokenPos
 
     # Отображение синтаксического дерева
-    def view_syntax_tree(self, pathText, nlp):
+    def view_syntax_tree(self, pathText, trainTextUdpipe):
         """
         Отрисовка синтаксического дерева
         :param pathText: пусть к тексту
         :param nlp: Модель для синтаксичского аналза типа spacy_udpipe
         :return: html представление дерева
         """
-        text_tmp = Text(pathText)
-        text_tmp.doc = nlp(' '.join(text_tmp.tokenz))
+        text_tmp = Text(pathText,trainTextUdpipe)
         html_trees = displacy.render(text_tmp.doc, style="dep")
         return html_trees
