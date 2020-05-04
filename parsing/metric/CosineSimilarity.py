@@ -4,8 +4,8 @@ from parsing.text import Text
 
 
 class CosineSimilarity(MetricAnalysis):
-    def __init__(self, trainTextUdpipe):
-        super().__init__(trainTextUdpipe)
+    def __init__(self):
+        super().__init__()
         self.name = "Косинусное сходство"
 
     def run(self):

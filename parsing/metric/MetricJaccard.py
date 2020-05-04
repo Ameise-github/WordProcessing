@@ -5,8 +5,8 @@ from gensim.matutils import jaccard
 
 
 class MetricJaccard(MetricAnalysis):
-    def __init__(self, trainTextUdpipe):
-        super().__init__(trainTextUdpipe)
+    def __init__(self):
+        super().__init__()
         self.name = "Метрика Жаккарда"
 
     def run(self):

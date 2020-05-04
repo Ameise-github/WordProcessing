@@ -68,7 +68,7 @@ class text_analysis:
         """
         Отрисовка синтаксического дерева
         :param pathText: пусть к тексту
-        :param nlp: Модель для синтаксичского аналза типа spacy_udpipe
+        :param trainTextUdpipe: Модель для тренировки синтаксичского аналза
         :return: html представление дерева
         """
         text_tmp = Text(pathText,trainTextUdpipe)

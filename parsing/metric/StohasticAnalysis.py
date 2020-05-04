@@ -6,12 +6,12 @@ from parsing.text import Text
 
 
 class StohasticAnalysis(MetricAnalysis):
-    def __init__(self, trainTextUdpipe):
-        super().__init__(trainTextUdpipe)
+    def __init__(self):
+        super().__init__()
         self.name = "Критерий стохастического подобия"
 
     def set_text_standart(self, path_file):
-        ts = Text(path_file, self.trainTextUdpipe)
+        ts = Text(path_file, self._trainTextUdpipe)
         ts.freq_dist_dic()
         ts.matrix_syntax()
         ts.get_entropy()
@@ -19,7 +19,7 @@ class StohasticAnalysis(MetricAnalysis):
         self._text_standart = ts
 
     def set_text(self, path_file):
-        t = Text(path_file, self.trainTextUdpipe)
+        t = Text(path_file, self._trainTextUdpipe)
         t.freq_dist_dic()
         t.matrix_syntax()
         t.get_entropy()

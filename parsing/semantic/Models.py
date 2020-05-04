@@ -115,7 +115,7 @@ class Models:
         return id2word, corpus
 
     # Визуализация тематики (модели LDA)
-    def view_topic_LDA(self, lda_model, corpus, id2word, name_file):
+    def view_topic_LDA(self, data_lemmatized_list, optimal_topics=False):
         """
         Визуализация тематики (модели LDA)
         :param lda_model: модель LDA
@@ -124,6 +124,10 @@ class Models:
         :param name_file: наименование файла для сохранения
         :return: строка html
         """
+        #Получить модель LDA
+        lda_model = self.text_LDA(data_lemmatized_list, optimal_topics)
+        # Получить корпус и словарь
+        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list)
         # Визуализация модели LDA
         # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
         # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
@@ -132,7 +136,7 @@ class Models:
         # pyLDAvis.save_html(vis, name_file)
         # Вывод html
         vis_srt = pyLDAvis.prepared_data_to_html(vis)
-        return vis_srt
+        return vis_srt, lda_model
 
     def compute_coherence_values(self, dictionary, corpus, texts, limit, start=2, step=3):
         """
@@ -155,14 +159,15 @@ class Models:
         return model_list, coherence_values
 
     # отображает доминирующую тему и ее процентный вклад в каждом документе
-    def format_topics_sentences(self, ldamodel=None, corpus=None, textsList=None):
+    def format_topics_sentences(self, ldamodel, data_lemmatized_list, textsList):
         """
         Выводит доминирующую тему каждого текста
         :param ldamodel: LDA model
-        :param corpus: корпус текстов
+        :param data_lemmatized_list: список лемм всех текстов
         :param textsList: список объектов типа Text
         :return: список (номер темы, вес темы для этого текста, ключевые слова, объект Text)
         """
+        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list)
         # инициализация выходной информации
         sent_topics_df = []
         # Получить основную тему в каждом документе
