@@ -13,7 +13,7 @@ from parsing.text import Text
 from parsing.semantic.Models import Models
 from parsing.text_metric_analysis import text_metric_analysis
 
-from parsing.text_analysis import text_analysis
+from parsing.TextAnalysis import TextAnalysis
 import spacy_udpipe
 
 trainTextUdpipe = "../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe"
@@ -55,7 +55,7 @@ def main():
     # print(list_thems_doc)
 
     # Морфологический анализ
-    morhp_an = text_analysis()
+    morhp_an = TextAnalysis()
     tokenPosList = morhp_an.morph_analysis(trainTextNLTK4russian, textOriginal1)
     pprint(tokenPosList)
     print()

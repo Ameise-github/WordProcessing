@@ -7,7 +7,7 @@ from parsing.text import Text
 from spacy import displacy
 
 
-class text_analysis:
+class TextAnalysis:
     """
     Класс текстового анализа.
     Включает в себя морфологию и синтаксис
