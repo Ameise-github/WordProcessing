@@ -6,6 +6,7 @@ from PySide2.QtCore import Qt as qq
 from gui.widgets import NoteButton
 from gui.widgets.comparison.file_manager import FileManager
 from gui import settings
+from gui.models.comparison import ComparisonAlgorithmsModel, AlgorithmList
 
 
 class ComparisonSetup(qw.QWidget):
@@ -13,6 +14,10 @@ class ComparisonSetup(qw.QWidget):
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
+
+        # models
+
+        algorithms_model = ComparisonAlgorithmsModel()
 
         # dialogs
 
@@ -25,86 +30,96 @@ class ComparisonSetup(qw.QWidget):
 
         # widgets
 
+        file_man_gbx = qw.QGroupBox('Файлы текстов')
         file_man = FileManager()
 
         alg_gbx = qw.QGroupBox('Алгоритмы сравнений')
-        alg_stochastic_cbx = qw.QCheckBox('Стохастический')
-        alg_jaccard_cbx = qw.QCheckBox('Коэффициент Жаккара')
-        alg_cossim_cbx = qw.QCheckBox('Косинусное сходство')
+        algorithms_lv = qw.QListView()
+        algorithms_lv.setModel(algorithms_model)
 
-        alg_sep = qw.QFrame()
-        alg_sep.setMinimumHeight(1)
-        alg_sep.setFrameShape(qw.QFrame.StyledPanel)
-
-        udp_lbl = qw.QLabel('Файл UDPipe модели:')
+        udp_lbl = qw.QLabel('UDPipe файл:')
         udp_file_lned = qw.QLineEdit()
         udp_file_lned.setReadOnly(True)
         udp_file_lned.setPlaceholderText(settings.DEFAULT_UDPIPE_FILE.name)
         udp_add_btn = qw.QPushButton('Обзор...')
         udp_add_btn.setIcon(qg.QIcon.fromTheme('document-open'))
 
-        opt_gbx = qw.QGroupBox('Опционально')
-        opt_define_topic_cbx = qw.QCheckBox('Определить тематику')
-
-        compare_btn = qw.QPushButton('Запуск')
-        compare_btn.setIcon(qg.QIcon.fromTheme('system-run'))
+        actions_gbx = qw.QGroupBox('Операции')
+        act_define_topic_btn = qw.QPushButton('Определить тематику')
+        act_define_topic_btn.setIcon(qg.QIcon.fromTheme('system-run'))
+        act_compare_btn = qw.QPushButton('Выполнить сравнение')
+        act_compare_btn.setIcon(qg.QIcon.fromTheme('system-run'))
 
         note_btn = NoteButton()
 
         # connections
 
         udp_add_btn.clicked.connect(self._on_choose_udp_file)
-        compare_btn.clicked.connect(self._on_run_comparison)
+        act_compare_btn.clicked.connect(self._on_run_comparison)
 
         # layout
+
+        file_man_vbox = qw.QVBoxLayout()
+        file_man_vbox.addWidget(file_man)
+        file_man_gbx.setLayout(file_man_vbox)
 
         udp_file_hbox = qw.QHBoxLayout()
         udp_file_hbox.addWidget(udp_file_lned, 1)
         udp_file_hbox.addWidget(udp_add_btn)
 
         alg_vbox = qw.QVBoxLayout()
-        alg_vbox.addWidget(alg_stochastic_cbx)
-        alg_vbox.addWidget(alg_jaccard_cbx)
-        alg_vbox.addWidget(alg_cossim_cbx)
-        alg_vbox.addWidget(alg_sep)
+        alg_vbox.addWidget(algorithms_lv)
         alg_vbox.addWidget(udp_lbl)
         alg_vbox.addLayout(udp_file_hbox)
         alg_vbox.addStretch(1)
         alg_gbx.setLayout(alg_vbox)
 
-        opt_vbox = qw.QVBoxLayout()
-        opt_vbox.addWidget(opt_define_topic_cbx)
-        opt_vbox.addStretch(1)
-        opt_gbx.setLayout(opt_vbox)
+        actions_hbox = qw.QHBoxLayout()
+        actions_hbox.addWidget(act_define_topic_btn)
+        actions_hbox.addWidget(act_compare_btn)
+        actions_gbx.setLayout(actions_hbox)
 
-        bottom_hbox = qw.QHBoxLayout()
-        bottom_hbox.addWidget(note_btn, 1)
-        bottom_hbox.addWidget(compare_btn, 0, qq.AlignRight)
-
-        files_vbox = qw.QVBoxLayout()
-        files_vbox.addWidget(file_man)
-        files_vbox.addWidget(alg_gbx)
-        files_vbox.addWidget(opt_gbx)
-        files_vbox.addLayout(bottom_hbox)
+        vbox = qw.QVBoxLayout()
+        vbox.addWidget(file_man_gbx)
+        vbox.addWidget(alg_gbx)
+        vbox.addWidget(actions_gbx)
+        vbox.addWidget(note_btn)
+        self.setLayout(vbox)
 
         # fields
 
         self.dialog_set_udp = dialog_set_udp
-
         self.file_man = file_man
-
-        self.alg_stochastic_cbx = alg_stochastic_cbx
-        self.alg_jaccard_cbx = alg_jaccard_cbx
-        self.alg_cossim_cbx = alg_cossim_cbx
-
+        self.alg_gbx = alg_gbx
+        self.algorithms_lv = algorithms_lv
         self.udp_file_lned = udp_file_lned
-
+        self.act_compare_btn = act_compare_btn
         self.note_btn = note_btn
 
         # setup
 
-        self.setLayout(files_vbox)
         self.setWindowTitle('Анализ и сравнение текстов')
+
+    @property
+    def algorithms(self) -> AlgorithmList:
+        model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
+        return model.algorithms
+
+    @algorithms.setter
+    def algorithms(self, value: AlgorithmList):
+        model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
+        model.algorithms = value
+
+        # check
+        empty = not bool(value)
+        if empty:
+            qw.QMessageBox.warning(
+                self,
+                'Список алгоритмов',
+                'Алгоритмы сравнения текстов не заданы, сравнение невозможно')
+        # setup
+        self.act_compare_btn.setEnabled(not empty)
+        self.alg_gbx.setEnabled(not empty)
 
     def _on_choose_udp_file(self):
         if self.dialog_set_udp.exec_():
@@ -115,9 +130,8 @@ class ComparisonSetup(qw.QWidget):
         ref_file = self.file_man.model.exist_ref_file
         other_files = self.file_man.model.exist_other_files
 
-        chk_stochastic = self.alg_stochastic_cbx.isChecked()
-        chk_jaccard = self.alg_jaccard_cbx.isChecked()
-        chk_cossim = self.alg_cossim_cbx.isChecked()
+        alg_model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
+        checked_algs = alg_model.checked_algorithms()
 
         udp_file = self.udp_file_lned.text()
         if not udp_file:
@@ -130,7 +144,7 @@ class ComparisonSetup(qw.QWidget):
                 if len(other_files) <= 1:
                     raise ValueError('Доступно менее двух текстов')
                 raise ValueError('Эталонный текст недоступен')
-            if not (chk_stochastic or chk_jaccard or chk_cossim):
+            if not checked_algs:
                 raise ValueError('Не выбран алгоритм сравнения')
             if not udp_file.exists():
                 raise ValueError('Файл UDPipe недоступен')
