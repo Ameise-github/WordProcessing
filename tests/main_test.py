@@ -5,13 +5,12 @@ from spacy import displacy
 
 from parsing.ThemsText import ThemsText
 from parsing.metric.CosineSimilarity import CosineSimilarity
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.metric.MetricJaccard import MetricJaccard
 from parsing.metric.PragmaticAdequacy import PragmaticAdequacy
 from parsing.metric.StohasticAnalysis import StohasticAnalysis
 from parsing.text import Text
 from parsing.semantic.Models import Models
-from parsing.text_metric_analysis import text_metric_analysis
 
 from parsing.TextAnalysis import TextAnalysis
 import spacy_udpipe

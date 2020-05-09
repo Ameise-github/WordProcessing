@@ -1,8 +1,8 @@
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.text import Text
 
 
-class PragmaticAdequacy(MetricAnalysis):
+class PragmaticAdequacy(BaseMetricAnalysis):
     def __init__(self):
         super().__init__()
         self.name = "Показатель прагматической адекватности"

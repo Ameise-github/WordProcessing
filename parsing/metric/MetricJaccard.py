@@ -1,10 +1,10 @@
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.semantic.Models import Models
 from parsing.text import Text
 from gensim.matutils import jaccard
 
 
-class MetricJaccard(MetricAnalysis):
+class MetricJaccard(BaseMetricAnalysis):
     def __init__(self):
         super().__init__()
         self.name = "Метрика Жаккарда"

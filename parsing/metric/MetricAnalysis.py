@@ -1,7 +1,7 @@
 from parsing.text import Text
 
 
-class MetricAnalysis:
+class BaseMetricAnalysis:
     def __init__(self):
         self._text_standart: Text = None
         self._text: Text = None
