@@ -1,9 +1,9 @@
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.semantic.Models import Models
 from parsing.text import Text
 
 
-class CosineSimilarity(MetricAnalysis):
+class CosineSimilarity(BaseMetricAnalysis):
     def __init__(self):
         super().__init__()
         self.name = "Косинусное сходство"

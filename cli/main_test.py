@@ -5,7 +5,7 @@ from spacy import displacy
 
 from parsing.ThemsText import ThemsText
 from parsing.metric.CosineSimilarity import CosineSimilarity
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.metric.MetricJaccard import MetricJaccard
 from parsing.metric.PragmaticAdequacy import PragmaticAdequacy
 from parsing.metric.StohasticAnalysis import StohasticAnalysis

@@ -1,11 +1,11 @@
 import math
 
 from parsing.approximation_CT import approximation_CT
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 from parsing.text import Text
 
 
-class StohasticAnalysis(MetricAnalysis):
+class StohasticAnalysis(BaseMetricAnalysis):
     def __init__(self):
         super().__init__()
         self.name = "Критерий стохастического подобия"
