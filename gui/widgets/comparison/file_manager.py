@@ -25,8 +25,8 @@ class FileManager(qw.QWidget):
 
         # widgets
 
-        files_lw = qw.QListView()
-        files_lw.setModel(model)
+        files_lv = qw.QListView()
+        files_lv.setModel(model)
 
         add_btn = qw.QPushButton('Добавить...')
         add_btn.setIcon(qg.QIcon.fromTheme('list-add'))
@@ -63,7 +63,7 @@ class FileManager(qw.QWidget):
         vbox = qw.QVBoxLayout()
         vbox.setMargin(0)
         vbox.addLayout(files_ctl_hbox)
-        vbox.addWidget(files_lw, 1)
+        vbox.addWidget(files_lv, 1)
         vbox.addLayout(ref_hbox)
 
         # fields
@@ -72,7 +72,7 @@ class FileManager(qw.QWidget):
 
         self._model = model
 
-        self.files_lw = files_lw
+        self.files_lv = files_lv
         self.show_path_cbx = show_path_cbx
 
         # setup
@@ -86,7 +86,7 @@ class FileManager(qw.QWidget):
     @model.setter
     def model(self, value: ComparisonFilesModel):
         self._model = value
-        self.files_lw.setModel(value)
+        self.files_lv.setModel(value)
 
     def _on_add_file(self):
         if self.dialog_add_text.exec_():
@@ -95,7 +95,7 @@ class FileManager(qw.QWidget):
                 self._model.append_file(f)
 
     def _on_remove_file(self):
-        indexes: t.List[qc.QModelIndex] = self.files_lw.selectedIndexes()
+        indexes: t.List[qc.QModelIndex] = self.files_lv.selectedIndexes()
         for idx in indexes:
             self._model.removeRows(idx.row(), 1)
 
@@ -110,7 +110,7 @@ class FileManager(qw.QWidget):
             self._model.clear()
 
     def _on_assign_ref(self):
-        indexes: t.List[qc.QModelIndex] = self.files_lw.selectedIndexes()
+        indexes: t.List[qc.QModelIndex] = self.files_lv.selectedIndexes()
         for idx in indexes:
             file = self._model.data(idx, Roles.DataKeyRole)
             self._model.ref_file = file
