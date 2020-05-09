@@ -11,7 +11,6 @@ from parsing.metric.PragmaticAdequacy import PragmaticAdequacy
 from parsing.metric.StohasticAnalysis import StohasticAnalysis
 from parsing.text import Text
 from parsing.semantic.Models import Models
-from parsing.text_metric_analysis import text_metric_analysis
 
 from parsing.TextAnalysis import TextAnalysis
 import spacy_udpipe
