@@ -5,9 +5,9 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from gui.models import Roles
 
-from parsing.metric.MetricAnalysis import MetricAnalysis
+from parsing.metric.MetricAnalysis import BaseMetricAnalysis
 
-AlgorithmList = t.List[MetricAnalysis]
+AlgorithmList = t.List[BaseMetricAnalysis]
 
 
 class ComparisonAlgorithmsModel(qc.QAbstractListModel):
@@ -39,7 +39,7 @@ class ComparisonAlgorithmsModel(qc.QAbstractListModel):
     def rowCount(self, parent: qc.QModelIndex = qc.QModelIndex()) -> int:
         return len(self._algorithms)
 
-    def data(self, index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Union[MetricAnalysis, t.Any]:
+    def data(self, index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Union[BaseMetricAnalysis, t.Any]:
         if not index.isValid():
             return None
 
