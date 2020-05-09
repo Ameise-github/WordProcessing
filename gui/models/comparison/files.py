@@ -8,8 +8,8 @@ from gui.models import Roles
 
 
 class Colors:
-    NOT_EXISTS = qg.QColor('#CC0000')
-    REF_FILE = qg.QColor('#336600')
+    FG_NOT_EXISTS = qg.QColor('#CC0000')
+    BG_REF_FILE = qg.QColor('#DDFFC0')
     WHITE = qg.QColor(255, 255, 255)
 
 
@@ -82,31 +82,37 @@ class ComparisonFilesModel(qc.QAbstractListModel):
         is_file_exists = file.exists()
         is_ref_file = (file == self._ref_file)
 
-        if role == qq.DisplayRole:
+        if qq.DisplayRole == role:
+            file_name = file.name
             if self._show_paths:
-                return str(file)
-            else:
-                return file.name
-        elif role == qq.TextColorRole:
+                file_name = str(file)
+            if is_ref_file:
+                file_name += ' [Эталонный]'
+            return file_name
+
+        elif qq.TextColorRole == role:
             if not is_file_exists:
-                return Colors.NOT_EXISTS
-            elif is_ref_file:
-                return Colors.REF_FILE
-        elif role == qq.FontRole:
+                return Colors.FG_NOT_EXISTS
+
+        elif qq.FontRole == role:
             font = qg.QFont()
             if not is_file_exists:
                 font.setItalic(True)
-            if is_ref_file:
-                font.setBold(True)
             return font
-        elif role == qq.ToolTipRole:
+
+        elif qq.BackgroundRole == role:
+            if is_ref_file:
+                return Colors.BG_REF_FILE
+
+        elif qq.ToolTipRole == role:
             tool_tips = []
             if not is_file_exists:
                 tool_tips.append('Файл не найден')
             if is_ref_file:
                 tool_tips.append('Эталонный текст')
             return '\n'.join(tool_tips)
-        elif role == Roles.DataKeyRole:
+
+        elif Roles.DataKeyRole == role:
             return file
 
         return None
