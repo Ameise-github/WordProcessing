@@ -23,18 +23,11 @@ class Models:
         :param data_lemmatized_list: лист лемм всех документов
         :return:
         """
-        # Модель для получения биграмм и триграмм
-        bigram = models.Phrases(data_lemmatized_list, min_count=10, threshold=100)  # выше threshold .
-        trigram = models.Phrases(bigram[data_lemmatized_list], threshold=100)
-        # Более быстрый способ получить предложение, разабитое как триграмма / биграмма
-        # bigram_mod = models.phrases.Phraser(bigram)
-        # trigram_mod = models.phrases.Phraser(trigram)
-        # Получение биграмм
-        # data_words_bigrams = self.make_bigrams(data_words_tokens, bigram_mod)
-        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list, bigram, trigram)
+        #формирование словваря и корпуса
+        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list)
 
         if optimal_topics:
-            # Вызовем функцию и посчитаем
+            # Вызовем функцию и посчитаем оптимальное количество тем
             model_list, coherence_values = self.compute_coherence_values(dictionary=id2word, corpus=corpus,
                                                                          texts=data_lemmatized_list,
                                                                          start=len(data_lemmatized_list), limit=35,
@@ -67,11 +60,6 @@ class Models:
         # ключевые слова для каждой темы и вес (важность) каждого ключевого слова
         # pprint(lda_model.print_topics())
 
-        # tfidf = models.TfidfModel(corpus)
-        # for doc in tfidf[corpus]:
-        #     print([[id2word[id], np.around(freq, decimals=2)] for id, freq in doc])
-        #     print([[id, np.around(freq, decimals=2)] for id, freq in doc])
-
         return lda_model
 
     # модель LSI
@@ -99,23 +87,16 @@ class Models:
         index = similarities.MatrixSimilarity(lsi[corpus])
         return lsi, index
 
-    # Получение биграмм
-    def make_bigrams(self, docsTokenList, bigram_mod):
-        return [bigram_mod[docToken] for docToken in docsTokenList]
-
-    # Получение триграмм
-    def make_trigrams(self, docs, bigram_mod, trigram_mod):
-        return [trigram_mod[bigram_mod[doc]] for doc in docs]
-
     # Формирование словаря и корпуса
-    def get_corpus_dictionary(self, data_lemmatized_list, bigram, trigram):
+    def get_corpus_dictionary(self, data_lemmatized_list):
         """
         Формирование словаря и корпуса (id2word,corpus)
         :param data_lemmatized_list: список демм текстов
-        :param bigram: модель биграммы
-        :param trigram: модель триграммы
         :return: (id2word,corpus)
         """
+        # Модель для получения биграмм и триграмм
+        bigram = models.Phrases(data_lemmatized_list, min_count=10, threshold=100)  # выше threshold .
+        trigram = models.Phrases(bigram[data_lemmatized_list], threshold=100)
         for idx in range(len(data_lemmatized_list)):
             for token in bigram[data_lemmatized_list[idx]]:
                 if '_' in token:
@@ -134,7 +115,19 @@ class Models:
         return id2word, corpus
 
     # Визуализация тематики (модели LDA)
-    def view_topic_LDA(self, lda_model, corpus, id2word, name_file):
+    def view_topic_LDA(self, data_lemmatized_list, optimal_topics=False):
+        """
+        Визуализация тематики (модели LDA)
+        :param lda_model: модель LDA
+        :param corpus: корпус слов
+        :param id2word: словарь
+        :param name_file: наименование файла для сохранения
+        :return: строка html
+        """
+        #Получить модель LDA
+        lda_model = self.text_LDA(data_lemmatized_list, optimal_topics)
+        # Получить корпус и словарь
+        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list)
         # Визуализация модели LDA
         # vis = pyLDAvis.gensim.prepare(lda_model, corpus, id2word)
         # pyLDAvis.save_html(vis, 'LDA_Visualization.html')
@@ -143,7 +136,7 @@ class Models:
         # pyLDAvis.save_html(vis, name_file)
         # Вывод html
         vis_srt = pyLDAvis.prepared_data_to_html(vis)
-        return vis_srt
+        return vis_srt, lda_model
 
     def compute_coherence_values(self, dictionary, corpus, texts, limit, start=2, step=3):
         """
@@ -166,14 +159,15 @@ class Models:
         return model_list, coherence_values
 
     # отображает доминирующую тему и ее процентный вклад в каждом документе
-    def format_topics_sentences(self, ldamodel=None, corpus=None, textsList=None):
+    def format_topics_sentences(self, ldamodel, data_lemmatized_list, textsList):
         """
         Выводит доминирующую тему каждого текста
         :param ldamodel: LDA model
-        :param corpus: корпус текстов
+        :param data_lemmatized_list: список лемм всех текстов
         :param textsList: список объектов типа Text
         :return: список (номер темы, вес темы для этого текста, ключевые слова, объект Text)
         """
+        id2word, corpus = self.get_corpus_dictionary(data_lemmatized_list)
         # инициализация выходной информации
         sent_topics_df = []
         # Получить основную тему в каждом документе

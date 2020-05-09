@@ -37,11 +37,10 @@ class GraphematicAnalysis:
         Метод получения массива предложений разбитых на слова
     """
 
-    def __init__(self, path, punct=False):
+    def __init__(self, path):
         self.__phrase_counters = None
         self.__sentences = None
         self.path = path
-        self.punct = punct
         self.__init_collection(path)
 
     def __init_collection(self, path):
@@ -85,12 +84,7 @@ class GraphematicAnalysis:
             разбитое на слова предложение
         """
         tokens = word_tokenize(sent, language="russian")
-
-        if(self.punct):
-            puncttn = "\"#$%&'()*+-/:;<=>@[\\]^_`{|}~"
-            tokens = [i for i in tokens if (i not in puncttn)]
-        else:
-            tokens = [i for i in tokens if (i not in string.punctuation)]
+        tokens = [i for i in tokens if (i not in string.punctuation)]
 
         stop_words = stopwords.words('russian')
         # добавляем в список исключаемых слов новые

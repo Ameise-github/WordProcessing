@@ -7,59 +7,59 @@ class approximation_CT:
     """
     Класс для получения аппроксимации функции
     """
-    def __init__(self):
+    def __init__(self, entropy, entropy2, entropy3):
+        """
+
+        :param entropy: энтропия 1-ого порядка
+        :param entropy2: энтропия 2-ого порядка
+        :param entropy3: энтропия 3-ого порядка
+        """
         self.C1: float = 0
         self.C2: float = 0
         self.T1: float = 0
         self.T2: float = 0
         self.A: float = 0
         self.B: float = 0
+        self.get_approximation_value(entropy, entropy2, entropy3)
+        self.get_approximation_value_hyperexponential(entropy, entropy2)
+
 
     # Получение аппроксимации
-    def get_approximation_value(self, text):
+    def get_approximation_value(self, entropy, entropy2, entropy3):
         """
         Вычисление значений аппроксимации С и Т
-        :param text: объект типа Text
+        :param entropy: энтропия 1-ого порядка
+        :param entropy2: энтропия 2-ого порядка
+        :param entropy3: энтропия 3-ого порядка
         :return: объект approximation_CT со значеними
         """
         # Расчет значение С1 и С2
-        denominator1 = numpy.power(text.entropy3, 2) - 6 * text.entropy3 * text.entropy2 * text.entropy - 3 * \
-                       numpy.power(text.entropy2, 2) * numpy.power(text.entropy, 2) + 4 * text.entropy3 * \
-                       numpy.power(text.entropy, 3) + 4 * numpy.power(text.entropy2, 3)
+        denominator1 = numpy.power(entropy3, 2) - 6 * entropy3 * entropy2 * entropy - 3 * \
+                       numpy.power(entropy2, 2) * numpy.power(entropy, 2) + 4 * entropy3 * \
+                       numpy.power(entropy, 3) + 4 * numpy.power(entropy2, 3)
         sqrt_d1 = numpy.sqrt(denominator1)
-        numerator1 = 3 * text.entropy2 * text.entropy - text.entropy3 - 2 * numpy.power(text.entropy, 3)
+        numerator1 = 3 * entropy2 * entropy - entropy3 - 2 * numpy.power(entropy, 3)
         fraction1 = numerator1 / sqrt_d1
-        CC1 = 1/2 * (1 + fraction1)
-        CC2 = 1/2 * (1 - fraction1)
+        self.C1 = 1/2 * (1 + fraction1)
+        self.C2 = 1/2 * (1 - fraction1)
 
         # Расчет значений T1 и T2
-        denominator2 = 2 * (text.entropy2 - numpy.power(text.entropy, 2))
-        TT1 = (text.entropy3 - text.entropy2 * text.entropy - sqrt_d1) / denominator2
-        TT2 = (text.entropy3 - text.entropy2 * text.entropy + sqrt_d1) / denominator2
-
-        # Создать значение аппроксимации
-        text.CT.C1 = CC1
-        text.CT.C2 = CC2
-        text.CT.T1 = TT1
-        text.CT.T2 = TT2
-
-        # return ct_tmp
+        denominator2 = 2 * (entropy2 - numpy.power(entropy, 2))
+        self.T1 = (entropy3 - entropy2 * entropy - sqrt_d1) / denominator2
+        self.T2 = (entropy3 - entropy2 * entropy + sqrt_d1) / denominator2
 
     # Получение аппроксимации
-    def get_approximation_value_hyperexponential(self, text):
+    def get_approximation_value_hyperexponential(self, entropy, entropy2):
         """
         Вычисление значений аппроксимации по гиперэкспоненциальной функции
-        :param text: обрабоываемый текст типа Text
+        :param entropy: энтропия 1-ого порядка
+        :param entropy2: энтропия 2-ого порядка
         :return:
         """
-        AA = text.entropy / (2 * numpy.power(text.entropy, 2) - text.entropy2)
-        numeratorB = 3 * numpy.power(text.entropy, 2) - 2 * text.entropy2
-        denominatorB = 2 * numpy.power(text.entropy, 2) - text.entropy2
-        BB = numpy.sqrt(numpy.sqrt(numeratorB))/denominatorB
-        text.CT.A = AA
-        text.CT.B = BB
-
-        # return ct_tmp
+        self.A = entropy / (2 * numpy.power(entropy, 2) - entropy2)
+        numeratorB = 3 * numpy.power(entropy, 2) - 2 * entropy2
+        denominatorB = 2 * numpy.power(entropy, 2) - entropy2
+        self.B = numpy.sqrt(numpy.sqrt(numeratorB))/denominatorB
 
     # формирование первой части функции d
     def return_f(self):
