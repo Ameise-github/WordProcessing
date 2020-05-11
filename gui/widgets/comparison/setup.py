@@ -160,7 +160,7 @@ class ComparisonSetup(qw.QWidget):
         combinator.udpipe = udp_file
         combinator.algorithms = checked_algs
         combinator.reference = ref_file
-        combinator.files = other_files
+        combinator.others = other_files
 
         proc_w = ComparisonProcess(combinator, self)
         proc_w.exec_()
