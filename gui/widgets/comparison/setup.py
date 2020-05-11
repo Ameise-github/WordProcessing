@@ -6,7 +6,9 @@ from PySide2.QtCore import Qt as qq
 from gui.widgets import NoteButton
 from gui.widgets.comparison.file_manager import FileManager
 from gui import settings
+from gui.widgets.comparison.process import ComparisonProcess
 from gui.models.comparison import ComparisonAlgorithmsModel, AlgorithmList
+from gui.logic.comparison import ComparisonCombinator
 
 
 class ComparisonSetup(qw.QWidget):
@@ -154,5 +156,11 @@ class ComparisonSetup(qw.QWidget):
 
         self.note_btn.hide()
 
-        # TODO показать окно выполнения
-        qw.QMessageBox.information(self, '', 'Типа выполнение')
+        combinator = ComparisonCombinator()
+        combinator.udpipe = udp_file
+        combinator.algorithms = checked_algs
+        combinator.reference = ref_file
+        combinator.files = other_files
+
+        proc_w = ComparisonProcess(combinator, self)
+        proc_w.exec_()
