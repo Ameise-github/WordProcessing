@@ -4,11 +4,11 @@ import nltk
 from spacy import displacy
 
 from parsing.ThemsText import ThemsText
-from parsing.metric.CosineSimilarity import CosineSimilarity
-from parsing.metric.MetricAnalysis import BaseMetricAnalysis
-from parsing.metric.MetricJaccard import MetricJaccard
-from parsing.metric.PragmaticAdequacy import PragmaticAdequacy
-from parsing.metric.StohasticAnalysis import StohasticAnalysis
+from parsing.metric.cosine_similarity import CosineSimilarityAlgorithm
+from parsing.metric.base import BaseAlgorithm
+from parsing.metric.jaccard import JaccardAlgorithm
+from parsing.metric.pragmatic_adequacy import PragmaticAdequacyAlgorithm
+from parsing.metric.stochastic import StochasticAlgorithm
 from parsing.text import Text
 from parsing.semantic.Models import Models
 

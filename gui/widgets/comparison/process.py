@@ -1,12 +1,13 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
+import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
-from parsing.metric import BaseMetricAnalysis
-from gui.logic.comparison import ComparisonCombinator, ComparisonWorker
+from parsing.metric import BaseAlgorithm
+from gui.widgets.common import TimerLabel
+from gui.logic.comparison import ComparisonCombinator, ComparisionThread
 
 
 class ComparisonProcess(qw.QDialog):
@@ -17,7 +18,7 @@ class ComparisonProcess(qw.QDialog):
 
         # other
 
-        worker = ComparisonWorker(combinator)
+        thread = ComparisionThread(combinator, self)
 
         # widgets
 
@@ -26,13 +27,14 @@ class ComparisonProcess(qw.QDialog):
 
         result_tv = qw.QTableView()
 
-        process_lbl = qw.QLabel('Выполнение:')
-        process_value_lbl = qw.QLabel('подготовка')
+        timer_lbl = TimerLabel()
+        timer_lbl.interval = 500
 
         process_pb = qw.QProgressBar()
         process_pb.setMinimum(0)
-        process_pb.setMaximum(0)
-        process_pb.setFormat('   %v из %m')
+        process_pb.setMaximum(combinator.total())
+        process_pb.setValue(0)
+        process_pb.setFormat('  %v из %m')
 
         stop_btn = qw.QPushButton('Остановить')
         done_btn = qw.QPushButton('Готово')
@@ -40,11 +42,9 @@ class ComparisonProcess(qw.QDialog):
 
         # connect
 
-        worker.comparator.begin.connect(self.on_begin)
-        worker.comparator.processing.connect(self.on_processing)
-        worker.comparator.processed.connect(self.on_processed)
-        worker.comparator.end.connect(self.on_end)
-        worker.finished.connect(self.on_finished)
+        thread.processed.connect(self.on_processed)
+        thread.error.connect(self.on_error)
+        thread.finished.connect(self.on_finished)
         stop_btn.clicked.connect(self.on_stop_clicked)
         done_btn.clicked.connect(self.on_done_clicked)
 
@@ -54,9 +54,9 @@ class ComparisonProcess(qw.QDialog):
         ref_hbox.addWidget(ref_lbl)
         ref_hbox.addWidget(ref_value_lbl, 1)
 
-        process_hbox = qw.QHBoxLayout()
-        process_hbox.addWidget(process_lbl)
-        process_hbox.addWidget(process_value_lbl, 1)
+        progress_hbox = qw.QHBoxLayout()
+        progress_hbox.addWidget(timer_lbl)
+        progress_hbox.addWidget(process_pb, 1)
 
         bottom_hbox = qw.QHBoxLayout()
         bottom_hbox.addStretch(1)
@@ -66,16 +66,14 @@ class ComparisonProcess(qw.QDialog):
         vbox = qw.QVBoxLayout()
         vbox.addLayout(ref_hbox)
         vbox.addWidget(result_tv)
-        vbox.addWidget(process_lbl)
-        vbox.addWidget(process_value_lbl)
-        vbox.addWidget(process_pb)
+        vbox.addLayout(progress_hbox)
         vbox.addLayout(bottom_hbox)
 
         # fields
 
-        self.worker = worker
+        self.thread = thread
+        self.timer_lbl = timer_lbl
         self.process_pb = process_pb
-        self.process_value_lbl = process_value_lbl
         self.stop_btn = stop_btn
         self.done_btn = done_btn
 
@@ -86,35 +84,35 @@ class ComparisonProcess(qw.QDialog):
         self.setLayout(vbox)
 
     def showEvent(self, event: qg.QShowEvent):
-        self.worker.run()
+        self.timer_lbl.start()
+        self.thread.start()
         super().showEvent(event)
 
     def closeEvent(self, event: qg.QCloseEvent):
-        if self.worker.is_running():
-            qw.QMessageBox.warning(self, '', 'Остановите процесс сравнения')
+        if self.thread.isRunning():
+            qw.QMessageBox.warning(self, '', 'Выполняется процесс сравнения')
             event.ignore()
         else:
             event.accept()
 
-    def on_begin(self):
-        self.process_pb.setMaximum(self.worker.comparator.combinator.total())
+    def on_processed(self, alg: BaseAlgorithm, other: pl.Path, result: int):
+        value = self.process_pb.value() + 1
+        self.process_pb.setValue(value)
+        print(f'{other} => [{alg}] => {result}')
 
-    def on_processing(self, alg: BaseMetricAnalysis, file: pl.Path, number: int):
-        self.process_value_lbl.setText(f'{alg.name}\n{file}')
-
-    def on_processed(self, alg: BaseMetricAnalysis, file: pl.Path, number: int):
-        self.process_pb.setValue(number)
-
-    def on_end(self):
-        self.stop_btn.setEnabled(False)
+    def on_error(self, alg: BaseAlgorithm, other: pl.Path, text: str):
+        value = self.process_pb.value() + 1
+        self.process_pb.setValue(value)
+        print(f'{other} ==[ERROR]=> [{alg}] => {text}')
 
     def on_finished(self):
+        self.timer_lbl.stop()
         self.stop_btn.setVisible(False)
         self.done_btn.setVisible(True)
 
     def on_stop_clicked(self):
         self.stop_btn.setEnabled(False)
-        self.worker.stop()
+        self.thread.terminate()
 
     def on_done_clicked(self):
         self.close()

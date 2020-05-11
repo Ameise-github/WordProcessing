@@ -1,2 +1,2 @@
 from .combinator import ComparisonCombinator
-from .worker import ComparisonWorker
+from .thread import ComparisionThread

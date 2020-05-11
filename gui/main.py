@@ -13,7 +13,7 @@ def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:
     c = ComparisonCombinator()
     c.algorithms = algorithms
     c.reference = pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text1.txt')
-    c.files = [
+    c.others = [
         pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text2.txt')
     ]
     c.udpipe = pl.Path(
@@ -40,9 +40,9 @@ def main():
     nltk.download('stopwords')
 
     algorithms = [
-        pm.CosineSimilarity(),
-        pm.MetricJaccard(),
-        pm.StohasticAnalysis()
+        pm.CosineSimilarityAlgorithm(),
+        pm.JaccardAlgorithm(),
+        pm.StochasticAlgorithm()
     ]
 
     rc = exec_app(algorithms)
