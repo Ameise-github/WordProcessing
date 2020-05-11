@@ -14,10 +14,13 @@ class ComparisionThread(qc.QThread):
     def __init__(self, combinator: ComparisonCombinator, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
+        self.finished.connect(self.on_finished)
+
         self.combinator = combinator
+        self._pool = mp.Pool()
 
     def run(self):
-        with mp.Pool() as pool:
+        with self._pool as pool:
             for udpipe, alg, ref, other in self.combinator.combine():
                 pool.apply_async(
                     alg.process,
@@ -34,3 +37,6 @@ class ComparisionThread(qc.QThread):
 
     def on_process_error(self, alg: BaseAlgorithm, other: pl.Path, exception: BaseException):
         self.error.emit(alg, other, exception.args[0])
+
+    def on_finished(self):
+        self._pool.terminate()

@@ -3,7 +3,7 @@ import pathlib as pl
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
-from gui.widgets import NoteButton
+from gui.widgets.common import NoteButton
 from gui.widgets.comparison.file_manager import FileManager
 from gui import settings
 from gui.widgets.comparison.process import ComparisonProcess

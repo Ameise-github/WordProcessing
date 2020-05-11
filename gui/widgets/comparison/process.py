@@ -1,11 +1,12 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
+import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 from parsing.metric import BaseAlgorithm
+from gui.widgets.common import TimerLabel
 from gui.logic.comparison import ComparisonCombinator, ComparisionThread
 
 
@@ -25,6 +26,9 @@ class ComparisonProcess(qw.QDialog):
         ref_value_lbl = qw.QLabel(str(combinator.reference))
 
         result_tv = qw.QTableView()
+
+        timer_lbl = TimerLabel()
+        timer_lbl.interval = 500
 
         process_pb = qw.QProgressBar()
         process_pb.setMinimum(0)
@@ -50,6 +54,10 @@ class ComparisonProcess(qw.QDialog):
         ref_hbox.addWidget(ref_lbl)
         ref_hbox.addWidget(ref_value_lbl, 1)
 
+        progress_hbox = qw.QHBoxLayout()
+        progress_hbox.addWidget(timer_lbl)
+        progress_hbox.addWidget(process_pb, 1)
+
         bottom_hbox = qw.QHBoxLayout()
         bottom_hbox.addStretch(1)
         bottom_hbox.addWidget(stop_btn, 0, qq.AlignRight)
@@ -58,12 +66,13 @@ class ComparisonProcess(qw.QDialog):
         vbox = qw.QVBoxLayout()
         vbox.addLayout(ref_hbox)
         vbox.addWidget(result_tv)
-        vbox.addWidget(process_pb)
+        vbox.addLayout(progress_hbox)
         vbox.addLayout(bottom_hbox)
 
         # fields
 
         self.thread = thread
+        self.timer_lbl = timer_lbl
         self.process_pb = process_pb
         self.stop_btn = stop_btn
         self.done_btn = done_btn
@@ -75,6 +84,7 @@ class ComparisonProcess(qw.QDialog):
         self.setLayout(vbox)
 
     def showEvent(self, event: qg.QShowEvent):
+        self.timer_lbl.start()
         self.thread.start()
         super().showEvent(event)
 
@@ -96,6 +106,7 @@ class ComparisonProcess(qw.QDialog):
         print(f'{other} ==[ERROR]=> [{alg}] => {text}')
 
     def on_finished(self):
+        self.timer_lbl.stop()
         self.stop_btn.setVisible(False)
         self.done_btn.setVisible(True)
 
