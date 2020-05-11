@@ -7,7 +7,7 @@ from parsing.text import Text
 from spacy import displacy
 
 
-class text_analysis:
+class TextAnalysis:
     """
     Класс текстового анализа.
     Включает в себя морфологию и синтаксис
@@ -64,14 +64,13 @@ class text_analysis:
         return tokenPos
 
     # Отображение синтаксического дерева
-    def view_syntax_tree(self, pathText, nlp):
+    def view_syntax_tree(self, pathText, trainTextUdpipe):
         """
         Отрисовка синтаксического дерева
         :param pathText: пусть к тексту
-        :param nlp: Модель для синтаксичского аналза типа spacy_udpipe
+        :param trainTextUdpipe: Модель для тренировки синтаксичского аналза
         :return: html представление дерева
         """
-        text_tmp = Text(pathText)
-        text_tmp.doc = nlp(' '.join(text_tmp.tokenz))
+        text_tmp = Text(pathText,trainTextUdpipe)
         html_trees = displacy.render(text_tmp.doc, style="dep")
         return html_trees
