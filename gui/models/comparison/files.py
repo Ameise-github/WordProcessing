@@ -1,10 +1,12 @@
 import typing as t
 import pathlib as pl
+
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
-from gui.models import Roles
+
+from gui.models.roles import Roles
 
 
 class Colors:
@@ -112,7 +114,7 @@ class ComparisonFilesModel(qc.QAbstractListModel):
                 tool_tips.append('Эталонный текст')
             return '\n'.join(tool_tips)
 
-        elif Roles.DataKeyRole == role:
+        elif Roles.SourceDataRole == role:
             return file
 
         return None

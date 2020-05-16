@@ -1,4 +1,5 @@
 import typing as t
+
 from PySide2.QtCore import Qt as qq
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw

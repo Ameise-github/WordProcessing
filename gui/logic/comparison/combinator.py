@@ -1,7 +1,10 @@
 import typing as t
 import pathlib as pl
+
 import PySide2.QtCore as qc
-from gui.models.comparison.algorithms import AlgorithmList, BaseAlgorithm
+
+from parsing.metric.base import BaseAlgorithm
+from gui.models.comparison.algorithms import AlgorithmList
 
 
 class ComparisonCombinator(qc.QObject):
