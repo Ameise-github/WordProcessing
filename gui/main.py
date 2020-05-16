@@ -17,7 +17,10 @@ def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:
     c.algorithms = algorithms
     c.reference = pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text1.txt')
     c.others = [
-        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text2.txt')
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text1.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text2.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text3.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\theory.txt'),
     ]
     c.udpipe = pl.Path(
         r'C:\Development\Projects\WordProcessing\resource\trainModel\russian-syntagrus-ud-2.5-191206.udpipe'

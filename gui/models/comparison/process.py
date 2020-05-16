@@ -8,6 +8,7 @@ import PySide2.QtWidgets as qw
 
 from parsing.metric.base import BaseAlgorithm
 from gui.logic.comparison.combinator import ComparisonCombinator
+from gui.widgets.style import Colors
 
 
 class ComparisonResult:
@@ -16,7 +17,7 @@ class ComparisonResult:
     ERROR = 'error'
     SUCCESS = 'success'
 
-    def __init__(self, state=NONE, value=''):
+    def __init__(self, state=NONE, value=None):
         self.state = state
         self.value = value
 
@@ -87,7 +88,14 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
         col = index.column()
         result = self._results.get((row, col), ComparisonResult())
 
-        if qq.DisplayRole == role:
-            return result.value
-        elif qq.TextAlignmentRole == role:
+        if qq.TextAlignmentRole == role:
             return qq.AlignCenter
+
+        if ComparisonResult.WORKING == result.state:
+            if qq.DisplayRole == role:
+                return 'в процессе'
+            elif qq.BackgroundRole == role:
+                return Colors.BG_ORANGE
+        elif ComparisonResult.SUCCESS == result.state:
+            if qq.DisplayRole == role:
+                return str(result.value)

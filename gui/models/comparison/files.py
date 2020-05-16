@@ -7,12 +7,7 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
 from gui.models.roles import Roles
-
-
-class Colors:
-    FG_NOT_EXISTS = qg.QColor('#CC0000')
-    BG_REF_FILE = qg.QColor('#DDFFC0')
-    WHITE = qg.QColor(255, 255, 255)
+from gui.widgets.style import Colors
 
 
 class ComparisonFilesModel(qc.QAbstractListModel):
@@ -94,7 +89,7 @@ class ComparisonFilesModel(qc.QAbstractListModel):
 
         elif qq.TextColorRole == role:
             if not is_file_exists:
-                return Colors.FG_NOT_EXISTS
+                return Colors.FG_RED
 
         elif qq.FontRole == role:
             font = qg.QFont()
@@ -104,7 +99,7 @@ class ComparisonFilesModel(qc.QAbstractListModel):
 
         elif qq.BackgroundRole == role:
             if is_ref_file:
-                return Colors.BG_REF_FILE
+                return Colors.BG_GREEN
 
         elif qq.ToolTipRole == role:
             tool_tips = []

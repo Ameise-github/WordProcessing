@@ -52,7 +52,7 @@ class ComparisonProcess(qw.QDialog):
 
         # connect
 
-        thread.processed.connect(self.on_processed)
+        thread.process_finished.connect(self.on_process_finished)
         thread.error.connect(self.on_error)
         thread.finished.connect(self.on_finished)
         stop_btn.clicked.connect(self.on_stop_clicked)
@@ -114,7 +114,7 @@ class ComparisonProcess(qw.QDialog):
 
         event.accept()
 
-    def on_processed(self, alg: BaseAlgorithm, other: pl.Path, result: int):
+    def on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: int):
         self.increment_progress()
 
     def on_error(self, alg: BaseAlgorithm, other: pl.Path, text: str):
