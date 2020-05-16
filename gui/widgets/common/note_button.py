@@ -1,4 +1,5 @@
 import typing as t
+
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
@@ -20,11 +21,14 @@ class NoteButton(qw.QPushButton):
         self.setFlat(True)
         self.setStyleSheet(_STYLE_SHEET)
 
+        pixmap = qw.QApplication.style().standardPixmap(qw.QStyle.SP_MessageBoxWarning)
+        self.warning_icon = qg.QIcon(pixmap)
+
         if hide:
             self.hide()
 
     def show_warn(self, text: str):
-        self.setIcon(qg.QIcon.fromTheme('dialog-warning'))
+        self.setIcon(self.warning_icon)
         self.setText(text)
         self.show()
 

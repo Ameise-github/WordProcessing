@@ -1,12 +1,15 @@
 import sys
 import pathlib as pl
-import PySide2.QtWidgets as qw
+
 import nltk
 import parsing.metric as pm
-from gui.widgets.comparison import ComparisonProcess, ComparisonSetup
-from gui.models.comparison import AlgorithmList
+import PySide2.QtWidgets as qw
+
+from gui.logic.comparison.combinator import ComparisonCombinator
+from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets import style
-from gui.logic.comparison import ComparisonCombinator
+from gui.widgets.comparison.process import ComparisonProcess
+from gui.widgets.comparison.setup import ComparisonSetup
 
 
 def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:
@@ -14,7 +17,10 @@ def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:
     c.algorithms = algorithms
     c.reference = pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text1.txt')
     c.others = [
-        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text2.txt')
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text1.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text2.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\text3.txt'),
+        pl.Path(r'C:\Development\Projects\WordProcessing\resource\data\theory.txt'),
     ]
     c.udpipe = pl.Path(
         r'C:\Development\Projects\WordProcessing\resource\trainModel\russian-syntagrus-ud-2.5-191206.udpipe'

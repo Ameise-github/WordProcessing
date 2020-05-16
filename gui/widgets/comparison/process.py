@@ -1,3 +1,4 @@
+import sys
 import typing as t
 import pathlib as pl
 
@@ -5,9 +6,13 @@ import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
-from parsing.metric import BaseAlgorithm
-from gui.widgets.common import TimerLabel
-from gui.logic.comparison import ComparisonCombinator, ComparisionThread
+
+from parsing.metric.base import BaseAlgorithm
+from gui.logic.comparison.combinator import ComparisonCombinator
+from gui.logic.comparison.thread import ComparisionThread
+from gui.models.comparison.process import ComparisonProcessModel
+from gui.widgets.common.timer import TimerLabel
+from gui.widgets.common.hseparator import HSeparator
 
 
 class ComparisonProcess(qw.QDialog):
@@ -18,7 +23,8 @@ class ComparisonProcess(qw.QDialog):
 
         # other
 
-        thread = ComparisionThread(combinator, self)
+        model = ComparisonProcessModel(combinator)
+        thread = ComparisionThread(model, self)
 
         # widgets
 
@@ -26,6 +32,8 @@ class ComparisonProcess(qw.QDialog):
         ref_value_lbl = qw.QLabel(str(combinator.reference))
 
         result_tv = qw.QTableView()
+        result_tv.setModel(model)
+        result_tv.setSelectionMode(result_tv.SelectionMode.SingleSelection)
 
         timer_lbl = TimerLabel()
         timer_lbl.interval = 500
@@ -36,13 +44,15 @@ class ComparisonProcess(qw.QDialog):
         process_pb.setValue(0)
         process_pb.setFormat('  %v из %m')
 
+        separator_hs = HSeparator()
+
         stop_btn = qw.QPushButton('Остановить')
         done_btn = qw.QPushButton('Готово')
         done_btn.setVisible(False)
 
         # connect
 
-        thread.processed.connect(self.on_processed)
+        thread.process_finished.connect(self.on_process_finished)
         thread.error.connect(self.on_error)
         thread.finished.connect(self.on_finished)
         stop_btn.clicked.connect(self.on_stop_clicked)
@@ -67,6 +77,7 @@ class ComparisonProcess(qw.QDialog):
         vbox.addLayout(ref_hbox)
         vbox.addWidget(result_tv)
         vbox.addLayout(progress_hbox)
+        vbox.addWidget(separator_hs)
         vbox.addLayout(bottom_hbox)
 
         # fields
@@ -77,33 +88,38 @@ class ComparisonProcess(qw.QDialog):
         self.stop_btn = stop_btn
         self.done_btn = done_btn
 
+        self._schedule_close = False  # плановое закрытие окна после отмены операции
+
         # setup
 
         self.setMinimumWidth(650)
         self.setWindowTitle('Сравнение')
         self.setLayout(vbox)
 
+    def increment_progress(self, inc=1):
+        value = self.process_pb.value() + inc
+        self.process_pb.setValue(value)
+
     def showEvent(self, event: qg.QShowEvent):
         self.timer_lbl.start()
         self.thread.start()
-        super().showEvent(event)
 
     def closeEvent(self, event: qg.QCloseEvent):
         if self.thread.isRunning():
-            qw.QMessageBox.warning(self, '', 'Выполняется процесс сравнения')
-            event.ignore()
-        else:
-            event.accept()
+            result = qw.QMessageBox.question(self, 'Отмена операции', 'Прервать сравнение?')
+            if qw.QMessageBox.Yes == result:
+                self.on_stop_clicked()
+            else:
+                event.ignore()
 
-    def on_processed(self, alg: BaseAlgorithm, other: pl.Path, result: int):
-        value = self.process_pb.value() + 1
-        self.process_pb.setValue(value)
-        print(f'{other} => [{alg}] => {result}')
+        event.accept()
+
+    def on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: int):
+        self.increment_progress()
 
     def on_error(self, alg: BaseAlgorithm, other: pl.Path, text: str):
-        value = self.process_pb.value() + 1
-        self.process_pb.setValue(value)
-        print(f'{other} ==[ERROR]=> [{alg}] => {text}')
+        self.increment_progress()
+        print(f'[ERROR] {other} => [{alg}] => {text}', file=sys.stderr, flush=True)
 
     def on_finished(self):
         self.timer_lbl.stop()
@@ -116,7 +132,3 @@ class ComparisonProcess(qw.QDialog):
 
     def on_done_clicked(self):
         self.close()
-
-
-
-

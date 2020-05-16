@@ -1,11 +1,12 @@
 import typing as t
+
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
-from gui.models import Roles
 
 from parsing.metric.base import BaseAlgorithm
+from gui.models.roles import Roles
 
 AlgorithmList = t.List[BaseAlgorithm]
 
@@ -49,7 +50,7 @@ class ComparisonAlgorithmsModel(qc.QAbstractListModel):
         if qq.DisplayRole == role:
             return algorithm.name
 
-        elif Roles.DataKeyRole == role:
+        elif Roles.SourceDataRole == role:
             return algorithm
 
         elif qq.CheckStateRole == role:
@@ -61,7 +62,7 @@ class ComparisonAlgorithmsModel(qc.QAbstractListModel):
         if not (index.isValid() or role == qq.CheckStateRole):
             return False
 
-        algorithm = self.data(index, Roles.DataKeyRole)
+        algorithm = self.data(index, Roles.SourceDataRole)
 
         if value == qq.Checked:
             self._selected.append(algorithm)

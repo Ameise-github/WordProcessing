@@ -1,10 +1,12 @@
 import typing as t
+
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
-from gui.models.comparison import ComparisonFilesModel
-from gui.models import Roles
+
+from gui.models.roles import Roles
+from gui.models.comparison.files import ComparisonFilesModel
 
 
 class FileManager(qw.QWidget):
@@ -112,5 +114,5 @@ class FileManager(qw.QWidget):
     def _on_assign_ref(self):
         indexes: t.List[qc.QModelIndex] = self.files_lv.selectedIndexes()
         for idx in indexes:
-            file = self._model.data(idx, Roles.DataKeyRole)
+            file = self._model.data(idx, Roles.SourceDataRole)
             self._model.ref_file = file
