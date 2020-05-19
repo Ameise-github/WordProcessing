@@ -7,13 +7,13 @@ from PySide2.QtCore import Qt as qq
 
 from gui import settings
 from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
+from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.comparison.file_manager import FileManager
-from gui.widgets.comparison.process import ComparisonProcess
+from gui.widgets.complex.text_manager import TextManager
+from gui.widgets.window.process import ComparisonProcess
 
 
-class ComparisonSetup(qw.QWidget):
+class Main(qw.QWidget):
     def __init__(self,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):
@@ -34,8 +34,8 @@ class ComparisonSetup(qw.QWidget):
 
         # widgets
 
-        file_man_gbx = qw.QGroupBox('Файлы текстов')
-        file_man = FileManager()
+        text_man_gbx = qw.QGroupBox('Файлы текстов')
+        text_man = TextManager()
 
         alg_gbx = qw.QGroupBox('Алгоритмы сравнений')
         algorithms_lv = qw.QListView()
@@ -64,8 +64,8 @@ class ComparisonSetup(qw.QWidget):
         # layout
 
         file_man_vbox = qw.QVBoxLayout()
-        file_man_vbox.addWidget(file_man)
-        file_man_gbx.setLayout(file_man_vbox)
+        file_man_vbox.addWidget(text_man)
+        text_man_gbx.setLayout(file_man_vbox)
 
         udp_file_hbox = qw.QHBoxLayout()
         udp_file_hbox.addWidget(udp_file_lned, 1)
@@ -84,7 +84,7 @@ class ComparisonSetup(qw.QWidget):
         actions_gbx.setLayout(actions_hbox)
 
         vbox = qw.QVBoxLayout()
-        vbox.addWidget(file_man_gbx)
+        vbox.addWidget(text_man_gbx)
         vbox.addWidget(alg_gbx)
         vbox.addWidget(actions_gbx)
         vbox.addWidget(note_btn)
@@ -93,7 +93,7 @@ class ComparisonSetup(qw.QWidget):
         # fields
 
         self.dialog_set_udp = dialog_set_udp
-        self.file_man = file_man
+        self.file_man = text_man
         self.alg_gbx = alg_gbx
         self.algorithms_lv = algorithms_lv
         self.udp_file_lned = udp_file_lned

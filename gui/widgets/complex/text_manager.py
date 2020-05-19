@@ -6,15 +6,15 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui.models.roles import Roles
-from gui.models.comparison.files import ComparisonFilesModel
+from gui.models.texts import TextsModel
 
 
-class FileManager(qw.QWidget):
+class TextManager(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
         # models
-        model = ComparisonFilesModel()
+        model = TextsModel()
 
         # dialogs
 
@@ -82,11 +82,11 @@ class FileManager(qw.QWidget):
         self.setLayout(vbox)
 
     @property
-    def model(self) -> ComparisonFilesModel:
+    def model(self) -> TextsModel:
         return self._model
 
     @model.setter
-    def model(self, value: ComparisonFilesModel):
+    def model(self, value: TextsModel):
         self._model = value
         self.files_lv.setModel(value)
 

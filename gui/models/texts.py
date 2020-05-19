@@ -10,7 +10,7 @@ from gui.models.roles import Roles
 from gui.widgets.style import Colors
 
 
-class ComparisonFilesModel(qc.QAbstractListModel):
+class TextsModel(qc.QAbstractListModel):
     def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
