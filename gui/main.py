@@ -33,6 +33,8 @@ def exec_app(algorithms: AlgorithmList):
     app = qw.QApplication(sys.argv)
     app.setStyleSheet(style.STYLE_SHEET)
 
+    style.init()
+
     # wp = ComparisonProcess(test_combinator(algorithms))
     # wp.show()
 

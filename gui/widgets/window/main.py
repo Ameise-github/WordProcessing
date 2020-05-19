@@ -5,7 +5,7 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui import settings
+from gui.fs import settings
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.widgets.common.note_button import NoteButton
@@ -103,6 +103,7 @@ class Main(qw.QWidget):
         # setup
 
         self.setWindowTitle('Анализ и сравнение текстов')
+        self.setMinimumSize(500, 500)
 
     @property
     def algorithms(self) -> AlgorithmList:

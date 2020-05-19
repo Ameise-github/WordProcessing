@@ -7,14 +7,17 @@ from PySide2.QtCore import Qt as qq
 
 from gui.models.roles import Roles
 from gui.models.texts import TextsModel
+from gui.widgets import style
 
 
 class TextManager(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
-        # models
+        # other
         model = TextsModel()
+
+        toolbar_style = qw.QStyleOptionToolBar()
 
         # dialogs
 
@@ -27,45 +30,51 @@ class TextManager(qw.QWidget):
 
         # widgets
 
+        toolbar = qw.QToolBar('Действия над списком')
+        toolbar.setOrientation(qq.Vertical)
+        # toolbar.setIconSize(qc.QSize(16, 16))
+
+        add_act = qw.QAction(style.icons.file_plus, 'Добавить файл', toolbar)
+        delete_act = qw.QAction(style.icons.file_minus, 'Удалить файл', toolbar)
+        show_path_act = qw.QAction(style.icons.code, 'Показать полный путь', toolbar)
+        show_path_act.setCheckable(True)
+        clear_act = qw.QAction(style.icons.x_circle, 'Очистить список', toolbar)
+
+        toolbar.addAction(add_act)
+        toolbar.addAction(delete_act)
+        toolbar.addSeparator()
+        toolbar.addAction(show_path_act)
+        toolbar.addSeparator()
+        toolbar.addAction(clear_act)
+
         files_lv = qw.QListView()
         files_lv.setModel(model)
-
-        add_btn = qw.QPushButton('Добавить...')
-        add_btn.setIcon(qg.QIcon.fromTheme('list-add'))
-        delete_btn = qw.QPushButton('Удалить')
-        delete_btn.setIcon(qg.QIcon.fromTheme('list-remove'))
-        show_path_cbx = qw.QCheckBox('Показать полный путь')
-        clear_btn = qw.QPushButton('Очистить')
-        clear_btn.setIcon(qg.QIcon.fromTheme('edit-clear'))
 
         ref_btn = qw.QPushButton('Выбрать эталонным')
         ref_btn.setIcon(qg.QIcon.fromTheme('go-up'))
 
         # connections
 
-        add_btn.clicked.connect(self._on_add_file)
-        delete_btn.clicked.connect(self._on_remove_file)
-        show_path_cbx.clicked.connect(self._on_show_path)
-        clear_btn.clicked.connect(self._on_clear)
+        add_act.triggered.connect(self._on_add_file)
+        delete_act.triggered.connect(self._on_remove_file)
+        show_path_act.triggered.connect(self._on_show_path)
+        clear_act.triggered.connect(self._on_clear)
+
         ref_btn.clicked.connect(self._on_assign_ref)
 
         # layout
-
-        files_ctl_hbox = qw.QHBoxLayout()
-        files_ctl_hbox.addWidget(add_btn)
-        files_ctl_hbox.addWidget(delete_btn)
-        files_ctl_hbox.addWidget(show_path_cbx)
-        files_ctl_hbox.addStretch(1)
-        files_ctl_hbox.addWidget(clear_btn)
 
         ref_hbox = qw.QHBoxLayout()
         ref_hbox.addWidget(ref_btn)
         ref_hbox.addStretch(1)
 
+        hbox = qw.QHBoxLayout()
+        hbox.addWidget(files_lv, 1)
+        hbox.addWidget(toolbar)
+
         vbox = qw.QVBoxLayout()
         vbox.setMargin(0)
-        vbox.addLayout(files_ctl_hbox)
-        vbox.addWidget(files_lv, 1)
+        vbox.addLayout(hbox)
         vbox.addLayout(ref_hbox)
 
         # fields
@@ -75,7 +84,6 @@ class TextManager(qw.QWidget):
         self._model = model
 
         self.files_lv = files_lv
-        self.show_path_cbx = show_path_cbx
 
         # setup
 
@@ -101,8 +109,8 @@ class TextManager(qw.QWidget):
         for idx in indexes:
             self._model.removeRows(idx.row(), 1)
 
-    def _on_show_path(self):
-        self._model.show_paths = self.show_path_cbx.isChecked()
+    def _on_show_path(self, checked: bool):
+        self._model.show_paths = checked
 
     def _on_clear(self):
         if self._model.rowCount() <= 0:
