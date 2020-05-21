@@ -13,7 +13,7 @@ from gui.models.text_files import TextFilesModel
 from gui.models.roles import Roles
 from gui.models.udpipe import UDPipeFile
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.window.process import ComparisonProcess
+from gui.widgets.window.comparison import ComparisonProcess
 
 
 class TextsShortProxyModel(qc.QIdentityProxyModel):
@@ -25,7 +25,7 @@ class TextsShortProxyModel(qc.QIdentityProxyModel):
         return pl.Path(text_file).name
 
 
-class ComparisonManager(qw.QWidget):
+class Comparator(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -62,7 +62,6 @@ class ComparisonManager(qw.QWidget):
         hbox.addWidget(compare_btn, 0, qq.AlignRight)
 
         vbox = qw.QVBoxLayout()
-        vbox.setMargin(0)
         vbox.addWidget(reference_lbl)
         vbox.addWidget(reference_cbx)
         vbox.addWidget(algorithms_lbl)

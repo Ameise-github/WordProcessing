@@ -10,7 +10,7 @@ from gui.models.text_files import TextFilesModel
 from gui.widgets import style
 
 
-class TextManager(qw.QWidget):
+class TextList(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -56,7 +56,6 @@ class TextManager(qw.QWidget):
 
         # layout
         hbox = qw.QHBoxLayout()
-        hbox.setMargin(0)
         hbox.addWidget(files_lv, 1)
         hbox.addWidget(toolbar)
         self.setLayout(hbox)
