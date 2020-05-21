@@ -14,7 +14,7 @@ from gui.widgets.common.timer import TimerLabel
 from gui.widgets.common.hseparator import HSeparator
 
 
-class ComparisonProcess(qw.QDialog):
+class Comparison(qw.QDialog):
     def __init__(self, combinator: ComparisonCombinator,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):

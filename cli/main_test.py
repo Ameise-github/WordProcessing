@@ -45,11 +45,11 @@ def main():
     # print(one_text.run())
 
     # Тематика текстов
-    # list_path_text = [textOriginal1, textOriginal2, textOriginal3]
-    # thems_texts = ThemsText(list_path_text, trainTextUdpipe, optimal_topics=True)
-    # view_srt, lda_model = thems_texts.view_thems()
-    # list_thems_doc = thems_texts.topics_document(lda_model)
-    # print(view_srt)
+    list_path_text = [textOriginal1, textOriginal2, textOriginal3]
+    thems_texts = ThemsText(list_path_text, trainTextUdpipe, optimal_topics=True)
+    view_srt, lda_model = thems_texts.view_thems()
+    list_thems_doc = thems_texts.topics_document(lda_model)
+    print(view_srt)
     # print()
     # print(list_thems_doc)
 

@@ -13,7 +13,7 @@ from gui.models.udpipe import UDPipeFile
 from gui.widgets.complex.text_list import TextList
 from gui.widgets.complex.comparator import Comparator
 from gui.widgets.complex.topics_definer import TopicDefiner
-from gui.widgets.window.comparison import ComparisonProcess
+from gui.widgets.window.comparison import Comparison
 
 
 class Main(qw.QWidget):
@@ -58,7 +58,8 @@ class Main(qw.QWidget):
         comparator_w.udpipe_file = udpipe_file
 
         topics_definer_w = TopicDefiner()
-        topics_definer_w.model = texts_model
+        topics_definer_w.texts_model = texts_model
+        topics_definer_w.udpipe_file = udpipe_file
 
         tabs_tw = qw.QTabWidget()
         tabs_tw.addTab(comparator_w, 'Сравнение')

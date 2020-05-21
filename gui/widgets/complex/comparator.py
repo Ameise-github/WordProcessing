@@ -13,7 +13,7 @@ from gui.models.text_files import TextFilesModel
 from gui.models.roles import Roles
 from gui.models.udpipe import UDPipeFile
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.window.comparison import ComparisonProcess
+from gui.widgets.window.comparison import Comparison
 
 
 class TextsShortProxyModel(qc.QIdentityProxyModel):
@@ -112,7 +112,7 @@ class Comparator(qw.QWidget):
     def _on_run_comparison(self):
         try:
             other_files = self._texts_model.files(exists_only=True)
-            if len(other_files) <= 1:
+            if not other_files:
                 raise ValueError('Нечего сравнивать')
 
             ref_file: pl.Path = self._reference_cbx.currentData(Roles.SourceDataRole)
@@ -140,5 +140,5 @@ class Comparator(qw.QWidget):
         combinator.reference = ref_file
         combinator.others = other_files
 
-        proc_w = ComparisonProcess(combinator, self)
+        proc_w = Comparison(combinator, self)
         proc_w.exec_()
