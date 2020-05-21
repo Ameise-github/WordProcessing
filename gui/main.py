@@ -9,7 +9,7 @@ from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import AlgorithmList
 from gui.widgets import style
 from gui.widgets.window.main import Main
-from gui.widgets.window.process import ComparisonProcess
+from gui.widgets.window.comparison import ComparisonProcess
 
 
 def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:

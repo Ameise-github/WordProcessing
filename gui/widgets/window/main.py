@@ -5,12 +5,15 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.fs import settings
+from gui import config
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.widgets.common.note_button import NoteButton
-from gui.widgets.complex.text_manager import TextManager
-from gui.widgets.window.process import ComparisonProcess
+from gui.models.text_files import TextFilesModel
+from gui.models.udpipe import UDPipeFile
+from gui.widgets.complex.text_list import TextList
+from gui.widgets.complex.comparator import Comparator
+from gui.widgets.complex.topics_definer import TopicDefiner
+from gui.widgets.window.comparison import ComparisonProcess
 
 
 class Main(qw.QWidget):
@@ -21,7 +24,9 @@ class Main(qw.QWidget):
 
         # models
 
+        texts_model = TextFilesModel()
         algorithms_model = ComparisonAlgorithmsModel()
+        udpipe_file = UDPipeFile(config.DEFAULT_UDPIPE_FILE)
 
         # dialogs
 
@@ -34,71 +39,61 @@ class Main(qw.QWidget):
 
         # widgets
 
-        text_man_gbx = qw.QGroupBox('Файлы текстов')
-        text_man = TextManager()
+        files_gbx = qw.QGroupBox('Файлы')
 
-        alg_gbx = qw.QGroupBox('Алгоритмы сравнений')
-        algorithms_lv = qw.QListView()
-        algorithms_lv.setModel(algorithms_model)
+        text_lbl = qw.QLabel('Тексты:')
+        text_man = TextList()
+        text_man.layout().setMargin(0)
+        text_man.model = texts_model
 
-        udp_lbl = qw.QLabel('UDPipe файл:')
-        udp_file_lned = qw.QLineEdit()
-        udp_file_lned.setReadOnly(True)
-        udp_file_lned.setPlaceholderText(settings.DEFAULT_UDPIPE_FILE.name)
-        udp_add_btn = qw.QPushButton('Обзор...')
-        udp_add_btn.setIcon(qg.QIcon.fromTheme('document-open'))
+        udpipe_lbl = qw.QLabel('UDPipe файл:')
+        udpipe_lned = qw.QLineEdit()
+        udpipe_lned.setReadOnly(True)
+        udpipe_lned.setPlaceholderText(config.DEFAULT_UDPIPE_FILE.name)
+        udpipe_btn = qw.QPushButton('Обзор...')
 
-        actions_gbx = qw.QGroupBox('Операции')
-        act_define_topic_btn = qw.QPushButton('Определить тематику')
-        act_define_topic_btn.setIcon(qg.QIcon.fromTheme('system-run'))
-        act_compare_btn = qw.QPushButton('Выполнить сравнение')
-        act_compare_btn.setIcon(qg.QIcon.fromTheme('system-run'))
+        comparator_w = Comparator()
+        comparator_w.algorithms_model = algorithms_model
+        comparator_w.texts_model = texts_model
+        comparator_w.udpipe_file = udpipe_file
 
-        note_btn = NoteButton()
+        topics_definer_w = TopicDefiner()
+        topics_definer_w.model = texts_model
+
+        tabs_tw = qw.QTabWidget()
+        tabs_tw.addTab(comparator_w, 'Сравнение')
+        tabs_tw.addTab(topics_definer_w, 'Определение тематики')
 
         # connections
 
-        udp_add_btn.clicked.connect(self._on_choose_udp_file)
-        act_compare_btn.clicked.connect(self._on_run_comparison)
+        udpipe_btn.clicked.connect(self._on_choose_udp_file)
 
         # layout
 
-        file_man_vbox = qw.QVBoxLayout()
-        file_man_vbox.addWidget(text_man)
-        text_man_gbx.setLayout(file_man_vbox)
+        udpipe_hbox = qw.QHBoxLayout()
+        udpipe_hbox.addWidget(udpipe_lned, 1)
+        udpipe_hbox.addWidget(udpipe_btn)
 
-        udp_file_hbox = qw.QHBoxLayout()
-        udp_file_hbox.addWidget(udp_file_lned, 1)
-        udp_file_hbox.addWidget(udp_add_btn)
-
-        alg_vbox = qw.QVBoxLayout()
-        alg_vbox.addWidget(algorithms_lv)
-        alg_vbox.addWidget(udp_lbl)
-        alg_vbox.addLayout(udp_file_hbox)
-        alg_vbox.addStretch(1)
-        alg_gbx.setLayout(alg_vbox)
-
-        actions_hbox = qw.QHBoxLayout()
-        actions_hbox.addWidget(act_define_topic_btn)
-        actions_hbox.addWidget(act_compare_btn)
-        actions_gbx.setLayout(actions_hbox)
+        files_vbox = qw.QVBoxLayout()
+        files_vbox.addWidget(udpipe_lbl)
+        files_vbox.addLayout(udpipe_hbox)
+        files_vbox.addWidget(text_lbl)
+        files_vbox.addWidget(text_man)
+        files_gbx.setLayout(files_vbox)
 
         vbox = qw.QVBoxLayout()
-        vbox.addWidget(text_man_gbx)
-        vbox.addWidget(alg_gbx)
-        vbox.addWidget(actions_gbx)
-        vbox.addWidget(note_btn)
+        vbox.addWidget(files_gbx, 1)
+        vbox.addWidget(tabs_tw)
         self.setLayout(vbox)
 
         # fields
 
+        self.texts_model = texts_model
+        self.algorithms_model = algorithms_model
+        self.udpipe_file = udpipe_file
+
         self.dialog_set_udp = dialog_set_udp
-        self.file_man = text_man
-        self.alg_gbx = alg_gbx
-        self.algorithms_lv = algorithms_lv
-        self.udp_file_lned = udp_file_lned
-        self.act_compare_btn = act_compare_btn
-        self.note_btn = note_btn
+        self.udp_file_lned = udpipe_lned
 
         # setup
 
@@ -107,63 +102,14 @@ class Main(qw.QWidget):
 
     @property
     def algorithms(self) -> AlgorithmList:
-        model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
-        return model.algorithms
+        return self.algorithms_model.algorithms
 
     @algorithms.setter
     def algorithms(self, value: AlgorithmList):
-        model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
-        model.algorithms = value
-
-        # check
-        empty = not bool(value)
-        if empty:
-            qw.QMessageBox.warning(
-                self,
-                'Список алгоритмов',
-                'Алгоритмы сравнения текстов не заданы, сравнение невозможно')
-        # setup
-        self.act_compare_btn.setEnabled(not empty)
-        self.alg_gbx.setEnabled(not empty)
+        self.algorithms_model.algorithms = value
 
     def _on_choose_udp_file(self):
         if self.dialog_set_udp.exec_():
             file = self.dialog_set_udp.selectedFiles()[0]
             self.udp_file_lned.setText(file)
-
-    def _on_run_comparison(self):
-        ref_file = self.file_man.model.exist_ref_file
-        other_files = self.file_man.model.exist_other_files
-
-        alg_model: ComparisonAlgorithmsModel = self.algorithms_lv.model()
-        checked_algs = alg_model.checked_algorithms()
-
-        udp_file = self.udp_file_lned.text()
-        if not udp_file:
-            udp_file = settings.DEFAULT_UDPIPE_FILE
-        else:
-            udp_file = pl.Path(udp_file)
-
-        try:
-            if not ref_file:
-                if len(other_files) <= 1:
-                    raise ValueError('Доступно менее двух текстов')
-                raise ValueError('Эталонный текст недоступен')
-            if not checked_algs:
-                raise ValueError('Не выбран алгоритм сравнения')
-            if not udp_file.exists():
-                raise ValueError('Файл UDPipe недоступен')
-        except ValueError as v:
-            self.note_btn.show_warn(v.args[0])
-            return
-
-        self.note_btn.hide()
-
-        combinator = ComparisonCombinator()
-        combinator.udpipe = udp_file
-        combinator.algorithms = checked_algs
-        combinator.reference = ref_file
-        combinator.others = other_files
-
-        proc_w = ComparisonProcess(combinator, self)
-        proc_w.exec_()
+            self.udpipe_file.path = pl.Path(file)
