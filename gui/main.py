@@ -6,10 +6,10 @@ import parsing.metric as pm
 import PySide2.QtWidgets as qw
 
 from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.comparison.algorithms import AlgorithmList
+from gui.models.algorithms import AlgorithmList
 from gui.widgets import style
-from gui.widgets.comparison.process import ComparisonProcess
-from gui.widgets.comparison.setup import ComparisonSetup
+from gui.widgets.window.main import Main
+from gui.widgets.window.comparison import Comparison
 
 
 def test_combinator(algorithms: AlgorithmList) -> ComparisonCombinator:
@@ -33,10 +33,14 @@ def exec_app(algorithms: AlgorithmList):
     app = qw.QApplication(sys.argv)
     app.setStyleSheet(style.STYLE_SHEET)
 
-    # w = ComparisonProcess(test_combinator(algorithms))
-    w = ComparisonSetup()
-    w.algorithms = algorithms
-    w.show()
+    style.init()
+
+    # wp = ComparisonProcess(test_combinator(algorithms))
+    # wp.show()
+
+    wm = Main()
+    wm.algorithms = algorithms
+    wm.show()
 
     return app.exec_()
 
