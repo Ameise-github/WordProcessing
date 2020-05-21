@@ -6,7 +6,7 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui.models.roles import Roles
-from gui.models.texts import TextsModel
+from gui.models.text_files import TextFilesModel
 from gui.widgets import style
 
 
@@ -15,9 +15,7 @@ class TextManager(qw.QWidget):
         super().__init__(parent, f)
 
         # other
-        model = TextsModel()
-
-        toolbar_style = qw.QStyleOptionToolBar()
+        model = TextFilesModel()
 
         # dialogs
 
@@ -32,7 +30,6 @@ class TextManager(qw.QWidget):
 
         toolbar = qw.QToolBar('Действия над списком')
         toolbar.setOrientation(qq.Vertical)
-        # toolbar.setIconSize(qc.QSize(16, 16))
 
         add_act = qw.QAction(style.icons.file_plus, 'Добавить файл', toolbar)
         delete_act = qw.QAction(style.icons.file_minus, 'Удалить файл', toolbar)
@@ -50,9 +47,6 @@ class TextManager(qw.QWidget):
         files_lv = qw.QListView()
         files_lv.setModel(model)
 
-        ref_btn = qw.QPushButton('Выбрать эталонным')
-        ref_btn.setIcon(qg.QIcon.fromTheme('go-up'))
-
         # connections
 
         add_act.triggered.connect(self._on_add_file)
@@ -60,49 +54,32 @@ class TextManager(qw.QWidget):
         show_path_act.triggered.connect(self._on_show_path)
         clear_act.triggered.connect(self._on_clear)
 
-        ref_btn.clicked.connect(self._on_assign_ref)
-
         # layout
-
-        ref_hbox = qw.QHBoxLayout()
-        ref_hbox.addWidget(ref_btn)
-        ref_hbox.addStretch(1)
-
         hbox = qw.QHBoxLayout()
+        hbox.setMargin(0)
         hbox.addWidget(files_lv, 1)
         hbox.addWidget(toolbar)
-
-        vbox = qw.QVBoxLayout()
-        vbox.setMargin(0)
-        vbox.addLayout(hbox)
-        vbox.addLayout(ref_hbox)
+        self.setLayout(hbox)
 
         # fields
 
         self.dialog_add_text = dialog_add_text
-
         self._model = model
-
         self.files_lv = files_lv
 
-        # setup
-
-        self.setLayout(vbox)
-
     @property
-    def model(self) -> TextsModel:
+    def model(self) -> TextFilesModel:
         return self._model
 
     @model.setter
-    def model(self, value: TextsModel):
+    def model(self, value: TextFilesModel):
         self._model = value
         self.files_lv.setModel(value)
 
     def _on_add_file(self):
         if self.dialog_add_text.exec_():
             files = self.dialog_add_text.selectedFiles()
-            for f in files:
-                self._model.append_file(f)
+            self._model.append(files)
 
     def _on_remove_file(self):
         indexes: t.List[qc.QModelIndex] = self.files_lv.selectedIndexes()
@@ -118,9 +95,3 @@ class TextManager(qw.QWidget):
         res = qw.QMessageBox.question(self, 'Очистка списка', 'Очистить список файлов?')
         if res == qw.QMessageBox.Yes:
             self._model.clear()
-
-    def _on_assign_ref(self):
-        indexes: t.List[qc.QModelIndex] = self.files_lv.selectedIndexes()
-        for idx in indexes:
-            file = self._model.data(idx, Roles.SourceDataRole)
-            self._model.ref_file = file
