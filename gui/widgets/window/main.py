@@ -6,6 +6,7 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui import config
+from gui.widgets import style
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.text_files import TextFilesModel
@@ -13,7 +14,6 @@ from gui.models.udpipe import UDPipeFile
 from gui.widgets.complex.text_list import TextList
 from gui.widgets.complex.comparator import Comparator
 from gui.widgets.complex.topics_definer import TopicDefiner
-from gui.widgets.window.comparison import Comparison
 
 
 class Main(qw.QWidget):
@@ -39,18 +39,16 @@ class Main(qw.QWidget):
 
         # widgets
 
-        files_gbx = qw.QGroupBox('Файлы')
-
-        text_lbl = qw.QLabel('Тексты:')
-        text_man = TextList()
-        text_man.layout().setMargin(0)
-        text_man.model = texts_model
-
         udpipe_lbl = qw.QLabel('UDPipe файл:')
         udpipe_lned = qw.QLineEdit()
         udpipe_lned.setReadOnly(True)
         udpipe_lned.setPlaceholderText(config.DEFAULT_UDPIPE_FILE.name)
         udpipe_btn = qw.QPushButton('Обзор...')
+
+        text_lbl = qw.QLabel('Файлы текстов:')
+        text_man = TextList()
+        text_man.layout().setMargin(0)
+        text_man.model = texts_model
 
         comparator_w = Comparator()
         comparator_w.algorithms_model = algorithms_model
@@ -61,9 +59,9 @@ class Main(qw.QWidget):
         topics_definer_w.texts_model = texts_model
         topics_definer_w.udpipe_file = udpipe_file
 
-        tabs_tw = qw.QTabWidget()
-        tabs_tw.addTab(comparator_w, 'Сравнение')
-        tabs_tw.addTab(topics_definer_w, 'Определение тематики')
+        analysis_tw = qw.QTabWidget()
+        analysis_tw.addTab(comparator_w, 'Сравнение')
+        analysis_tw.addTab(topics_definer_w, 'Определение тематики')
 
         # connections
 
@@ -75,16 +73,12 @@ class Main(qw.QWidget):
         udpipe_hbox.addWidget(udpipe_lned, 1)
         udpipe_hbox.addWidget(udpipe_btn)
 
-        files_vbox = qw.QVBoxLayout()
-        files_vbox.addWidget(udpipe_lbl)
-        files_vbox.addLayout(udpipe_hbox)
-        files_vbox.addWidget(text_lbl)
-        files_vbox.addWidget(text_man)
-        files_gbx.setLayout(files_vbox)
-
         vbox = qw.QVBoxLayout()
-        vbox.addWidget(files_gbx, 1)
-        vbox.addWidget(tabs_tw)
+        vbox.addWidget(udpipe_lbl)
+        vbox.addLayout(udpipe_hbox)
+        vbox.addWidget(text_lbl)
+        vbox.addWidget(text_man)
+        vbox.addWidget(analysis_tw)
         self.setLayout(vbox)
 
         # fields
