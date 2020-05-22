@@ -12,17 +12,22 @@ from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.text_files import TextFilesModel
 from gui.models.roles import Roles
 from gui.models.udpipe import UDPipeFile
+from gui.widgets import style
+from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
 from gui.widgets.window.comparison import Comparison
 
 
 class TextsShortProxyModel(qc.QIdentityProxyModel):
     def data(self, proxy_index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Any:
-        if role != qq.DisplayRole:
-            return super().data(proxy_index, role)
-
         text_file: str = super().data(proxy_index, Roles.SourceDataRole)
-        return pl.Path(text_file).name
+
+        if qq.DisplayRole == role:
+            return pl.Path(text_file).name
+        elif qq.CheckStateRole == role:
+            return None
+        else:
+            return super().data(proxy_index, role)
 
 
 class Comparator(qw.QWidget):
@@ -44,10 +49,10 @@ class Comparator(qw.QWidget):
         reference_cbx.setModel(texts_proxy_model)
 
         algorithms_lbl = qw.QLabel('Алгоритмы:')
-        algorithms_lv = qw.QListView()
-        algorithms_lv.setModel(algorithms_model)
+        algorithms_chl = CheckableList()
+        algorithms_chl.model = algorithms_model
 
-        compare_btn = qw.QPushButton('Выполнить')
+        compare_btn = qw.QPushButton(style.icons.play_circle, 'Выполнить сравнение')
 
         note_btn = NoteButton()
 
@@ -65,7 +70,7 @@ class Comparator(qw.QWidget):
         vbox.addWidget(reference_lbl)
         vbox.addWidget(reference_cbx)
         vbox.addWidget(algorithms_lbl)
-        vbox.addWidget(algorithms_lv)
+        vbox.addWidget(algorithms_chl)
         vbox.addLayout(hbox, 1)
         self.setLayout(vbox)
 
@@ -75,7 +80,7 @@ class Comparator(qw.QWidget):
         self._texts_model = texts_model
         self._texts_proxy_model = texts_proxy_model
 
-        self._algorithms_lv = algorithms_lv
+        self._algorithms_chl = algorithms_chl
         self._reference_cbx = reference_cbx
         self._note_btn = note_btn
 
@@ -90,7 +95,7 @@ class Comparator(qw.QWidget):
     @algorithms_model.setter
     def algorithms_model(self, value: ComparisonAlgorithmsModel):
         self._algorithms_model = value
-        self._algorithms_lv.setModel(value)
+        self._algorithms_chl.model = value
 
     @property
     def texts_model(self) -> TextFilesModel:
@@ -121,7 +126,7 @@ class Comparator(qw.QWidget):
 
             other_files.remove(ref_file)
 
-            checked_algs = self._algorithms_model.checked_algorithms()
+            checked_algs = self._algorithms_model.checked()
             if not checked_algs:
                 raise ValueError('Не выбран алгоритм сравнения')
 

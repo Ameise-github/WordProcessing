@@ -25,7 +25,7 @@ class TopicDefiner(qw.QWidget):
         # widgets
 
         optimal_chk = qw.QCheckBox('Согласованность тем')
-        define_btn = qw.QPushButton('Выполнить')
+        define_btn = qw.QPushButton(style.icons.play_circle, 'Определить тематику')
         note_btn = NoteButton()
 
         # connect

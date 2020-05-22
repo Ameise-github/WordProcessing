@@ -6,58 +6,23 @@ import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
+from gui.models.checkable import BaseCheckableModel
 from gui.models.roles import Roles
 from gui.widgets.style import Colors
 
 
-class TextFilesModel(qc.QAbstractListModel):
+class TextFilesModel(BaseCheckableModel[pl.Path]):
     def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
-        self._files: t.List[pl.Path] = []
         self._show_paths = False
-
-    @property
-    def show_paths(self) -> bool:
-        return self._show_paths
-
-    @show_paths.setter
-    def show_paths(self, value: bool):
-        self._show_paths = value
-        self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
-
-    def append(self, paths: t.Iterable[str]):
-        self.beginInsertRows(qc.QModelIndex(), 0, len(self._files) - 1)
-        paths_set = dict.fromkeys(map(pl.Path, paths))
-        files_set = dict.fromkeys(self._files)
-        files_set.update(paths_set)
-        self._files = list(files_set.keys())
-        self.endInsertRows()
-
-    def remove(self, paths: t.Iterable[str]):
-        self.beginRemoveRows(qc.QModelIndex(), 0, len(self._files) - 1)
-        paths_set = set(map(pl.Path, paths))
-        files_set = set(self._files)
-        for path in files_set.intersection(paths_set):
-            self._files.remove(path)
-        self.endRemoveRows()
-
-    def files(self, *, exists_only=False) -> t.List[pl.Path]:
-        filtered = filter(
-            lambda f: not exists_only or f.exists(),
-            self._files
-        )
-        return list(filtered)
-
-    def rowCount(self, parent: qc.QModelIndex = qc.QModelIndex()) -> int:
-        return len(self._files)
 
     def data(self, index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Union[pl.Path, t.Any]:
         if not index.isValid():
             return None
 
         row = index.row()
-        file = self._files[row]
+        file = self._items[row]
         not_exists = not file.exists()
 
         if qq.DisplayRole == role:
@@ -84,20 +49,66 @@ class TextFilesModel(qc.QAbstractListModel):
                 tool_tips.append('Файл не найден')
             return '\n'.join(tool_tips)
 
-        elif Roles.SourceDataRole == role:
-            return file
+        else:
+            return super().data(index, role)
 
-        return None
+    @property
+    def show_paths(self) -> bool:
+        return self._show_paths
 
-    def removeRows(self, row: int, count: int, parent: qc.QModelIndex = qc.QModelIndex()) -> bool:
-        try:
-            removed = map(str, self._files[row:row + count])
-            self.remove(removed)
-        except IndexError:
-            return False
-        return True
+    @show_paths.setter
+    def show_paths(self, value: bool):
+        self._show_paths = value
+        self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
 
-    def clear(self):
-        self.beginResetModel()
-        self._files.clear()
-        self.endResetModel()
+    def append(self, paths: t.Iterable[str]):
+        self.beginInsertRows(qc.QModelIndex(), 0, len(self._items) - 1)
+        paths_set = dict.fromkeys(map(pl.Path, paths))
+        files_set = dict.fromkeys(self._items)
+        files_set.update(paths_set)
+        self._items = list(files_set.keys())
+        self.endInsertRows()
+
+    def remove(self, paths: t.Iterable[str]):
+        self.beginRemoveRows(qc.QModelIndex(), 0, len(self._items) - 1)
+        paths_set = set(map(pl.Path, paths))
+        files_set = set(self._items)
+        for path in files_set.intersection(paths_set):
+            self._items.remove(path)
+            if path in self._selected:
+                self._selected.remove(path)
+        self.endRemoveRows()
+
+    def move_up(self, index: qc.QModelIndex):
+        if not index.isValid():
+            return
+
+        row = index.row()
+        row_new = row - 1
+        if 0 <= row_new < len(self._items):
+            dummy_index = qc.QModelIndex()
+
+            self.beginMoveRows(dummy_index, row, row, dummy_index, row_new)
+            self._items[row], self._items[row_new] = self._items[row_new], self._items[row]
+            self.endMoveRows()
+
+    def move_down(self, index: qc.QModelIndex):
+        if not index.isValid():
+            return
+
+        row = index.row()
+        row_new = row + 1
+        if 0 <= row_new < len(self._items):
+            dummy_index = qc.QModelIndex()
+
+            self.beginMoveRows(dummy_index, row, row, dummy_index, row_new + 1)
+            self._items[row], self._items[row_new] = self._items[row_new], self._items[row]
+            self.endMoveRows()
+
+    def files(self, *, exists_only=False) -> t.List[pl.Path]:
+        filtered = filter(
+            lambda f: not exists_only or f.exists(),
+            self._items
+        )
+        return list(filtered)
+
