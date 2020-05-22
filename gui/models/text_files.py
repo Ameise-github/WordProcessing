@@ -6,7 +6,7 @@ import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
-from gui.models.checkable import BaseCheckableModel
+from gui.models.checkable import BaseCheckableModel, TItem
 from gui.models.roles import Roles
 from gui.widgets.style import Colors
 
@@ -75,8 +75,8 @@ class TextFilesModel(BaseCheckableModel[pl.Path]):
         files_set = set(self._items)
         for path in files_set.intersection(paths_set):
             self._items.remove(path)
-            if path in self._selected:
-                self._selected.remove(path)
+            if path in self._checked:
+                self._checked.remove(path)
         self.endRemoveRows()
 
     def move_up(self, index: qc.QModelIndex):
@@ -105,10 +105,16 @@ class TextFilesModel(BaseCheckableModel[pl.Path]):
             self._items[row], self._items[row_new] = self._items[row_new], self._items[row]
             self.endMoveRows()
 
-    def files(self, *, exists_only=False) -> t.List[pl.Path]:
+    def items(self, *, exists_only=False) -> t.List[pl.Path]:
         filtered = filter(
             lambda f: not exists_only or f.exists(),
             self._items
         )
         return list(filtered)
 
+    def checked(self, *, exists_only=False) -> t.List[pl.Path]:
+        filtered = filter(
+            lambda f: not exists_only or f.exists(),
+            self._checked
+        )
+        return list(filtered)

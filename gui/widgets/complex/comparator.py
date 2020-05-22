@@ -116,15 +116,16 @@ class Comparator(qw.QWidget):
 
     def _on_run_comparison(self):
         try:
-            other_files = self._texts_model.files(exists_only=True)
-            if not other_files:
-                raise ValueError('Нечего сравнивать')
+            other_files = self._texts_model.checked(exists_only=True)
 
             ref_file: pl.Path = self._reference_cbx.currentData(Roles.SourceDataRole)
             if not ref_file:
                 raise ValueError('Эталонный текст недоступен')
 
-            other_files.remove(ref_file)
+            if ref_file in other_files:
+                other_files.remove(ref_file)
+            if not other_files:
+                raise ValueError('Нечего сравнивать')
 
             checked_algs = self._algorithms_model.checked()
             if not checked_algs:
