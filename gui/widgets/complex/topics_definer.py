@@ -71,8 +71,8 @@ class TopicDefiner(qw.QWidget):
 
     def _on_define_click(self):
         try:
-            files = self._model.files(exists_only=True)
-            if not files:
+            files = self._model.checked(exists_only=True)
+            if len(files) <= 1:
                 raise ValueError('Нет файлов для определения')
             udpipe_path = self._udpipe.path
             if not udpipe_path.exists():
@@ -83,6 +83,5 @@ class TopicDefiner(qw.QWidget):
 
         self._note_btn.hide()
 
-        dialog = TopicsDefinition(files, self._udpipe, self._optimal_chk.isChecked())
-        dialog.setWindowModality(qq.WindowModality.WindowModal)
+        dialog = TopicsDefinition(files, self._udpipe, self._optimal_chk.isChecked(), self)
         dialog.exec_()

@@ -38,6 +38,9 @@ class BaseListModel(qc.QAbstractListModel, t.Generic[TItem]):
             return False
         return True
 
+    def items(self):
+        return self._items.copy()
+
     def clear(self):
         self.beginResetModel()
         self._items.clear()
