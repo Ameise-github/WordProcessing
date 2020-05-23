@@ -9,7 +9,7 @@ from PySide2.QtCore import Qt as qq
 from parsing.metric.base import BaseAlgorithm
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.logic.comparison.thread import ComparisionThread
-from gui.models.process import ComparisonProcessModel
+from gui.models.comparison.process import ComparisonProcessModel
 from gui.widgets.common.timer import TimerLabel
 from gui.widgets.common.hseparator import HSeparator
 

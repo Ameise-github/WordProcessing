@@ -1,15 +1,12 @@
 import typing as t
 
-import PySide2.QtCore as qc
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.models.roles import Roles
-from gui.models.text_files import TextFilesModel
-from gui.models.udpipe import UDPipeFile
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
-from gui.widgets.window.topics_definition import TopicsDefinitionWindow
+from gui.widgets.topics_definition.window import TopicsDefinitionWindow
 from gui.widgets.common.note_button import NoteButton
 
 

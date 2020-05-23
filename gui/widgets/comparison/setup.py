@@ -1,21 +1,19 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
-from gui.models.roles import Roles
-from gui.models.udpipe import UDPipeFile
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.roles import Roles
+from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.window.comparison import ComparisonWindow
+from gui.widgets.comparison.window import ComparisonWindow
 
 
 class TextFilesProxyModel(qc.QIdentityProxyModel):

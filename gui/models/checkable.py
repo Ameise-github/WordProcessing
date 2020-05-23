@@ -1,14 +1,10 @@
 import typing as t
-import pathlib as pl
 
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
-import PySide2.QtWidgets as qw
 
 from gui.models.list import BaseListModel
-from gui.models.roles import Roles
-from gui.widgets.style import Colors
+from gui.models.common.roles import Roles
 
 TItem = t.TypeVar('TItem')
 

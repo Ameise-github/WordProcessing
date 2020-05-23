@@ -1,19 +1,16 @@
 import typing as t
 import pathlib as pl
 
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui import config
-from gui.widgets import style
-from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
-from gui.models.udpipe import UDPipeFile
-from gui.widgets.complex.text_list import TextFilesList
-from gui.widgets.complex.comparator import ComparisonSetup
-from gui.widgets.complex.topics_definer import TopicsDefinitionSetup
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.udpipe import UDPipeFile
+from gui.widgets.main.text_list import TextFilesList
+from gui.widgets.comparison.setup import ComparisonSetup
+from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
 
 
 class MainWindow(qw.QWidget):
