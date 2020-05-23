@@ -38,11 +38,9 @@ def main():
     # print(j.get_text().p)
 
     # Изменения одного текста
-    # one_text = PragmaticAdequacy()
-    # one_text.set_trainTextUdpipe(trainTextUdpipe)
-    # one_text.set_text_standart(textOriginal1)
-    # one_text.set_text(textOriginal3)
-    # print(one_text.run())
+    one_text = PragmaticAdequacyAlgorithm()
+    result = one_text.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    print(result)
 
     # Тематика текстов
     list_path_text = [textOriginal1, textOriginal2, textOriginal3]
@@ -50,8 +48,8 @@ def main():
     view_srt, lda_model = thems_texts.view_thems()
     list_thems_doc = thems_texts.topics_document(lda_model)
     print(view_srt)
-    # print()
-    # print(list_thems_doc)
+    print()
+    print(list_thems_doc)
 
     # Морфологический анализ
     morhp_an = TextAnalysis()

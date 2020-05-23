@@ -40,7 +40,7 @@ class ComparisonWindow(BaseProcessDialog):
 
         process_pb = qw.QProgressBar()
         process_pb.setMinimum(0)
-        process_pb.setMaximum(combinator.total())
+        process_pb.setMaximum(0)
         process_pb.setValue(0)
         process_pb.setFormat('  %v из %m')
 
@@ -52,6 +52,7 @@ class ComparisonWindow(BaseProcessDialog):
 
         # connect
 
+        thread.prepared.connect(self.on_prepared)
         thread.process_finished.connect(self.on_process_finished)
         thread.error.connect(self.on_error)
         thread.finished.connect(self.on_finished)
@@ -111,6 +112,10 @@ class ComparisonWindow(BaseProcessDialog):
     def on_close_event(self, event: qg.QCloseEvent):
         self.on_stop_clicked()
         event.accept()
+
+    def on_prepared(self, count: int):
+        self._process_pb.setMaximum(count)
+        self.update()
 
     def on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: int):
         self.increment_progress()

@@ -10,6 +10,7 @@ from gui.models.comparison.process import ComparisonProcessModel, ComparisonResu
 
 
 class ComparisionThread(qc.QThread):
+    prepared = qc.Signal(int)
     process_started = qc.Signal(BaseAlgorithm, pl.Path)
     process_finished = qc.Signal(BaseAlgorithm, pl.Path, float)
     error = qc.Signal(BaseAlgorithm, pl.Path, str)
@@ -25,9 +26,15 @@ class ComparisionThread(qc.QThread):
 
     def run(self):
         with self._pool as pool:
+            combination = self._model.combinator.combine()
+            self.prepared.emit(len(combination))
+
             receivers = {}
 
-            for udpipe, alg, ref, other in self._model.combinator.combine():
+            ref = self._model.combinator.reference
+            udpipe = self._model.combinator.udpipe
+
+            for alg, other in combination:
                 # funcs
                 process_func = ft.partial(
                     self._pre_wrapper,
