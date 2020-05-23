@@ -11,12 +11,12 @@ from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.text_files import TextFilesModel
 from gui.models.udpipe import UDPipeFile
-from gui.widgets.complex.text_list import TextList
-from gui.widgets.complex.comparator import Comparator
-from gui.widgets.complex.topics_definer import TopicDefiner
+from gui.widgets.complex.text_list import TextFilesList
+from gui.widgets.complex.comparator import ComparisonSetup
+from gui.widgets.complex.topics_definer import TopicsDefinitionSetup
 
 
-class Main(qw.QWidget):
+class MainWindow(qw.QWidget):
     def __init__(self,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):
@@ -46,16 +46,16 @@ class Main(qw.QWidget):
         udpipe_btn = qw.QPushButton('Обзор...')
 
         text_lbl = qw.QLabel('Файлы текстов:')
-        text_man = TextList()
+        text_man = TextFilesList()
         text_man.layout().setMargin(0)
         text_man.model = texts_model
 
-        comparator_w = Comparator()
+        comparator_w = ComparisonSetup()
         comparator_w.algorithms_model = algorithms_model
         comparator_w.texts_model = texts_model
         comparator_w.udpipe_file = udpipe_file
 
-        topics_definer_w = TopicDefiner()
+        topics_definer_w = TopicsDefinitionSetup()
         topics_definer_w.texts_model = texts_model
         topics_definer_w.udpipe_file = udpipe_file
 

@@ -9,11 +9,11 @@ from gui.models.roles import Roles
 from gui.models.text_files import TextFilesModel
 from gui.models.udpipe import UDPipeFile
 from gui.widgets import style
-from gui.widgets.window.topics_definition import TopicsDefinition
+from gui.widgets.window.topics_definition import TopicsDefinitionWindow
 from gui.widgets.common.note_button import NoteButton
 
 
-class TopicDefiner(qw.QWidget):
+class TopicsDefinitionSetup(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -83,5 +83,5 @@ class TopicDefiner(qw.QWidget):
 
         self._note_btn.hide()
 
-        dialog = TopicsDefinition(files, self._udpipe, self._optimal_chk.isChecked(), self)
+        dialog = TopicsDefinitionWindow(files, self._udpipe, self._optimal_chk.isChecked(), self)
         dialog.exec_()

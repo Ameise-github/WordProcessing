@@ -11,7 +11,7 @@ from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 
 
-class TextList(qw.QWidget):
+class TextFilesList(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 

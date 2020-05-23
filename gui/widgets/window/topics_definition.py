@@ -14,12 +14,12 @@ from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.text_files import TextFilesModel
 from gui.models.udpipe import UDPipeFile
-from gui.widgets.complex.text_list import TextList
-from gui.widgets.complex.comparator import Comparator
-from gui.widgets.window.comparison import Comparison
+from gui.widgets.complex.text_list import TextFilesList
+from gui.widgets.complex.comparator import ComparisonSetup
+from gui.widgets.window.comparison import ComparisonWindow
 
 
-class TopicsDefinition(qw.QDialog):
+class TopicsDefinitionWindow(qw.QDialog):
     def __init__(self,
                  files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
