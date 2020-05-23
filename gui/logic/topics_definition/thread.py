@@ -6,7 +6,7 @@ import multiprocessing.connection as mpc
 import PySide2.QtCore as qc
 
 from parsing.ThemsText import ThemsText
-from gui.models.udpipe import UDPipeFile
+from gui.models.common.udpipe import UDPipeFile
 
 
 class TopicsDefinitionThread(qc.QThread):

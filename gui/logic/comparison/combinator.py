@@ -4,7 +4,7 @@ import pathlib as pl
 import PySide2.QtCore as qc
 
 from parsing.metric.base import BaseAlgorithm
-from gui.models.algorithms import AlgorithmList
+from gui.models.comparison.algorithms import AlgorithmList
 
 
 class ComparisonCombinator(qc.QObject):

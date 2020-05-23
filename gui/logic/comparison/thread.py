@@ -6,7 +6,7 @@ import functools as ft
 import PySide2.QtCore as qc
 
 from parsing.metric.base import BaseAlgorithm
-from gui.models.process import ComparisonProcessModel, ComparisonResult
+from gui.models.comparison.process import ComparisonProcessModel, ComparisonResult
 
 
 class ComparisionThread(qc.QThread):

@@ -1,25 +1,16 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
-import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 import PySide2.QtWebEngineWidgets as qweb
 from PySide2.QtCore import Qt as qq
 
 from gui.logic.topics_definition.thread import TopicsDefinitionThread
-from gui import config
-from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
-from gui.models.udpipe import UDPipeFile
-from gui.widgets.complex.text_list import TextList
-from gui.widgets.complex.comparator import Comparator
-from gui.widgets.window.comparison import Comparison
+from gui.models.common.udpipe import UDPipeFile
 
 
-class TopicsDefinition(qw.QDialog):
+class TopicsDefinitionWindow(qw.QDialog):
     def __init__(self,
                  files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):

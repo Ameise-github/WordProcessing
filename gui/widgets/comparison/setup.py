@@ -1,24 +1,22 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
-from gui.models.roles import Roles
-from gui.models.udpipe import UDPipeFile
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.roles import Roles
+from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.window.comparison import Comparison
+from gui.widgets.comparison.window import ComparisonWindow
 
 
-class TextsShortProxyModel(qc.QIdentityProxyModel):
+class TextFilesProxyModel(qc.QIdentityProxyModel):
     def data(self, proxy_index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Any:
         text_file: str = super().data(proxy_index, Roles.SourceDataRole)
 
@@ -30,7 +28,7 @@ class TextsShortProxyModel(qc.QIdentityProxyModel):
             return super().data(proxy_index, role)
 
 
-class Comparator(qw.QWidget):
+class ComparisonSetup(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -39,7 +37,7 @@ class Comparator(qw.QWidget):
         algorithms_model = ComparisonAlgorithmsModel()
         texts_model = TextFilesModel()
 
-        texts_proxy_model = TextsShortProxyModel()
+        texts_proxy_model = TextFilesProxyModel()
         texts_proxy_model.setSourceModel(texts_model)
 
         # widgets
@@ -146,5 +144,5 @@ class Comparator(qw.QWidget):
         combinator.reference = ref_file
         combinator.others = other_files
 
-        proc_w = Comparison(combinator, self)
+        proc_w = ComparisonWindow(combinator, self)
         proc_w.exec_()
