@@ -5,7 +5,7 @@ from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 
-from gui.models.checkable import BaseCheckableModel
+from gui.models.common.checkable import BaseCheckableModel
 from gui.widgets.style import Colors
 
 

@@ -4,7 +4,7 @@ from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 
 from parsing.metric.base import BaseAlgorithm
-from gui.models.checkable import BaseCheckableModel
+from gui.models.common.checkable import BaseCheckableModel
 
 AlgorithmList = t.List[BaseAlgorithm]
 
