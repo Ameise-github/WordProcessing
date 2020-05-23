@@ -10,11 +10,12 @@ from parsing.metric.base import BaseAlgorithm
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.logic.comparison.thread import ComparisionThread
 from gui.models.comparison.process import ComparisonProcessModel
+from gui.widgets.common.dialog import BaseDialog
 from gui.widgets.common.timer import TimerLabel
 from gui.widgets.common.hseparator import HSeparator
 
 
-class ComparisonWindow(qw.QDialog):
+class ComparisonWindow(BaseDialog):
     def __init__(self, combinator: ComparisonCombinator,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):

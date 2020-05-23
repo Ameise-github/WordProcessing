@@ -8,14 +8,13 @@ from PySide2.QtCore import Qt as qq
 
 from gui.logic.topics_definition.thread import TopicsDefinitionThread
 from gui.models.common.udpipe import UDPipeFile
+from gui.widgets.common.dialog import BaseDialog
 
 
-class TopicsDefinitionWindow(qw.QDialog):
+class TopicsDefinitionWindow(BaseDialog):
     def __init__(self,
                  files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
-        f |= qq.WindowMaximizeButtonHint | qq.WindowMinimizeButtonHint | qq.WindowCloseButtonHint
-        f &= ~qq.WindowContextHelpButtonHint
         super().__init__(parent, f)
 
         # other
