@@ -11,6 +11,7 @@ from gui.models.common.udpipe import UDPipeFile
 from gui.widgets.main.text_files_list import TextFilesList
 from gui.widgets.comparison.setup import ComparisonSetup
 from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
+from gui.widgets.pragmatic_adequacy.setup import PragmaticAdequacySetup
 
 
 class MainWindow(qw.QWidget):
@@ -56,9 +57,14 @@ class MainWindow(qw.QWidget):
         topics_definer_w.texts_model = texts_model
         topics_definer_w.udpipe_file = udpipe_file
 
+        pragmatic_w = PragmaticAdequacySetup()
+        pragmatic_w.texts_model = texts_model
+        pragmatic_w.udpipe_file = udpipe_file
+
         analysis_tw = qw.QTabWidget()
         analysis_tw.addTab(comparator_w, 'Сравнение')
-        analysis_tw.addTab(topics_definer_w, 'Определение тематики')
+        analysis_tw.addTab(topics_definer_w, 'Тематика')
+        analysis_tw.addTab(pragmatic_w, 'Прагматическая адекватность')
 
         # connections
 

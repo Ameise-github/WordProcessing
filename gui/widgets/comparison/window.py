@@ -10,12 +10,12 @@ from parsing.metric.base import BaseAlgorithm
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.logic.comparison.thread import ComparisionThread
 from gui.models.comparison.process import ComparisonProcessModel
-from gui.widgets.common.dialog import BaseDialog
+from gui.widgets.common.process_dialog import BaseProcessDialog
 from gui.widgets.common.timer import TimerLabel
 from gui.widgets.common.hseparator import HSeparator
 
 
-class ComparisonWindow(BaseDialog):
+class ComparisonWindow(BaseProcessDialog):
     def __init__(self, combinator: ComparisonCombinator,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):
@@ -82,11 +82,11 @@ class ComparisonWindow(BaseDialog):
 
         # fields
 
-        self.thread = thread
-        self.timer_lbl = timer_lbl
-        self.process_pb = process_pb
-        self.stop_btn = stop_btn
-        self.done_btn = done_btn
+        self._thread = thread
+        self._timer_lbl = timer_lbl
+        self._process_pb = process_pb
+        self._stop_btn = stop_btn
+        self._done_btn = done_btn
 
         self._schedule_close = False  # плановое закрытие окна после отмены операции
 
@@ -96,22 +96,20 @@ class ComparisonWindow(BaseDialog):
         self.setWindowTitle('Сравнение')
         self.setLayout(vbox)
 
+    @property
+    def is_working(self) -> bool:
+        return self._thread.isRunning()
+
     def increment_progress(self, inc=1):
-        value = self.process_pb.value() + inc
-        self.process_pb.setValue(value)
+        value = self._process_pb.value() + inc
+        self._process_pb.setValue(value)
 
     def showEvent(self, event: qg.QShowEvent):
-        self.timer_lbl.start()
-        self.thread.start()
+        self._timer_lbl.start()
+        self._thread.start()
 
-    def closeEvent(self, event: qg.QCloseEvent):
-        if self.thread.isRunning():
-            result = qw.QMessageBox.question(self, 'Отмена операции', 'Прервать сравнение?')
-            if qw.QMessageBox.Yes == result:
-                self.on_stop_clicked()
-            else:
-                event.ignore()
-
+    def on_close_event(self, event: qg.QCloseEvent):
+        self.on_stop_clicked()
         event.accept()
 
     def on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: int):
@@ -122,13 +120,13 @@ class ComparisonWindow(BaseDialog):
         print(f'[ERROR] {other} => [{alg}] => {text}', file=sys.stderr, flush=True)
 
     def on_finished(self):
-        self.timer_lbl.stop()
-        self.stop_btn.setVisible(False)
-        self.done_btn.setVisible(True)
+        self._timer_lbl.stop()
+        self._stop_btn.setVisible(False)
+        self._done_btn.setVisible(True)
 
     def on_stop_clicked(self):
-        self.stop_btn.setEnabled(False)
-        self.thread.terminate()
+        self._stop_btn.setEnabled(False)
+        self._thread.terminate()
 
     def on_done_clicked(self):
         self.close()

@@ -1,16 +1,12 @@
 import typing as t
 import pathlib as pl
 
-import PySide2.QtCore as qc
-
 from parsing.metric.base import BaseAlgorithm
 from gui.models.comparison.algorithms import AlgorithmList
 
 
-class ComparisonCombinator(qc.QObject):
-    def __init__(self, parent: qc.QObject = None):
-        super().__init__(parent)
-
+class ComparisonCombinator:
+    def __init__(self):
         self.udpipe: t.Optional[pl.Path] = None
         self.algorithms: AlgorithmList = []
         self.reference: t.Optional[pl.Path] = None

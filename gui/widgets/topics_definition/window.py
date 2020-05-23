@@ -8,10 +8,10 @@ from PySide2.QtCore import Qt as qq
 
 from gui.logic.topics_definition.thread import TopicsDefinitionThread
 from gui.models.common.udpipe import UDPipeFile
-from gui.widgets.common.dialog import BaseDialog
+from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
-class TopicsDefinitionWindow(BaseDialog):
+class TopicsDefinitionWindow(BaseProcessDialog):
     def __init__(self,
                  files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
@@ -58,18 +58,16 @@ class TopicsDefinitionWindow(BaseDialog):
         self.setMinimumSize(500, 500)
         self.setWindowTitle('Определение тематики')
 
+    @property
+    def is_working(self) -> bool:
+        return self._thread.isRunning()
+
     def showEvent(self, event: qg.QShowEvent):
         self._thread.start()
 
-    def closeEvent(self, event: qg.QCloseEvent):
-        if self._thread.isRunning():
-            result = qw.QMessageBox.question(self, 'Отмена операции', 'Прервать операцию?')
-            if qw.QMessageBox.Yes == result:
-                self._thread.terminate()
-                self._thread.wait()
-            else:
-                event.ignore()
-
+    def on_close_event(self, event: qg.QCloseEvent):
+        self._thread.terminate()
+        self._thread.wait()
         event.accept()
 
     def _on_error(self, msg: str):

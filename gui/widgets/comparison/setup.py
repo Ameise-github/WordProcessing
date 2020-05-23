@@ -14,6 +14,7 @@ from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
+from gui.widgets.common.hseparator import HSeparator
 from gui.widgets.comparison.window import ComparisonWindow
 
 
@@ -64,6 +65,8 @@ class ComparisonSetup(qw.QWidget):
 
         compare_btn = qw.QPushButton(style.icons.play_circle, 'Выполнить сравнение')
 
+        separator_hs = HSeparator()
+
         note_btn = NoteButton()
 
         # connect
@@ -81,6 +84,7 @@ class ComparisonSetup(qw.QWidget):
         vbox.addWidget(reference_cbx)
         vbox.addWidget(algorithms_lbl)
         vbox.addWidget(algorithms_chl)
+        vbox.addWidget(separator_hs)
         vbox.addLayout(hbox, 1)
         self.setLayout(vbox)
 
