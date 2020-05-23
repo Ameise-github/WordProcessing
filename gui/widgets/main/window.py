@@ -8,7 +8,7 @@ from gui import config
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.udpipe import UDPipeFile
-from gui.widgets.main.text_list import TextFilesList
+from gui.widgets.main.text_files_list import TextFilesList
 from gui.widgets.comparison.setup import ComparisonSetup
 from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
 

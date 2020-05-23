@@ -3,7 +3,7 @@ import typing as t
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 
-from gui.models.common.roles import Roles
+from gui.models.roles import Roles
 
 TItem = t.TypeVar('TItem')
 

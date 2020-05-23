@@ -8,8 +8,8 @@ from PySide2.QtCore import Qt as qq
 
 from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
+from gui.models.roles import Roles
 from gui.models.common.text_files import TextFilesModel
-from gui.models.common.roles import Roles
 from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
