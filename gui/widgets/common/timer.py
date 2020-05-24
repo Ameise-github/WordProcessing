@@ -15,27 +15,33 @@ class TimerLabel(qw.QLabel):
 
         timer = qc.QTimer()
 
-        timer.timeout.connect(self.on_timeout)
+        timer.timeout.connect(self._on_timeout)
 
         self._timer = timer
         self._elapsed = qc.QTime(0, 0)
+        self._work = False
 
         self.setText(self._elapsed.toString(_FORMAT))
 
-    @property
-    def interval(self):
+    def get_interval(self):
         return self._timer.interval()
 
-    @interval.setter
-    def interval(self, msec: int):
+    def set_interval(self, msec: int):
         self._timer.setInterval(msec)
 
-    def start(self):
-        self._timer.start()
+    def is_work(self) -> bool:
+        return self._work
 
-    def stop(self):
-        self._timer.stop()
+    def set_work(self, enabled: bool):
+        self._work = enabled
+        if enabled:
+            self._timer.start()
+        else:
+            self._timer.stop()
 
-    def on_timeout(self):
+    interval = qc.Property(int, get_interval, set_interval)
+    work = qc.Property(bool, is_work, set_work)
+
+    def _on_timeout(self):
         self._elapsed = self._elapsed.addMSecs(self._timer.interval())
         self.setText(self._elapsed.toString(_FORMAT))

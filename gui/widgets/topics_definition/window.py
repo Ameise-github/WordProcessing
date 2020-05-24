@@ -25,10 +25,8 @@ class TopicsDefinitionWindow(BaseProcessDialog):
 
         webview = qweb.QWebEngineView()
 
-        progress_pb = qw.QProgressBar()
-        progress_pb.setMaximum(0)
-        progress_pb.setMinimum(0)
-        progress_pb.setTextVisible(False)
+        frame = qw.QFrame()
+        frame.setFrameShape(qw.QFrame.StyledPanel)
 
         # connect
 
@@ -41,47 +39,51 @@ class TopicsDefinitionWindow(BaseProcessDialog):
 
         # layout
 
+        wv_vbox = qw.QVBoxLayout()
+        wv_vbox.setMargin(0)
+        wv_vbox.addWidget(webview)
+        frame.setLayout(wv_vbox)
+
         vbox = qw.QVBoxLayout()
-        vbox.addWidget(webview)
-        vbox.addWidget(progress_pb)
-        self.setLayout(vbox)
+        vbox.addWidget(frame)
+        self.content_layout = vbox
 
         # fields
 
         self._thread = thread
 
-        self.webview = webview
-        self.progress_pb = progress_pb
+        self._webview = webview
 
         # setup
 
-        self.setMinimumSize(500, 500)
         self.setWindowTitle('Определение тематики')
 
-    @property
-    def is_working(self) -> bool:
-        return self._thread.isRunning()
-
-    def showEvent(self, event: qg.QShowEvent):
+    def on_show(self):
         self._thread.start()
 
-    def on_close_event(self, event: qg.QCloseEvent):
-        self._thread.terminate()
-        self._thread.wait()
-        event.accept()
+    def on_abort(self) -> bool:
+        if self._thread.isRunning():
+            self._thread.terminate()
+            self._thread.wait()
+        else:
+            self._webview.stop()
+        return True
+
+    def _on_finished(self):
+        if not self.is_aborted:
+            self._webview.setHtml(self._thread.content)
+        else:
+            self.finish_him()
 
     def _on_error(self, msg: str):
         qw.QMessageBox.critical(self, 'Ошибка', msg)
-        self.close()
-
-    def _on_finished(self):
-        self.webview.setHtml(self._thread.content)
+        self.abort()
 
     def _on_load_started(self):
-        self.progress_pb.setMaximum(100)
+        self.progress_bar.setMaximum(100)
 
     def _on_load_progress(self, progress: int):
-        self.progress_pb.setValue(progress)
+        self.progress_bar.setValue(progress)
 
     def _on_load_finished(self, ok: bool):
-        self.progress_pb.setVisible(False)
+        self.finish_him()
