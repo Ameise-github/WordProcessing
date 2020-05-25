@@ -30,8 +30,8 @@ class TopicsDefinitionWindow(BaseProcessDialog):
 
         # connect
 
-        thread.error.connect(self._on_error)
-        thread.finished.connect(self._on_finished)
+        thread.process_finished.connect(self._on_process_finished)
+        thread.process_error.connect(self._on_process_error)
 
         webview.loadStarted.connect(self._on_load_started)
         webview.loadProgress.connect(self._on_load_progress)
@@ -69,14 +69,14 @@ class TopicsDefinitionWindow(BaseProcessDialog):
             self._webview.stop()
         return True
 
-    def _on_finished(self):
+    def _on_process_finished(self, data: None, result: str):
         if not self.is_aborted:
-            self._webview.setHtml(self._thread.content)
+            self._webview.setHtml(result)
         else:
             self.finish_him()
 
-    def _on_error(self, msg: str):
-        qw.QMessageBox.critical(self, 'Ошибка', msg)
+    def _on_process_error(self, data: None, text: str):
+        qw.QMessageBox.critical(self, 'Ошибка', text)
         self.abort()
 
     def _on_load_started(self):

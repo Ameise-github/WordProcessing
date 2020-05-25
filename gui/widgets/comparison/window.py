@@ -6,7 +6,7 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from parsing.metric.base import BaseAlgorithm
-from gui.logic.comparison.thread import ComparisionThread, ComparisionPair
+from gui.logic.comparison.thread import ComparisionThread, ComparisionData
 from gui.models.comparison.process import ComparisonProcessModel, ComparisonResult
 from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets.common.process_dialog import BaseProcessDialog
@@ -78,31 +78,28 @@ class ComparisonWindow(BaseProcessDialog):
         value = self.progress_bar.value() + inc
         self.progress_bar.setValue(value)
 
-    def _on_prepared(self, combination: t.List[ComparisionPair]):
-        self._model.set_source(self._algorithms, self._others, combination)
-        self.progress_bar.setMaximum(len(combination))
+    def _on_prepared(self, combinations: t.List[ComparisionData]):
+        self._model.set_source(self._algorithms, self._others, combinations)
+        self.progress_bar.setMaximum(len(combinations))
         self.update()
 
-    def _on_process_started(self, pair: ComparisionPair):
-        algorithm, file = pair
+    def _on_process_started(self, data: ComparisionData):
         self._model.assign_result(
-            algorithm, file,
+            data.algorithm, data.other,
             ComparisonResult(ComparisonResult.WORKING)
         )
 
-    def _on_process_finished(self, pair: ComparisionPair, result: float):
-        algorithm, file = pair
+    def _on_process_finished(self, data: ComparisionData, result: float):
         self._model.assign_result(
-            algorithm, file,
+            data.algorithm, data.other,
             ComparisonResult(ComparisonResult.SUCCESS, result)
         )
         self._increment_progress()
 
-    def _on_process_error(self, pair: ComparisionPair, text: str):
-        algorithm, file = pair
-        print(f'[ERROR] {file} => [{algorithm}] => {text}', file=sys.stderr, flush=True)
+    def _on_process_error(self, data: ComparisionData, text: str):
+        print(f'[ERROR] {data.other} => [{data.algorithm}] => {text}', file=sys.stderr, flush=True)
         self._model.assign_result(
-            algorithm, file,
+            data.algorithm, data.other,
             ComparisonResult(ComparisonResult.ERROR, text)
         )
         self._increment_progress()

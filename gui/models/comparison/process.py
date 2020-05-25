@@ -7,7 +7,7 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
 from parsing.metric.base import BaseAlgorithm
-from gui.logic.comparison.thread import ComparisionPair
+from gui.logic.comparison.thread import ComparisionData
 from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets.style import Colors
 
@@ -23,7 +23,7 @@ class ComparisonResult:
         self.value = value
 
 
-_ResultTable = t.Dict[ComparisionPair, ComparisonResult]
+_ResultTable = t.Dict[t.Tuple[BaseAlgorithm, pl.Path], ComparisonResult]
 
 
 class ComparisonProcessModel(qc.QAbstractTableModel):
@@ -35,11 +35,14 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
         self._text_files: t.List[pl.Path] = []
         self._results: _ResultTable = {}
 
-    def set_source(self, algorithms: AlgorithmList, others: t.List[pl.Path], combination: t.List[ComparisionPair]):
+    def set_source(self, algorithms: AlgorithmList, others: t.List[pl.Path], combinations: t.List[ComparisionData]):
         self.beginResetModel()
         self._algorithms = algorithms
         self._text_files = others
-        self._results = dict.fromkeys(combination, ComparisonResult())
+        self._results = dict.fromkeys(
+            map(tuple, combinations),
+            ComparisonResult()
+        )
         self.endResetModel()
 
     def assign_result(self, algorithm: BaseAlgorithm, file: pl.Path,  result: ComparisonResult) -> bool:
@@ -76,8 +79,8 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
             return None
 
         algorithm = self._algorithms[index.column()]
-        file = self._text_files[index.row()]
-        result = self._results[algorithm, file]
+        other = self._text_files[index.row()]
+        result = self._results[algorithm, other]
 
         if qq.TextAlignmentRole == role:
             return qq.AlignCenter
