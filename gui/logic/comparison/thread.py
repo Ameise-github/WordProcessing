@@ -6,44 +6,54 @@ import functools as ft
 import PySide2.QtCore as qc
 
 from parsing.metric.base import BaseAlgorithm
-from gui.models.comparison.process import ComparisonProcessModel, ComparisonResult
+from gui.models.comparison.algorithms import AlgorithmList
+
+ComparisionPair = t.Tuple[BaseAlgorithm, pl.Path]
 
 
 class ComparisionThread(qc.QThread):
-    prepared = qc.Signal(int)
-    process_started = qc.Signal(BaseAlgorithm, pl.Path)
-    process_finished = qc.Signal(BaseAlgorithm, pl.Path, float)
-    error = qc.Signal(BaseAlgorithm, pl.Path, str)
+    prepared = qc.Signal(list)
+    process_started = qc.Signal(tuple)
+    process_finished = qc.Signal(tuple, float)
+    process_error = qc.Signal(tuple, str)
 
-    def __init__(self, model: ComparisonProcessModel, parent: t.Optional[qc.QObject] = None):
+    def __init__(self,
+                 udpipe: t.Optional[pl.Path], algorithms: AlgorithmList,
+                 reference: t.Optional[pl.Path], others: t.List[pl.Path],
+                 parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
-        self._model = model
-        self._pool = mp.Pool()
+        self._udpipe = udpipe
+        self._algorithms = algorithms
+        self._reference = reference
+        self._others = others
 
-        self.process_started.connect(self.on_process_stated)
-        self.finished.connect(self.on_finished)
+        self._abort = False
+
+    def _combine(self):
+        combination = []
+        for other in self._others:
+            for alg in self._algorithms:
+                combination.append((alg, other))
+        return combination
 
     def run(self):
-        with self._pool as pool:
-            combination = self._model.combinator.combine()
-            self.prepared.emit(len(combination))
+        with mp.Pool() as pool:
+            combination = self._combine()
+            self.prepared.emit(combination)
 
             receivers = {}
-
-            ref = self._model.combinator.reference
-            udpipe = self._model.combinator.udpipe
 
             for alg, other in combination:
                 # funcs
                 process_func = ft.partial(
                     self._pre_wrapper,
-                    udpipe, alg, ref, other)
+                    self._udpipe, alg, self._reference, other)
                 callback = ft.partial(
-                    self.on_process_finished,
+                    self._on_process_finished,
                     alg, other)
                 error_callback = ft.partial(
-                    self.on_process_error,
+                    self._on_process_error,
                     alg, other)
 
                 # process
@@ -58,8 +68,14 @@ class ComparisionThread(qc.QThread):
 
             self._pre_loop(receivers)
 
-            pool.close()
+            if self._abort:
+                pool.terminate()
+            else:
+                pool.close()
             pool.join()
+
+    def abort(self):
+        self._abort = True
 
     @staticmethod
     def _pre_wrapper(udpipe: pl.Path, alg: BaseAlgorithm, ref: pl.Path, other: pl.Path,
@@ -69,10 +85,11 @@ class ComparisionThread(qc.QThread):
         return result
 
     def _pre_loop(self, receivers: dict):
-        while receivers:
+        while receivers and not self._abort:
             for_delete = []
             # handle
             for rec, (alg, other) in receivers.items():
+                rec: mp.connection.PipeConnection = rec
                 if rec.closed:
                     for_delete.append(rec)
                     continue
@@ -82,24 +99,20 @@ class ComparisionThread(qc.QThread):
                     continue
 
                 for_delete.append(rec)
-                self.process_started.emit(alg, other)
+                self._on_process_started(alg, other)
             # clean
             for rec in for_delete:
                 del receivers[rec]
 
-    def on_process_stated(self, alg: BaseAlgorithm, other: pl.Path):
-        result = ComparisonResult(ComparisonResult.WORKING, None)
-        self._model.assign_result(other, alg, result)
+    def _on_process_started(self, alg: BaseAlgorithm, other: pl.Path):
+        if self._abort:
+            return
+        self.process_started.emit((alg, other))
 
-    def on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: float):
-        result = ComparisonResult(ComparisonResult.SUCCESS, result)
-        self._model.assign_result(other, alg, result)
-        self.process_finished.emit(alg, other, result)
+    def _on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: float):
+        if self._abort:
+            return
+        self.process_finished.emit((alg, other), result)
 
-    def on_process_error(self, alg: BaseAlgorithm, other: pl.Path, exception: BaseException):
-        result = ComparisonResult(ComparisonResult.ERROR, repr(exception))
-        self._model.assign_result(other, alg, result)
-        self.error.emit(alg, other, exception.args[0])
-
-    def on_finished(self):
-        self._pool.terminate()
+    def _on_process_error(self, alg: BaseAlgorithm, other: pl.Path, exception: BaseException):
+        self.process_error.emit((alg, other), exception.args[0])

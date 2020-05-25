@@ -20,7 +20,7 @@ class BaseProcessDialog(qw.QDialog):
     finished = qc.Signal()
 
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
-        f |= qq.WindowMaximizeButtonHint | qq.WindowMinimizeButtonHint
+        f |= qq.WindowMinMaxButtonsHint
         f &= ~qq.WindowContextHelpButtonHint & ~qq.WindowCloseButtonHint
         super().__init__(parent, f)
 
@@ -61,8 +61,11 @@ class BaseProcessDialog(qw.QDialog):
         abort_state.assignProperty(process_pb, 'maximum', 0)
         abort_state.assignProperty(process_pb, 'value', 0)
         abort_state.assignProperty(abort_btn, 'enabled', False)
+        abort_state.assignProperty(abort_btn, 'text', 'Пожалуйста, подождите...')
 
         done_state.assignProperty(timer_tl, 'work', False)
+        done_state.assignProperty(process_pb, 'maximum', -1)
+        done_state.assignProperty(process_pb, 'value', 0)
         done_state.assignProperty(process_pb, 'enabled', False)
         done_state.assignProperty(abort_btn, 'visible', False)
         done_state.assignProperty(done_btn, 'visible', True)
@@ -131,15 +134,6 @@ class BaseProcessDialog(qw.QDialog):
 
     def on_show(self):
         pass
-
-    def exec_(self, *, hide_parent=True) -> int:
-        parent = self.nativeParentWidget()
-        if hide_parent:
-            parent.hide()
-        result = super().exec_()
-        if hide_parent:
-            parent.show()
-        return result
 
     def abort(self):
         if self.on_abort():

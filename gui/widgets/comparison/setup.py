@@ -6,7 +6,6 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.logic.comparison.combinator import ComparisonCombinator
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
 from gui.models.roles import Roles
 from gui.models.common.text_files import TextFilesModel
@@ -20,6 +19,9 @@ from gui.widgets.comparison.window import ComparisonWindow
 
 class TextFilesProxyModel(qc.QIdentityProxyModel):
     def data(self, proxy_index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Any:
+        if not proxy_index.isValid():
+            return None
+
         text_file: str = super().data(proxy_index, Roles.SourceDataRole)
 
         if qq.DisplayRole == role:
@@ -154,11 +156,5 @@ class ComparisonSetup(qw.QWidget):
 
         self._note_btn.hide()
 
-        combinator = ComparisonCombinator()
-        combinator.udpipe = udpipe_path
-        combinator.algorithms = checked_algs
-        combinator.reference = ref_file
-        combinator.others = other_files
-
-        proc_w = ComparisonWindow(combinator, self)
+        proc_w = ComparisonWindow(udpipe_path, checked_algs, ref_file, other_files, self)
         proc_w.exec_()

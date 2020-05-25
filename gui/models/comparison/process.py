@@ -7,7 +7,8 @@ import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
 from parsing.metric.base import BaseAlgorithm
-from gui.logic.comparison.combinator import ComparisonCombinator
+from gui.logic.comparison.thread import ComparisionPair
+from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets.style import Colors
 
 
@@ -22,55 +23,45 @@ class ComparisonResult:
         self.value = value
 
 
-_ResultTable = t.Dict[t.Tuple[int, int], ComparisonResult]
+_ResultTable = t.Dict[ComparisionPair, ComparisonResult]
 
 
 class ComparisonProcessModel(qc.QAbstractTableModel):
 
-    def __init__(self, combinator: ComparisonCombinator, parent: t.Optional[qc.QObject] = None):
+    def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
-        self._combinator = combinator
+        self._algorithms: AlgorithmList = []
+        self._text_files: t.List[pl.Path] = []
         self._results: _ResultTable = {}
 
-    @property
-    def combinator(self) -> ComparisonCombinator:
-        return self._combinator
+    def set_source(self, algorithms: AlgorithmList, others: t.List[pl.Path], combination: t.List[ComparisionPair]):
+        self.beginResetModel()
+        self._algorithms = algorithms
+        self._text_files = others
+        self._results = dict.fromkeys(combination, ComparisonResult())
+        self.endResetModel()
 
-    def assign_result(self, file: pl.Path, algorithm: BaseAlgorithm, result: ComparisonResult) -> bool:
-        try:
-            row = self._combinator.others.index(file)
-            col = self._combinator.algorithms.index(algorithm)
-        except ValueError:
-            return False
-
-        self._results[row, col] = result
+    def assign_result(self, algorithm: BaseAlgorithm, file: pl.Path,  result: ComparisonResult) -> bool:
+        self._results[algorithm, file] = result
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
         return True
 
     def rowCount(self, parent: qc.QModelIndex = qc.QModelIndex()) -> int:
-        return len(self._combinator.others)
+        return len(self._text_files)
 
     def columnCount(self, parent: qc.QModelIndex = qc.QModelIndex()) -> int:
-        return len(self._combinator.algorithms)
+        return len(self._algorithms)
 
     def headerData(self, section: int, orientation: qq.Orientation, role: int = qq.DisplayRole) -> t.Any:
         if qq.Orientation.Horizontal == orientation:
-            algorithm = self._combinator.algorithms[section]
+            algorithm = self._algorithms[section]
 
             if role in (qq.DisplayRole, qq.ToolTipRole):
                 return algorithm.name
 
-            # elif qq.SizeHintRole == role:
-            #     fm = qw.QApplication.fontMetrics()
-            #     style = qw.QApplication.style()
-            #     margin = style.pixelMetric(qw.QStyle.PM_ButtonMargin)
-            #     header_margin = qc.QSize(margin, margin) * 2
-            #     rect = fm.boundingRect(algorithm.name)
-            #     return rect.size() + header_margin
-
         elif qq.Orientation.Vertical == orientation:
-            file = self._combinator.others[section]
+            file = self._text_files[section]
 
             if qq.DisplayRole == role:
                 return file.name
@@ -84,9 +75,9 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        row = index.row()
-        col = index.column()
-        result = self._results.get((row, col), ComparisonResult())
+        algorithm = self._algorithms[index.column()]
+        file = self._text_files[index.row()]
+        result = self._results[algorithm, file]
 
         if qq.TextAlignmentRole == role:
             return qq.AlignCenter

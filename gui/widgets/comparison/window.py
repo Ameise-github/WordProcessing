@@ -6,27 +6,28 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from parsing.metric.base import BaseAlgorithm
-from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.logic.comparison.thread import ComparisionThread
-from gui.models.comparison.process import ComparisonProcessModel
+from gui.logic.comparison.thread import ComparisionThread, ComparisionPair
+from gui.models.comparison.process import ComparisonProcessModel, ComparisonResult
+from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
 class ComparisonWindow(BaseProcessDialog):
-    def __init__(self, combinator: ComparisonCombinator,
-                 parent: t.Optional[qw.QWidget] = None,
-                 f: qq.WindowFlags = qq.WindowFlags()):
+    def __init__(self,
+                 udpipe: t.Optional[pl.Path], algorithms: AlgorithmList,
+                 reference: t.Optional[pl.Path], others: t.List[pl.Path],
+                 parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
         # other
 
-        model = ComparisonProcessModel(combinator)
-        thread = ComparisionThread(model, self)
+        model = ComparisonProcessModel()
+        thread = ComparisionThread(udpipe, algorithms, reference, others, self)
 
         # widgets
 
         ref_lbl = qw.QLabel('Эталонный текст:')
-        ref_value_lbl = qw.QLabel(str(combinator.reference))
+        ref_value_lbl = qw.QLabel(str(reference))
 
         result_tv = qw.QTableView()
         result_tv.setModel(model)
@@ -35,8 +36,9 @@ class ComparisonWindow(BaseProcessDialog):
         # connect
 
         thread.prepared.connect(self._on_prepared)
+        thread.process_started.connect(self._on_process_started)
         thread.process_finished.connect(self._on_process_finished)
-        thread.error.connect(self._on_error)
+        thread.process_error.connect(self._on_process_error)
         thread.finished.connect(self._on_finished)
 
         # layout
@@ -55,6 +57,10 @@ class ComparisonWindow(BaseProcessDialog):
 
         self._thread = thread
 
+        self._model = model
+        self._algorithms = algorithms
+        self._others = others
+
         # setup
 
         self.setMinimumWidth(650)
@@ -65,23 +71,41 @@ class ComparisonWindow(BaseProcessDialog):
         self._thread.start()
 
     def on_abort(self) -> bool:
-        self._thread.terminate()
+        self._thread.abort()
         return True
 
     def _increment_progress(self, inc=1):
         value = self.progress_bar.value() + inc
         self.progress_bar.setValue(value)
 
-    def _on_prepared(self, count: int):
-        self.progress_bar.setMaximum(count)
+    def _on_prepared(self, combination: t.List[ComparisionPair]):
+        self._model.set_source(self._algorithms, self._others, combination)
+        self.progress_bar.setMaximum(len(combination))
         self.update()
 
-    def _on_process_finished(self, alg: BaseAlgorithm, other: pl.Path, result: int):
+    def _on_process_started(self, pair: ComparisionPair):
+        algorithm, file = pair
+        self._model.assign_result(
+            algorithm, file,
+            ComparisonResult(ComparisonResult.WORKING)
+        )
+
+    def _on_process_finished(self, pair: ComparisionPair, result: float):
+        algorithm, file = pair
+        self._model.assign_result(
+            algorithm, file,
+            ComparisonResult(ComparisonResult.SUCCESS, result)
+        )
+        self._increment_progress()
+
+    def _on_process_error(self, pair: ComparisionPair, text: str):
+        algorithm, file = pair
+        print(f'[ERROR] {file} => [{algorithm}] => {text}', file=sys.stderr, flush=True)
+        self._model.assign_result(
+            algorithm, file,
+            ComparisonResult(ComparisonResult.ERROR, text)
+        )
         self._increment_progress()
 
     def _on_finished(self):
         self.finish_him()
-
-    def _on_error(self, alg: BaseAlgorithm, other: pl.Path, text: str):
-        self._increment_progress()
-        print(f'[ERROR] {other} => [{alg}] => {text}', file=sys.stderr, flush=True)
