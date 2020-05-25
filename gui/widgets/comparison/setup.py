@@ -1,36 +1,49 @@
 import typing as t
 import pathlib as pl
 
-import PySide2
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
 from gui.models.roles import Roles
-from gui.models.udpipe import UDPipeFile
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
-from gui.widgets.window.comparison import Comparison
+from gui.widgets.common.hseparator import HSeparator
+from gui.widgets.comparison.window import ComparisonWindow
 
 
-class TextsShortProxyModel(qc.QIdentityProxyModel):
+class TextFilesProxyModel(qc.QIdentityProxyModel):
     def data(self, proxy_index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Any:
+        if not proxy_index.isValid():
+            return None
+
         text_file: str = super().data(proxy_index, Roles.SourceDataRole)
 
         if qq.DisplayRole == role:
             return pl.Path(text_file).name
+
         elif qq.CheckStateRole == role:
             return None
+
+        elif qq.ForegroundRole == role:
+            color: qg.QColor = super().data(proxy_index, qq.ForegroundRole)
+            checked: qq.CheckState = super().data(proxy_index, qq.CheckStateRole)
+            if not color:
+                color = qw.QApplication.palette().color(qg.QPalette.Foreground)
+            if qq.Unchecked == checked:
+                color.setAlphaF(0.4)
+            return color
+
         else:
             return super().data(proxy_index, role)
 
 
-class Comparator(qw.QWidget):
+class ComparisonSetup(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -39,7 +52,7 @@ class Comparator(qw.QWidget):
         algorithms_model = ComparisonAlgorithmsModel()
         texts_model = TextFilesModel()
 
-        texts_proxy_model = TextsShortProxyModel()
+        texts_proxy_model = TextFilesProxyModel()
         texts_proxy_model.setSourceModel(texts_model)
 
         # widgets
@@ -53,6 +66,8 @@ class Comparator(qw.QWidget):
         algorithms_chl.model = algorithms_model
 
         compare_btn = qw.QPushButton(style.icons.play_circle, 'Выполнить сравнение')
+
+        separator_hs = HSeparator()
 
         note_btn = NoteButton()
 
@@ -71,6 +86,7 @@ class Comparator(qw.QWidget):
         vbox.addWidget(reference_cbx)
         vbox.addWidget(algorithms_lbl)
         vbox.addWidget(algorithms_chl)
+        vbox.addWidget(separator_hs)
         vbox.addLayout(hbox, 1)
         self.setLayout(vbox)
 
@@ -140,11 +156,5 @@ class Comparator(qw.QWidget):
 
         self._note_btn.hide()
 
-        combinator = ComparisonCombinator()
-        combinator.udpipe = udpipe_path
-        combinator.algorithms = checked_algs
-        combinator.reference = ref_file
-        combinator.others = other_files
-
-        proc_w = Comparison(combinator, self)
+        proc_w = ComparisonWindow(udpipe_path, checked_algs, ref_file, other_files, self)
         proc_w.exec_()

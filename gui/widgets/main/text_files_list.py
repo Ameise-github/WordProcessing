@@ -1,17 +1,15 @@
 import typing as t
 
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.models.roles import Roles
-from gui.models.text_files import TextFilesModel
+from gui.models.common.text_files import TextFilesModel
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 
 
-class TextList(qw.QWidget):
+class TextFilesList(qw.QWidget):
     def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 

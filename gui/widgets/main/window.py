@@ -1,22 +1,20 @@
 import typing as t
 import pathlib as pl
 
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui import config
-from gui.widgets import style
-from gui.logic.comparison.combinator import ComparisonCombinator
-from gui.models.algorithms import ComparisonAlgorithmsModel, AlgorithmList
-from gui.models.text_files import TextFilesModel
-from gui.models.udpipe import UDPipeFile
-from gui.widgets.complex.text_list import TextList
-from gui.widgets.complex.comparator import Comparator
-from gui.widgets.complex.topics_definer import TopicDefiner
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
+from gui.models.common.text_files import TextFilesModel
+from gui.models.common.udpipe import UDPipeFile
+from gui.widgets.main.text_files_list import TextFilesList
+from gui.widgets.comparison.setup import ComparisonSetup
+from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
+from gui.widgets.pragmatic_adequacy.setup import PragmaticAdequacySetup
 
 
-class Main(qw.QWidget):
+class MainWindow(qw.QWidget):
     def __init__(self,
                  parent: t.Optional[qw.QWidget] = None,
                  f: qq.WindowFlags = qq.WindowFlags()):
@@ -46,22 +44,27 @@ class Main(qw.QWidget):
         udpipe_btn = qw.QPushButton('Обзор...')
 
         text_lbl = qw.QLabel('Файлы текстов:')
-        text_man = TextList()
+        text_man = TextFilesList()
         text_man.layout().setMargin(0)
         text_man.model = texts_model
 
-        comparator_w = Comparator()
+        comparator_w = ComparisonSetup()
         comparator_w.algorithms_model = algorithms_model
         comparator_w.texts_model = texts_model
         comparator_w.udpipe_file = udpipe_file
 
-        topics_definer_w = TopicDefiner()
+        topics_definer_w = TopicsDefinitionSetup()
         topics_definer_w.texts_model = texts_model
         topics_definer_w.udpipe_file = udpipe_file
 
+        pragmatic_w = PragmaticAdequacySetup()
+        pragmatic_w.texts_model = texts_model
+        pragmatic_w.udpipe_file = udpipe_file
+
         analysis_tw = qw.QTabWidget()
         analysis_tw.addTab(comparator_w, 'Сравнение')
-        analysis_tw.addTab(topics_definer_w, 'Определение тематики')
+        analysis_tw.addTab(topics_definer_w, 'Тематика')
+        analysis_tw.addTab(pragmatic_w, 'Прагматическая адекватность')
 
         # connections
 

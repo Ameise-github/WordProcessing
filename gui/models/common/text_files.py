@@ -4,10 +4,8 @@ import pathlib as pl
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
-import PySide2.QtWidgets as qw
 
-from gui.models.checkable import BaseCheckableModel, TItem
-from gui.models.roles import Roles
+from gui.models.common.checkable import BaseCheckableModel
 from gui.widgets.style import Colors
 
 
@@ -62,12 +60,12 @@ class TextFilesModel(BaseCheckableModel[pl.Path]):
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
 
     def append(self, paths: t.Iterable[str]):
-        self.beginInsertRows(qc.QModelIndex(), 0, len(self._items) - 1)
+        self.beginResetModel() # qc.QModelIndex(), 0, len(self._items) - 1
         paths_set = dict.fromkeys(map(pl.Path, paths))
         files_set = dict.fromkeys(self._items)
         files_set.update(paths_set)
         self._items = list(files_set.keys())
-        self.endInsertRows()
+        self.endResetModel()
 
     def remove(self, paths: t.Iterable[str]):
         self.beginRemoveRows(qc.QModelIndex(), 0, len(self._items) - 1)

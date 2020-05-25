@@ -2,12 +2,9 @@ import typing as t
 
 from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
-import PySide2.QtWidgets as qw
 
 from parsing.metric.base import BaseAlgorithm
-from gui.models.checkable import BaseCheckableModel
-from gui.models.roles import Roles
+from gui.models.common.checkable import BaseCheckableModel
 
 AlgorithmList = t.List[BaseAlgorithm]
 
