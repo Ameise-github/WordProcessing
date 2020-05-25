@@ -5,6 +5,18 @@ import functools as ft
 import PySide2.QtCore as qc
 
 
+class Combination:
+    def __init__(self,
+                 data: t.Any,
+                 func: t.Callable,
+                 args: t.Iterable[t.Any] = None,
+                 kwargs: t.Mapping[str, t.Any] = None):
+        self.data = data
+        self.func = func
+        self.args = [] if args is None else args
+        self.kwargs = {} if kwargs is None else kwargs
+
+
 class BasePoolThread(qc.QThread):
     prepared = qc.Signal(list)
     process_started = qc.Signal(object)
@@ -16,22 +28,27 @@ class BasePoolThread(qc.QThread):
 
         self._abort = False
 
+    def prepare(self) -> t.Any:
+        raise NotImplementedError()
+
+    def combine(self) -> t.Generator[Combination, None, None]:
+        raise NotImplementedError()
+
     def run(self):
         with mp.Pool() as pool:
-            combinations = self.combine()
-            self.prepared.emit(combinations)
+            prepared_data = self.prepare()
+            self.prepared.emit(prepared_data)
 
             receivers = {}
 
-            for data in combinations:
+            for comb in self.combine():
                 # funcs
                 process_func = ft.partial(
                     self._process_func_wrapper,
-                    self.process,
-                    self.prepare_args(data)
+                    comb.func, comb.args, comb.kwargs
                 )
-                callback = ft.partial(self._on_process_finished, data)
-                error_callback = ft.partial(self._on_process_error, data)
+                callback = ft.partial(self._on_process_finished, comb.data)
+                error_callback = ft.partial(self._on_process_error, comb.data)
 
                 # process
                 receiver, sender = mp.Pipe(False)
@@ -41,7 +58,7 @@ class BasePoolThread(qc.QThread):
                     callback, error_callback)
 
                 # add
-                receivers[receiver] = data
+                receivers[receiver] = comb.data
 
             self._pool_loop(receivers)
 
@@ -51,23 +68,10 @@ class BasePoolThread(qc.QThread):
                 pool.close()
             pool.join()
 
-    def combine(self) -> list:
-        raise NotImplementedError()
-
-    def prepare_args(self, data):
-        raise NotImplementedError()
-
     @staticmethod
-    def process(args: object) -> object:
-        raise NotImplementedError()
-
-    @staticmethod
-    def _process_func_wrapper(
-            process_func: t.Callable[[object], object],
-            args,
-            sender: mp.connection.PipeConnection) -> object:
+    def _process_func_wrapper(func, args, kwargs, sender) -> object:
         sender.send(object())  # send start signal
-        return process_func(args)
+        return func(*args, **kwargs)
 
     def abort(self):
         self._abort = True

@@ -5,7 +5,7 @@ from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
 
-from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyData
+from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyData, PragmaticAdequacyIndex
 from gui.widgets.style import Colors
 
 
@@ -20,7 +20,7 @@ class PragmaticAdequacyResult:
         self.value = value
 
 
-_ResultDict = t.Dict[t.Tuple[pl.Path, pl.Path], PragmaticAdequacyResult]
+_ResultDict = t.Dict[PragmaticAdequacyIndex, PragmaticAdequacyResult]
 
 
 class PragmaticAdequacyProcessModel(qc.QAbstractTableModel):
@@ -37,17 +37,20 @@ class PragmaticAdequacyProcessModel(qc.QAbstractTableModel):
     def text_files(self) -> t.List[pl.Path]:
         return self._text_files.copy()
 
-    def set_source(self, text_files: t.List[pl.Path], combinations: t.List[PragmaticAdequacyData]):
+    def set_source(self, text_files: t.List[pl.Path], combinations: t.List[PragmaticAdequacyIndex]):
         self.beginResetModel()
         self._text_files = text_files
-        self._results = dict.fromkeys(
-            map(tuple, combinations),
-            PragmaticAdequacyResult()
-        )
+        self._results = dict.fromkeys(combinations, PragmaticAdequacyResult())
         self.endResetModel()
 
     def assign_result(self, one: pl.Path, two: pl.Path, result: PragmaticAdequacyResult) -> bool:
-        self._results[one, two] = result
+        try:
+            one_idx = self._text_files.index(one)
+            two_idx = self._text_files.index(two)
+        except ValueError:
+            return False
+
+        self._results[one_idx, two_idx] = result
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
         return True
 
@@ -72,8 +75,8 @@ class PragmaticAdequacyProcessModel(qc.QAbstractTableModel):
         if not index.isValid():
             return None
 
-        one = self._text_files[index.row()]
-        two = self._text_files[index.column()]
+        one = index.row()
+        two = index.column()
         result = self._results.get((one, two))
 
         if not result:

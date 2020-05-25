@@ -22,6 +22,7 @@ class ComparisonWindow(BaseProcessDialog):
         # other
 
         model = ComparisonProcessModel()
+        model.set_source(algorithms, others)
         thread = ComparisionThread(udpipe, algorithms, reference, others, self)
 
         # widgets
@@ -78,28 +79,30 @@ class ComparisonWindow(BaseProcessDialog):
         value = self.progress_bar.value() + inc
         self.progress_bar.setValue(value)
 
-    def _on_prepared(self, combinations: t.List[ComparisionData]):
-        self._model.set_source(self._algorithms, self._others, combinations)
-        self.progress_bar.setMaximum(len(combinations))
+    def _on_prepared(self, count: int):
+        self.progress_bar.setMaximum(count)
         self.update()
 
     def _on_process_started(self, data: ComparisionData):
+        alg, other = data
         self._model.assign_result(
-            data.algorithm, data.other,
+            alg, other,
             ComparisonResult(ComparisonResult.WORKING)
         )
 
     def _on_process_finished(self, data: ComparisionData, result: float):
+        alg, other = data
         self._model.assign_result(
-            data.algorithm, data.other,
+            alg, other,
             ComparisonResult(ComparisonResult.SUCCESS, result)
         )
         self._increment_progress()
 
     def _on_process_error(self, data: ComparisionData, text: str):
-        print(f'[ERROR] {data.other} => [{data.algorithm}] => {text}', file=sys.stderr, flush=True)
+        alg, other = data
+        print(f'[ERROR] {other} => [{alg}] => {text}', file=sys.stderr, flush=True)
         self._model.assign_result(
-            data.algorithm, data.other,
+            alg, other,
             ComparisonResult(ComparisonResult.ERROR, text)
         )
         self._increment_progress()
