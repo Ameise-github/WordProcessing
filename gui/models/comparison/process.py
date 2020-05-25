@@ -23,7 +23,7 @@ class ComparisonResult:
         self.value = value
 
 
-_ResultTable = t.Dict[t.Tuple[BaseAlgorithm, pl.Path], ComparisonResult]
+_ResultTable = t.Dict[ComparisionData, ComparisonResult]
 
 
 class ComparisonProcessModel(qc.QAbstractTableModel):
@@ -35,17 +35,13 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
         self._text_files: t.List[pl.Path] = []
         self._results: _ResultTable = {}
 
-    def set_source(self, algorithms: AlgorithmList, others: t.List[pl.Path], combinations: t.List[ComparisionData]):
+    def set_source(self, algorithms: AlgorithmList, others: t.List[pl.Path]):
         self.beginResetModel()
         self._algorithms = algorithms
         self._text_files = others
-        self._results = dict.fromkeys(
-            map(tuple, combinations),
-            ComparisonResult()
-        )
         self.endResetModel()
 
-    def assign_result(self, algorithm: BaseAlgorithm, file: pl.Path,  result: ComparisonResult) -> bool:
+    def assign_result(self, algorithm: BaseAlgorithm, file: pl.Path, result: ComparisonResult) -> bool:
         self._results[algorithm, file] = result
         self.dataChanged.emit(qc.QModelIndex(), qc.QModelIndex())
         return True
@@ -80,16 +76,19 @@ class ComparisonProcessModel(qc.QAbstractTableModel):
 
         algorithm = self._algorithms[index.column()]
         other = self._text_files[index.row()]
-        result = self._results[algorithm, other]
+        result = self._results.get((algorithm, other))
 
         if qq.TextAlignmentRole == role:
             return qq.AlignCenter
 
-        if ComparisonResult.WORKING == result.state:
-            if qq.DisplayRole == role:
-                return 'в процессе'
-            elif qq.BackgroundRole == role:
-                return Colors.BG_ORANGE
-        elif ComparisonResult.SUCCESS == result.state:
-            if qq.DisplayRole == role:
-                return str(result.value)
+        if result:
+            if ComparisonResult.WORKING == result.state:
+                if qq.DisplayRole == role:
+                    return 'в процессе'
+                elif qq.BackgroundRole == role:
+                    return Colors.BG_ORANGE
+            elif ComparisonResult.SUCCESS == result.state:
+                if qq.DisplayRole == role:
+                    return str(result.value)
+        else:
+            return None

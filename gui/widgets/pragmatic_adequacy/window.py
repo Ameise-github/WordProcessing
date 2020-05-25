@@ -5,7 +5,7 @@ import pathlib as pl
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread, PragmaticAdequacyData
+from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread, PragmaticAdequacyData, PragmaticAdequacyIndex
 from gui.models.pragmatic_adequacy.process import PragmaticAdequacyProcessModel, PragmaticAdequacyResult
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
@@ -73,28 +73,31 @@ class PragmaticAdequacyWindow(BaseProcessDialog):
         value = self.progress_bar.value() + inc
         self.progress_bar.setValue(value)
 
-    def _on_prepared(self, combinations: t.List[PragmaticAdequacyData]):
-        self._model.set_source(self._text_files, combinations)
-        self.progress_bar.setMaximum(len(combinations))
+    def _on_prepared(self, indexes: t.List[PragmaticAdequacyIndex]):
+        self._model.set_source(self._text_files, indexes)
+        self.progress_bar.setMaximum(len(indexes))
         self.update()
 
     def _on_process_started(self, data: PragmaticAdequacyData):
+        one, two = data
         self._model.assign_result(
-            data.one, data.two,
+            one, two,
             PragmaticAdequacyResult(PragmaticAdequacyResult.WORKING)
         )
 
     def _on_process_finished(self, data: PragmaticAdequacyData, result: float):
+        one, two = data
         self._model.assign_result(
-            data.one, data.two,
+            one, two,
             PragmaticAdequacyResult(PragmaticAdequacyResult.SUCCESS, result)
         )
         self._increment_progress()
 
     def _on_process_error(self, data: PragmaticAdequacyData, text: str):
-        print(f'[ERROR] {data.one} => [{data.two}] => {text}', file=sys.stderr, flush=True)
+        one, two = data
+        print(f'[ERROR] {one} => [{two}] => {text}', file=sys.stderr, flush=True)
         self._model.assign_result(
-            data.one, data.two,
+            one, two,
             PragmaticAdequacyResult(PragmaticAdequacyResult.ERROR, text)
         )
         self._increment_progress()

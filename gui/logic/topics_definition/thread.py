@@ -4,7 +4,7 @@ import pathlib as pl
 import PySide2.QtCore as qc
 
 from parsing.ThemsText import ThemsText
-from gui.logic.common.pool_tread import BasePoolThread
+from gui.logic.common.pool_tread import BasePoolThread, Combination
 from gui.models.common.udpipe import UDPipeFile
 
 
@@ -17,19 +17,18 @@ class TopicsDefinitionThread(BasePoolThread):
         self._udpipe = udpipe
         self._optimal_topics = optimal_topics
 
-    def combine(self) -> list:
-        return [None]
+    def prepare(self) -> t.Any:
+        return None
 
-    def prepare_args(self, data: None):
-        return (
-            list(map(str, self._files)),
-            str(self._udpipe),
-            self._optimal_topics
+    def combine(self) -> list:
+        yield Combination(
+            None,
+            self._process,
+            (str(self._udpipe), list(map(str, self._files)), self._optimal_topics)
         )
 
     @staticmethod
-    def process(args: object) -> object:
-        files, udpipe, optimal_topics = args
+    def _process(udpipe, files, optimal_topics):
         topics_text = ThemsText(files, udpipe, optimal_topics)
         view_str, _ = topics_text.view_thems()
         return view_str

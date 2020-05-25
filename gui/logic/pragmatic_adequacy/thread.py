@@ -1,23 +1,19 @@
 import typing as t
 import pathlib as pl
+import itertools as it
 
 from parsing.metric.pragmatic_adequacy import PragmaticAdequacyAlgorithm
-from gui.logic.common.pool_tread import BasePoolThread
+from gui.logic.common.pool_tread import BasePoolThread, Combination
 
-
-class PragmaticAdequacyData:
-    def __init__(self, one: pl.Path = None, two: pl.Path = None):
-        self.one = one
-        self.two = two
-
-    def __iter__(self):
-        return iter((self.one, self.two))
+PragmaticAdequacyData = t.Tuple[pl.Path, pl.Path]
+PragmaticAdequacyIndex = t.Tuple[int, int]
 
 
 class PragmaticAdequacyThread(BasePoolThread):
-    FORWARD_ONLY = 0
-    REVERSE_ONLY = 1
-    BOTH = 2
+    NONE = 0
+    FORWARD_ONLY = 1
+    REVERSE_ONLY = 2
+    BOTH = 3
 
     def __init__(self,
                  udpipe: t.Optional[pl.Path], text_files: t.List[pl.Path],
@@ -29,48 +25,70 @@ class PragmaticAdequacyThread(BasePoolThread):
         self._interlace = interlace
         self._direction = direction
 
-    @staticmethod
-    def _combine(sequential: t.List[pl.Path], interlace: t.List[pl.Path]) -> t.List[PragmaticAdequacyData]:
-        combinations = []
-        for s_idx in range(0, len(sequential) - 1):
-            current = sequential[s_idx]
-            next_ = sequential[s_idx + 1]
-            combinations.append(
-                PragmaticAdequacyData(current, next_)
-            )
+        self._combinations = []
+        self._algorithm = PragmaticAdequacyAlgorithm()
 
-            for i_item in interlace:
-                if i_item in (current, next_) or i_item not in sequential[s_idx::]:
-                    continue
-                combinations.append(
-                    PragmaticAdequacyData(current, i_item)
-                )
-
-        return combinations
-
-    def combine(self) -> list:
+    def prepare(self) -> t.Any:
         forward = self._direction in (self.FORWARD_ONLY, self.BOTH)
         reverse = self._direction in (self.REVERSE_ONLY, self.BOTH)
 
-        combinations: t.List[PragmaticAdequacyData] = []
+        indexes = []
         if forward:
-            combinations += self._combine(self._text_files, self._interlace)
+            indexes += self._combine_indexes(self._text_files, self._interlace, False)
         if reverse:
-            combinations += self._combine(self._text_files[::-1], self._interlace[::-1])
+            indexes += self._combine_indexes(self._text_files, self._interlace, True)
 
-        return combinations
+        self._combinations = self._combine_from_indexes(indexes)
 
-    def prepare_args(self, data: PragmaticAdequacyData):
-        algorithm = PragmaticAdequacyAlgorithm()
-        return (
-            algorithm.process,
-            str(self._udpipe),
-            str(data.one),
-            str(data.two)
-        )
+        return indexes
 
     @staticmethod
-    def process(args: object) -> object:
-        process_func, udpipe, one, two = args
-        result = process_func(udpipe, one, two)
+    def _combine_indexes(
+            sequential: t.List[pl.Path], interlace: t.List[pl.Path],
+            reverse: bool) -> t.List[PragmaticAdequacyIndex]:
+
+        # get indexes
+        s_indexes = [i for i, _ in enumerate(sequential)]
+        i_indexes = [sequential.index(path) for path in interlace]
+
+        # reversed enumerate
+        if reverse:
+            s_indexes = list(reversed(s_indexes))
+            i_indexes = list(reversed(i_indexes))
+
+        # init
+        s_len = len(s_indexes)
+        result = []
+
+        # calc
+        for x, s_index in enumerate(s_indexes):
+            if x == s_len - 1:
+                break
+
+            next_x = x + 1
+            next_index = s_indexes[next_x]
+
+            result.append((s_index, next_index))
+
+            for y, i_index in enumerate(i_indexes):
+                if i_index in (s_index, next_index) or i_index not in s_indexes[x::]:
+                    continue
+                result.append((s_index, i_index))
+
+        # return
         return result
+
+    def _combine_from_indexes(
+            self,
+            indexes: t.List[PragmaticAdequacyIndex]) -> t.Generator[PragmaticAdequacyData, None, None]:
+        for i, j in indexes:
+            yield self._text_files[i], self._text_files[j]
+
+    def combine(self) -> t.Generator[Combination, None, None]:
+        for comb in self._combinations:
+            one, two = comb
+            yield Combination(
+                comb,
+                self._algorithm.process,
+                (str(self._udpipe), str(one), str(two))
+            )
