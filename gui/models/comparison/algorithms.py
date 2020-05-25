@@ -4,6 +4,7 @@ from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 
 from parsing.metric.base import BaseAlgorithm
+from gui.models.roles import Roles
 from gui.models.common.checkable import BaseCheckableModel
 
 AlgorithmList = t.List[BaseAlgorithm]
@@ -22,6 +23,8 @@ class ComparisonAlgorithmsModel(BaseCheckableModel[BaseAlgorithm]):
 
         if qq.DisplayRole == role:
             return algorithm.name
+        elif Roles.DescriptionRole == role:
+            return algorithm.__doc__ or "Нет описания"
         else:
             return super().data(index, role)
 

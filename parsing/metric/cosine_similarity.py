@@ -4,6 +4,10 @@ from parsing.text import Text
 
 
 class CosineSimilarityAlgorithm(BaseAlgorithm):
+    """
+    <b>Косинусное</b> <i>сходство</i>
+    """
+
     def __init__(self):
         super().__init__()
         self.name = "Косинусное сходство"

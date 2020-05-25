@@ -63,16 +63,22 @@ class ComparisonSetup(qw.QWidget):
 
         algorithms_lbl = qw.QLabel('Алгоритмы:')
         algorithms_chl = CheckableList()
+        order_tb = algorithms_chl.toolbar
         algorithms_chl.model = algorithms_model
 
+        info_act = qw.QAction(style.icons.info, 'Описание алгоритма')
+
+        first_act = order_tb.actions()[0]
+        order_tb.insertAction(first_act, info_act)
+        order_tb.insertSeparator(first_act)
+
         compare_btn = qw.QPushButton(style.icons.play_circle, 'Выполнить сравнение')
-
         separator_hs = HSeparator()
-
         note_btn = NoteButton()
 
         # connect
 
+        info_act.triggered.connect(self._on_algorithm_info)
         compare_btn.clicked.connect(self._on_run_comparison)
 
         # layout
@@ -129,6 +135,15 @@ class ComparisonSetup(qw.QWidget):
     @udpipe_file.setter
     def udpipe_file(self, value: UDPipeFile):
         self._udpipe_file = value
+
+    def _on_algorithm_info(self):
+        indexes: t.List[qc.QModelIndex] = self._algorithms_chl.list_view.selectedIndexes()
+        if not indexes:
+            return
+        index = indexes[0]
+        alg_name: str = index.data(qq.DisplayRole)
+        alg_desc: str = index.data(Roles.DescriptionRole)
+        qw.QMessageBox.information(self, f'Описание алгоритма: {alg_name}', alg_desc)
 
     def _on_run_comparison(self):
         try:
