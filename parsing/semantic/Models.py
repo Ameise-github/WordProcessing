@@ -179,7 +179,7 @@ class Models:
                 if j == 0:  # => dominant topic
                     wp = ldamodel.show_topic(topic_num)
                     topic_keywords = ", ".join([word for word, prop in wp])
-                    s_tmp = [int(topic_num), round(prop_topic, 4), topic_keywords, textsList[i]]
+                    s_tmp = [int(topic_num), round(prop_topic, 4), topic_keywords, textsList[i].text_path]
                     sent_topics_df.append(s_tmp)
                 else:
                     break

@@ -7,7 +7,7 @@ from gensim.matutils import jaccard
 class JaccardAlgorithm(BaseAlgorithm):
     def __init__(self):
         super().__init__()
-        self.name = "Метрика Жаккарда"
+        self.name = "Метрика Жаккара"
 
     def process(self, udpipe: str, reference: str, other: str):
         # init

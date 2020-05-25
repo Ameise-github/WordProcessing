@@ -7,6 +7,7 @@ from nltk import FreqDist
 from spacy.tokens import Doc
 import spacy_udpipe
 
+
 class Text:
     """
     Класс описания модели текста

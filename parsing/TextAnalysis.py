@@ -14,7 +14,7 @@ class TextAnalysis:
     """
 
     # Морфологический анализ текста
-    def morph_analysis(self, trainTextNLTK4russian, textOriginal):
+    def morph_analysis(self, trainTextNLTK4russian, textOriginal, rusTag=False):
         """
         Морфологический анализ текста
         :param trainTextNLTK4russian: текст с табцляциями для тренировки модели
@@ -38,8 +38,17 @@ class TextAnalysis:
         tagsDict = contextTegger.tag(textTokenz)
 
         tokenPosList = self.get_tag_pymorphy(tagsDict)
-
-        return tokenPosList
+        tokenList =[]
+        for token in tokenPosList:
+            if rusTag:
+                tokenTag = str(token.tag.cyr_repr)
+            else:
+                tokenTag = str(token.tag)
+            tokenTag = tokenTag.replace(" ", ",")
+            ind = tokenTag.find(',')
+            tmp = [token.word, token.normal_form, tokenTag[0: ind], tokenTag[ind + 1 :]]
+            tokenList.append(tmp)
+        return tokenList
 
     # Получить tag как объект pymorphy2
     def get_tag_pymorphy(self, tagsDict):
