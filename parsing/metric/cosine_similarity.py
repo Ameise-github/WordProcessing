@@ -31,4 +31,4 @@ class CosineSimilarityAlgorithm(BaseAlgorithm):
         for i, (n, c) in enumerate(list_sims[1::]):
             other_text.cos_sim = round(c, 2)
 
-        return other_text.p
+        return other_text.cos_sim

@@ -31,4 +31,4 @@ class JaccardAlgorithm(BaseAlgorithm):
         # print(jaccard(bow_text_standart, bow_text))
         other_text.jaccard_coeff = round(jaccard(bow_reference, bow_other), 2)
 
-        return other_text.p
+        return other_text.jaccard_coeff

@@ -27,20 +27,21 @@ def main():
     # nltk.download('punkt')
     # nltk.download('stopwords')
 
-    # s = StochasticAlgorithm()
-    # res = s.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    # res1 = s.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    # print("StochasticAlgorithm:  " + str(res) + "; " + str(res1))
-    #
-    # c = CosineSimilarityAlgorithm()
-    # res2 = c.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    # res3 = c.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    # print("CosineSimilarityAlgorithm:  " + str(res2) + "; " + str(res3))
-    #
-    # j = JaccardAlgorithm()
-    # res4 = j.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    # res5 = j.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    # print("JaccardAlgorithm:  " + str(res4) + "; " + str(res5))
+    s = StochasticAlgorithm()
+    res = s.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    res1 = s.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    print("StochasticAlgorithm:  " + str(res) + "; " + str(res1))
+
+    c = CosineSimilarityAlgorithm()
+    res2 = c.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    res3 = c.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    print("CosineSimilarityAlgorithm:  " + str(res2) + "; " + str(res3))
+
+    j = JaccardAlgorithm()
+    res4 = j.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    res5 = j.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    print("JaccardAlgorithm:  " + str(res4) + "; " + str(res5))
+
     # Изменения одного текста
     # one_text = PragmaticAdequacy()
     # one_text.set_trainTextUdpipe(trainTextUdpipe)
@@ -60,9 +61,9 @@ def main():
     # pprint(list_thems_doc)
 
     # Морфологический анализ
-    morhp_an = TextAnalysis()
-    tokenPosList = morhp_an.morph_analysis(trainTextNLTK4russian, textOriginal1, rusTag=True)
-    pprint(tokenPosList)
+    # morhp_an = TextAnalysis()
+    # tokenPosList = morhp_an.morph_analysis(trainTextNLTK4russian, textOriginal1, rusTag=True)
+    # pprint(tokenPosList)
     # print()
     # Синтаксическое дерево
     # view_tree = morhp_an.view_syntax_tree(textOriginal1, trainTextUdpipe)
