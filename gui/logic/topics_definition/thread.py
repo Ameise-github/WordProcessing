@@ -1,7 +1,5 @@
 import typing as t
 import pathlib as pl
-import multiprocessing as mp
-import multiprocessing.connection as mpc
 
 import PySide2.QtCore as qc
 

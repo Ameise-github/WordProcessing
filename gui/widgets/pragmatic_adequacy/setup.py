@@ -3,10 +3,11 @@ import typing as t
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.logic.pragmatic_adequacy.combinator import PragmaticAdequacyCombinator
+from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.udpipe import UDPipeFile
 from gui.widgets import style
+from gui.widgets.pragmatic_adequacy.window import PragmaticAdequacyWindow
 from gui.widgets.common.note_button import NoteButton
 from gui.widgets.common.hseparator import HSeparator
 
@@ -30,9 +31,9 @@ class PragmaticAdequacySetup(qw.QWidget):
         d_both_rdb = qw.QRadioButton('Прямое и обратное')
 
         direction_bg = qw.QButtonGroup()
-        direction_bg.addButton(d_forward_rdb, PragmaticAdequacyCombinator.FORWARD_ONLY)
-        direction_bg.addButton(d_reverse_rdb, PragmaticAdequacyCombinator.REVERSE_ONLY)
-        direction_bg.addButton(d_both_rdb, PragmaticAdequacyCombinator.BOTH)
+        direction_bg.addButton(d_forward_rdb, PragmaticAdequacyThread.FORWARD_ONLY)
+        direction_bg.addButton(d_reverse_rdb, PragmaticAdequacyThread.REVERSE_ONLY)
+        direction_bg.addButton(d_both_rdb, PragmaticAdequacyThread.BOTH)
 
         interlace_chb = qw.QCheckBox('Чересстрочное сравнение')
 
@@ -73,7 +74,6 @@ class PragmaticAdequacySetup(qw.QWidget):
         self._interlace_chb = interlace_chb
         self._note_btn = note_btn
 
-
     @property
     def texts_model(self) -> TextFilesModel:
         return self._model
@@ -104,15 +104,7 @@ class PragmaticAdequacySetup(qw.QWidget):
         else:
             self._note_btn.hide()
 
-            combinator = PragmaticAdequacyCombinator()
-            combinator.udpipe = udpipe_path
-            combinator.direction = self._direction_bg.checkedId()
-            combinator.text_files = files
-            if self._interlace_chb.isChecked():
-                combinator.interlace = self._model.checked(exists_only=True)
+            interlace = self._model.checked(exists_only=True) if self._interlace_chb.isChecked() else []
 
-            # TODO test
-            combinator.combine()
-            for c, n in combinator.combination:
-                print(f'{files.index(c)} : {files.index(n)}')
-            print('=== === ===')
+            proc_w = PragmaticAdequacyWindow(udpipe_path, files, interlace, self._direction_bg.checkedId(), self)
+            proc_w.exec_()
