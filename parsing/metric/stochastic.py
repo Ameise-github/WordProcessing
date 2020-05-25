@@ -6,6 +6,10 @@ from parsing.text import Text
 
 
 class StochasticAlgorithm(BaseAlgorithm):
+    """
+    <code>Стокхкхкхкастичка</code>
+    """
+
     def __init__(self):
         super().__init__()
         self.name = "Критерий стохастического подобия"
