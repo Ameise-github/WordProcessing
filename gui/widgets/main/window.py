@@ -8,11 +8,12 @@ from gui import config
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
+from gui.widgets.common.file_path_select import FilePathSelect
 from gui.widgets.main.text_files_list import TextFilesList
 from gui.widgets.comparison.setup import ComparisonSetup
 from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
 from gui.widgets.pragmatic_adequacy.setup import PragmaticAdequacySetup
-from gui.widgets.common.file_path_select import FilePathSelect
+from gui.widgets.morphology_syntax.setup import MorphSyntaxSetup
 
 
 class MainWindow(qw.QWidget):
@@ -26,6 +27,7 @@ class MainWindow(qw.QWidget):
         texts_model = TextFilesModel()
         algorithms_model = ComparisonAlgorithmsModel()
         udpipe_file = FilePath(config.DEFAULT_UDPIPE_FILE)
+        nltk_file = FilePath(config.DEFAULT_NLTK_FILE)
 
         # widgets
 
@@ -53,10 +55,15 @@ class MainWindow(qw.QWidget):
         pragmatic_w.texts_model = texts_model
         pragmatic_w.udpipe_file = udpipe_file
 
+        morph_syntax_w = MorphSyntaxSetup()
+        morph_syntax_w.texts_model = texts_model
+        morph_syntax_w.set_nltk_file(nltk_file, True)
+
         analysis_tw = qw.QTabWidget()
         analysis_tw.addTab(comparator_w, 'Сравнение')
         analysis_tw.addTab(topics_definer_w, 'Тематика')
         analysis_tw.addTab(pragmatic_w, 'Прагматическая адекватность')
+        analysis_tw.addTab(morph_syntax_w, 'Морфология и Синтаксис')
 
         # layout
 
@@ -76,7 +83,7 @@ class MainWindow(qw.QWidget):
         # setup
 
         self.setWindowTitle('Анализ и сравнение текстов')
-        self.setMinimumSize(500, 500)
+        self.setMinimumSize(650, 400)
 
     @property
     def algorithms(self) -> AlgorithmList:
