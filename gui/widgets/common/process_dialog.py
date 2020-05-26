@@ -32,6 +32,7 @@ class BaseProcessDialog(qw.QDialog):
         timer_tl.set_interval(500)
 
         process_pb = qw.QProgressBar()
+        process_pb.setValue(0)
 
         separator_hs = HSeparator()
 
@@ -53,19 +54,12 @@ class BaseProcessDialog(qw.QDialog):
         work_state.addTransition(self.finished, done_state)
         abort_state.addTransition(self.finished, done_state)
 
-        work_state.assignProperty(process_pb, 'maximum', 0)
-        work_state.assignProperty(process_pb, 'value', 0)
         work_state.assignProperty(done_btn, 'visible', False)
 
-        abort_state.assignProperty(process_pb, 'minimum', 0)
-        abort_state.assignProperty(process_pb, 'maximum', 0)
-        abort_state.assignProperty(process_pb, 'value', 0)
         abort_state.assignProperty(abort_btn, 'enabled', False)
         abort_state.assignProperty(abort_btn, 'text', 'Пожалуйста, подождите...')
 
         done_state.assignProperty(timer_tl, 'work', False)
-        done_state.assignProperty(process_pb, 'maximum', -1)
-        done_state.assignProperty(process_pb, 'value', 0)
         done_state.assignProperty(process_pb, 'enabled', False)
         done_state.assignProperty(abort_btn, 'visible', False)
         done_state.assignProperty(done_btn, 'visible', True)
@@ -125,6 +119,14 @@ class BaseProcessDialog(qw.QDialog):
         self._content.setLayout(layout)
 
     @property
+    def progress_value(self):
+        return self._process_pb.value()
+
+    @progress_value.setter
+    def progress_value(self, value: int):
+        self._process_pb.setValue(value)
+
+    @property
     def is_aborted(self):
         return self._aborted
 
@@ -137,6 +139,7 @@ class BaseProcessDialog(qw.QDialog):
 
     def abort(self):
         if self.on_abort():
+            self._process_pb.reset()
             self._aborted = True
             self.aborting.emit()
 
@@ -149,6 +152,7 @@ class BaseProcessDialog(qw.QDialog):
         raise NotImplementedError()
 
     def finish_him(self):
+        self._process_pb.reset()
         self.finished.emit()
 
     def _on_done_clicked(self):

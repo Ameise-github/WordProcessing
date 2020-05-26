@@ -8,7 +8,7 @@ from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
 from gui.widgets.common.setup import BaseSetup
 from gui.widgets.common.hseparator import HSeparator
-from gui.widgets.topics_definition.window import TopicsDefinitionWindow
+from gui.widgets.topics_definition.dialog import TopicsDefinitionDialog
 
 
 class TopicsDefinitionSetup(BaseSetup):
@@ -70,5 +70,5 @@ class TopicsDefinitionSetup(BaseSetup):
         else:
             ns.global_server.clear()
 
-            dialog = TopicsDefinitionWindow(files, self._udpipe, self._optimal_chk.isChecked(), self)
+            dialog = TopicsDefinitionDialog(files, udpipe_path, self._optimal_chk.isChecked(), self)
             dialog.exec_()

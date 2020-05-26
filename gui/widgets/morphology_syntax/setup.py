@@ -5,16 +5,13 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 import gui.widgets.notification_server as ns
-from gui import config
 from gui.models.roles import Roles
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
 from gui.models.proxy.text_files import TextFilesProxyModel
-from gui.widgets import style
 from gui.widgets.common.setup import BaseSetup
 from gui.widgets.common.file_path_select import FilePathSelect
-from gui.widgets.common.note_button import NoteButton
-from gui.widgets.common.hseparator import HSeparator
+from gui.widgets.morphology_syntax.dialog import MorphSyntaxDialog
 
 
 class MorphSyntaxSetup(BaseSetup):
@@ -26,6 +23,7 @@ class MorphSyntaxSetup(BaseSetup):
 
         texts_model = TextFilesModel()
         nltk_file = FilePath()
+        udpipe_file = FilePath()
 
         texts_proxy_model = TextFilesProxyModel()
         texts_proxy_model.setSourceModel(texts_model)
@@ -41,12 +39,15 @@ class MorphSyntaxSetup(BaseSetup):
         nltk_fps.label.setText('NLTK-модель подкорпуса:')
         nltk_fps.dialog.setNameFilters(['NLTK-модель подкорпуса (*.tab)', 'Все файлы (*.*)'])
 
+        rus_chb = qw.QCheckBox('Части речи и теги на русском')
+
         # [layout]
 
         vbox = qw.QVBoxLayout()
         vbox.addWidget(text_lbl)
         vbox.addWidget(text_cbx)
         vbox.addWidget(nltk_fps)
+        vbox.addWidget(rus_chb)
         vbox.addStretch(1)
         self.setLayout(vbox)
 
@@ -55,9 +56,11 @@ class MorphSyntaxSetup(BaseSetup):
         self._texts_model = texts_model
         self._texts_proxy_model = texts_proxy_model
         self._nltk_file = nltk_file
+        self._udpipe_file = udpipe_file
 
         self._nltk_fps = nltk_fps
         self._text_cbx = text_cbx
+        self._rus_chb = rus_chb
 
     @property
     def texts_model(self) -> TextFilesModel:
@@ -67,6 +70,14 @@ class MorphSyntaxSetup(BaseSetup):
     def texts_model(self, value: TextFilesModel):
         self._texts_model = value
         self._texts_proxy_model.setSourceModel(value)
+
+    @property
+    def udpipe_file(self) -> FilePath:
+        return self._udpipe_file
+
+    @udpipe_file.setter
+    def udpipe_file(self, value: FilePath):
+        self._udpipe_file = value
 
     def nltk_file(self) -> FilePath:
         return self._nltk_file
@@ -87,10 +98,15 @@ class MorphSyntaxSetup(BaseSetup):
             if not nltk_path.exists():
                 raise ValueError('Файл NLTK-модели недоступен')
 
+            udpipe_path = self._udpipe_file.path
+            if not udpipe_path.exists():
+                raise ValueError('Файл UDPipe недоступен')
+
         except ValueError as v:
             ns.global_server.notify(v.args[0])
 
         else:
             ns.global_server.clear()
 
-            qw.QMessageBox.information(self, 'Типа выполнение', f'TEXT: {text_file}\nNLTK: {nltk_path}')
+            dialog = MorphSyntaxDialog(nltk_path, udpipe_path, text_file, self._rus_chb.isChecked())
+            dialog.exec_()

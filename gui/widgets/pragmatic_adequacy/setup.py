@@ -3,6 +3,7 @@ import typing as t
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
+from parsing.metric.pragmatic_adequacy import PragmaticAdequacyAlgorithm
 import gui.widgets.notification_server as ns
 from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread
 from gui.models.common.text_files import TextFilesModel
@@ -37,6 +38,8 @@ class PragmaticAdequacySetup(BaseSetup):
 
         interlace_chb = qw.QCheckBox('Чересстрочное сравнение')
 
+        info_lbl = qw.QLabel(PragmaticAdequacyAlgorithm.__doc__)
+
         # [layout]
 
         comp_type_vbox = qw.QVBoxLayout()
@@ -48,6 +51,7 @@ class PragmaticAdequacySetup(BaseSetup):
 
         vbox = qw.QVBoxLayout()
         vbox.addWidget(comp_type_gbx)
+        vbox.addWidget(info_lbl)
         vbox.addStretch(1)
         self.setLayout(vbox)
 

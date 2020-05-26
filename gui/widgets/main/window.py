@@ -58,6 +58,7 @@ class MainWindow(qw.QWidget):
 
         morph_syntax_w = MorphSyntaxSetup()
         morph_syntax_w.texts_model = texts_model
+        morph_syntax_w.udpipe_file = udpipe_file
         morph_syntax_w.set_nltk_file(nltk_file, True)
 
         analysis_w = AnalysisWidget()

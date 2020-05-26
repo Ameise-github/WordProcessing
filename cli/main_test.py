@@ -68,13 +68,13 @@ def main():
     # pprint(list_thems_doc)
 
     # Морфологический анализ
-    # morhp_an = TextAnalysis()
-    # tokenPosList = morhp_an.morph_analysis(trainTextNLTK4russian, textOriginal1, rusTag=True)
-    # pprint(tokenPosList)
-    # print()
+    morhp_an = TextAnalysis()
+    tokenPosList = morhp_an.morph_analysis(trainTextNLTK4russian, textOriginal1, rusTag=True)
+    pprint(tokenPosList)
+    print()
     # Синтаксическое дерево
-    # view_tree = morhp_an.view_syntax_tree(textOriginal1, trainTextUdpipe)
-    # print(view_tree)
+    view_tree = morhp_an.view_syntax_tree(textOriginal1, trainTextUdpipe)
+    print(view_tree)
 
     print("!!!!")
 

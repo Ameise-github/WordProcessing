@@ -1,7 +1,6 @@
 import typing as t
 import pathlib as pl
 
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 import PySide2.QtWebEngineWidgets as qweb
 from PySide2.QtCore import Qt as qq
@@ -11,9 +10,9 @@ from gui.models.common.file_path import FilePath
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
-class TopicsDefinitionWindow(BaseProcessDialog):
+class TopicsDefinitionDialog(BaseProcessDialog):
     def __init__(self,
-                 files: t.List[pl.Path], udpipe: FilePath, optimal_topics: bool,
+                 files: t.List[pl.Path], udpipe: pl.Path, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 
@@ -59,6 +58,7 @@ class TopicsDefinitionWindow(BaseProcessDialog):
         self.setWindowTitle('Определение тематики')
 
     def on_show(self):
+        self.progress_bar.setRange(0, 0)
         self._thread.start()
 
     def on_abort(self) -> bool:

@@ -9,7 +9,7 @@ from gui.models.common.file_path import FilePath
 
 
 class TopicsDefinitionThread(BasePoolThread):
-    def __init__(self, files: t.List[pl.Path], udpipe: FilePath, optimal_topics: bool,
+    def __init__(self, files: t.List[pl.Path], udpipe: pl.Path, optimal_topics: bool,
                  parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 

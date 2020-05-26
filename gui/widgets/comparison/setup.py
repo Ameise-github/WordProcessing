@@ -14,7 +14,7 @@ from gui.models.proxy.text_files import TextFilesProxyModel
 from gui.widgets import style
 from gui.widgets.common.setup import BaseSetup
 from gui.widgets.common.checkable_list import CheckableList
-from gui.widgets.comparison.window import ComparisonWindow
+from gui.widgets.comparison.dialog import ComparisonDialog
 
 
 class ComparisonSetup(BaseSetup):
@@ -123,7 +123,7 @@ class ComparisonSetup(BaseSetup):
             if not checked_algs:
                 raise ValueError('Не выбран алгоритм сравнения')
 
-            udpipe_path = self.udpipe_file.path
+            udpipe_path = self._udpipe_file.path
             if not udpipe_path.exists():
                 raise ValueError('Файл UDPipe недоступен')
 
@@ -133,5 +133,5 @@ class ComparisonSetup(BaseSetup):
         else:
             ns.global_server.clear()
 
-            proc_w = ComparisonWindow(udpipe_path, checked_algs, ref_file, other_files, self)
+            proc_w = ComparisonDialog(udpipe_path, checked_algs, ref_file, other_files, self)
             proc_w.exec_()
