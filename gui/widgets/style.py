@@ -2,15 +2,9 @@ import pathlib as pl
 
 import PySide2.QtCore as qc
 import PySide2.QtGui as qg
-import PySide2.QtWidgets as qw
 
 from gui.fs.icons import IconStorage
-
-STYLE_SHEET = """
-QPushButton {
-    min-width: 100px
-}
-"""
+from gui.fs.style_sheets import StyleSheetStorage
 
 
 class Colors:
@@ -21,7 +15,11 @@ class Colors:
 
 
 icons = IconStorage()
+style_sheets = StyleSheetStorage()
 
 
 def init():
-    icons.load(pl.Path(__file__).parent / '../../resource/icons', qc.QSize(24, 24))
+    res_path = pl.Path(__file__).parent / '../resources'
+
+    icons.load(res_path / 'icons', qc.QSize(24, 24))
+    style_sheets.load(res_path / 'css')

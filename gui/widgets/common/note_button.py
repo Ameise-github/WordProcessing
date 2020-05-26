@@ -3,21 +3,8 @@ import typing as t
 import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 
+from gui.widgets import style
 from gui.widgets.notification_server import NotificationServer
-
-# language=CSS
-_STYLE_SHEET = """
-QPushButton { 
-    text-align: left;
-    border: 1px solid #FFD800;
-    padding: 2px;
-    background-color: #30FFD800;
-}
-
-QPushButton:hover { 
-    background-color: #FFE97F;
-}
-"""
 
 
 class NoteButton(qw.QPushButton):
@@ -30,7 +17,7 @@ class NoteButton(qw.QPushButton):
         server.cleared.connect(self._on_click)
 
         self.setFlat(True)
-        self.setStyleSheet(_STYLE_SHEET)
+        self.setStyleSheet(style.style_sheets.note_button)
         self.hide()
 
     def _on_notified(self, text: str):

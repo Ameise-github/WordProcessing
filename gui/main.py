@@ -11,9 +11,9 @@ from gui.widgets.main.window import MainWindow
 
 def exec_app(algorithms: AlgorithmList):
     app = qw.QApplication(sys.argv)
-    app.setStyleSheet(style.STYLE_SHEET)
-
     style.init()
+
+    app.setStyleSheet(style.style_sheets.application)
 
     wm = MainWindow()
     wm.algorithms = algorithms
