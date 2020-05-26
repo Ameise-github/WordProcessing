@@ -5,7 +5,7 @@ from PySide2.QtCore import Qt as qq
 
 from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread
 from gui.models.common.text_files import TextFilesModel
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
 from gui.widgets import style
 from gui.widgets.pragmatic_adequacy.window import PragmaticAdequacyWindow
 from gui.widgets.common.note_button import NoteButton
@@ -19,7 +19,7 @@ class PragmaticAdequacySetup(qw.QWidget):
         # [other]
 
         model = TextFilesModel()
-        udpipe = UDPipeFile()
+        udpipe = FilePath()
 
         # [widgets]
 
@@ -83,11 +83,11 @@ class PragmaticAdequacySetup(qw.QWidget):
         self._model = value
 
     @property
-    def udpipe_file(self) -> UDPipeFile:
+    def udpipe_file(self) -> FilePath:
         return self._udpipe
 
     @udpipe_file.setter
-    def udpipe_file(self, value: UDPipeFile):
+    def udpipe_file(self, value: FilePath):
         self._udpipe = value
 
     def _on_run(self):

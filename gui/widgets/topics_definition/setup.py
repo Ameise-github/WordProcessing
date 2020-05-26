@@ -4,7 +4,7 @@ import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
 from gui.models.common.text_files import TextFilesModel
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
 from gui.widgets import style
 from gui.widgets.topics_definition.window import TopicsDefinitionWindow
 from gui.widgets.common.note_button import NoteButton
@@ -18,7 +18,7 @@ class TopicsDefinitionSetup(qw.QWidget):
         # other
 
         model = TextFilesModel()
-        udpipe = UDPipeFile()
+        udpipe = FilePath()
 
         # widgets
 
@@ -63,11 +63,11 @@ class TopicsDefinitionSetup(qw.QWidget):
         self._model = value
 
     @property
-    def udpipe_file(self) -> UDPipeFile:
+    def udpipe_file(self) -> FilePath:
         return self._udpipe
 
     @udpipe_file.setter
-    def udpipe_file(self, value: UDPipeFile):
+    def udpipe_file(self, value: FilePath):
         self._udpipe = value
 
     def _on_define_click(self):

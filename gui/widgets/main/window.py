@@ -7,11 +7,12 @@ from PySide2.QtCore import Qt as qq
 from gui import config
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.common.text_files import TextFilesModel
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
 from gui.widgets.main.text_files_list import TextFilesList
 from gui.widgets.comparison.setup import ComparisonSetup
 from gui.widgets.topics_definition.setup import TopicsDefinitionSetup
 from gui.widgets.pragmatic_adequacy.setup import PragmaticAdequacySetup
+from gui.widgets.common.file_path_select import FilePathSelect
 
 
 class MainWindow(qw.QWidget):
@@ -24,24 +25,15 @@ class MainWindow(qw.QWidget):
 
         texts_model = TextFilesModel()
         algorithms_model = ComparisonAlgorithmsModel()
-        udpipe_file = UDPipeFile(config.DEFAULT_UDPIPE_FILE)
-
-        # dialogs
-
-        dialog_set_udp = qw.QFileDialog(self)
-        dialog_set_udp.setFileMode(qw.QFileDialog.ExistingFile)
-        dialog_set_udp.setWindowTitle('Выберите файл UDPipe модели')
-        dialog_set_udp.setNameFilters(
-            ['UDPipe модель (*.udpipe)', 'Все файлы (*.*)']
-        )
+        udpipe_file = FilePath(config.DEFAULT_UDPIPE_FILE)
 
         # widgets
 
-        udpipe_lbl = qw.QLabel('UDPipe файл:')
-        udpipe_lned = qw.QLineEdit()
-        udpipe_lned.setReadOnly(True)
-        udpipe_lned.setPlaceholderText(config.DEFAULT_UDPIPE_FILE.name)
-        udpipe_btn = qw.QPushButton('Обзор...')
+        udpipe_fps = FilePathSelect()
+        udpipe_fps.default_path = config.DEFAULT_UDPIPE_FILE
+        udpipe_fps.file = udpipe_file
+        udpipe_fps.label.setText('UDPipe файл:')
+        udpipe_fps.dialog.setNameFilters(['UDPipe модель (*.udpipe)', 'Все файлы (*.*)'])
 
         text_lbl = qw.QLabel('Файлы текстов:')
         text_man = TextFilesList()
@@ -66,19 +58,10 @@ class MainWindow(qw.QWidget):
         analysis_tw.addTab(topics_definer_w, 'Тематика')
         analysis_tw.addTab(pragmatic_w, 'Прагматическая адекватность')
 
-        # connections
-
-        udpipe_btn.clicked.connect(self._on_choose_udp_file)
-
         # layout
 
-        udpipe_hbox = qw.QHBoxLayout()
-        udpipe_hbox.addWidget(udpipe_lned, 1)
-        udpipe_hbox.addWidget(udpipe_btn)
-
         vbox = qw.QVBoxLayout()
-        vbox.addWidget(udpipe_lbl)
-        vbox.addLayout(udpipe_hbox)
+        vbox.addWidget(udpipe_fps)
         vbox.addWidget(text_lbl)
         vbox.addWidget(text_man)
         vbox.addWidget(analysis_tw)
@@ -89,9 +72,6 @@ class MainWindow(qw.QWidget):
         self.texts_model = texts_model
         self.algorithms_model = algorithms_model
         self.udpipe_file = udpipe_file
-
-        self.dialog_set_udp = dialog_set_udp
-        self.udp_file_lned = udpipe_lned
 
         # setup
 
@@ -105,9 +85,3 @@ class MainWindow(qw.QWidget):
     @algorithms.setter
     def algorithms(self, value: AlgorithmList):
         self.algorithms_model.algorithms = value
-
-    def _on_choose_udp_file(self):
-        if self.dialog_set_udp.exec_():
-            file = self.dialog_set_udp.selectedFiles()[0]
-            self.udp_file_lned.setText(file)
-            self.udpipe_file.path = pl.Path(file)

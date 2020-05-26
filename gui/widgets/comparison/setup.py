@@ -2,45 +2,19 @@ import typing as t
 import pathlib as pl
 
 import PySide2.QtCore as qc
-import PySide2.QtGui as qg
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
-from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
 from gui.models.roles import Roles
 from gui.models.common.text_files import TextFilesModel
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
+from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
+from gui.models.proxy.text_files import TextFilesProxyModel
 from gui.widgets import style
 from gui.widgets.common.checkable_list import CheckableList
 from gui.widgets.common.note_button import NoteButton
 from gui.widgets.common.hseparator import HSeparator
 from gui.widgets.comparison.window import ComparisonWindow
-
-
-class TextFilesProxyModel(qc.QIdentityProxyModel):
-    def data(self, proxy_index: qc.QModelIndex, role: int = qq.DisplayRole) -> t.Any:
-        if not proxy_index.isValid():
-            return None
-
-        text_file: str = super().data(proxy_index, Roles.SourceDataRole)
-
-        if qq.DisplayRole == role:
-            return pl.Path(text_file).name
-
-        elif qq.CheckStateRole == role:
-            return None
-
-        elif qq.ForegroundRole == role:
-            color: qg.QColor = super().data(proxy_index, qq.ForegroundRole)
-            checked: qq.CheckState = super().data(proxy_index, qq.CheckStateRole)
-            if not color:
-                color = qw.QApplication.palette().color(qg.QPalette.Foreground)
-            if qq.Unchecked == checked:
-                color.setAlphaF(0.4)
-            return color
-
-        else:
-            return super().data(proxy_index, role)
 
 
 class ComparisonSetup(qw.QWidget):
@@ -106,7 +80,7 @@ class ComparisonSetup(qw.QWidget):
         self._reference_cbx = reference_cbx
         self._note_btn = note_btn
 
-        self._udpipe_file = UDPipeFile()
+        self._udpipe_file = FilePath()
 
         # setup
 
@@ -129,11 +103,11 @@ class ComparisonSetup(qw.QWidget):
         self._texts_proxy_model.setSourceModel(value)
 
     @property
-    def udpipe_file(self) -> UDPipeFile:
+    def udpipe_file(self) -> FilePath:
         return self._udpipe_file
 
     @udpipe_file.setter
-    def udpipe_file(self, value: UDPipeFile):
+    def udpipe_file(self, value: FilePath):
         self._udpipe_file = value
 
     def _on_algorithm_info(self):
@@ -150,7 +124,7 @@ class ComparisonSetup(qw.QWidget):
             other_files = self._texts_model.checked(exists_only=True)
 
             ref_file: pl.Path = self._reference_cbx.currentData(Roles.SourceDataRole)
-            if not ref_file:
+            if not ref_file or not ref_file.exists():
                 raise ValueError('Эталонный текст недоступен')
 
             if ref_file in other_files:

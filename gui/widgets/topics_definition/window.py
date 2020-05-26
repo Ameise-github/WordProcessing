@@ -7,13 +7,13 @@ import PySide2.QtWebEngineWidgets as qweb
 from PySide2.QtCore import Qt as qq
 
 from gui.logic.topics_definition.thread import TopicsDefinitionThread
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
 class TopicsDefinitionWindow(BaseProcessDialog):
     def __init__(self,
-                 files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
+                 files: t.List[pl.Path], udpipe: FilePath, optimal_topics: bool,
                  parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
         super().__init__(parent, f)
 

@@ -5,11 +5,11 @@ import PySide2.QtCore as qc
 
 from parsing.ThemsText import ThemsText
 from gui.logic.common.pool_tread import BasePoolThread, Combination
-from gui.models.common.udpipe import UDPipeFile
+from gui.models.common.file_path import FilePath
 
 
 class TopicsDefinitionThread(BasePoolThread):
-    def __init__(self, files: t.List[pl.Path], udpipe: UDPipeFile, optimal_topics: bool,
+    def __init__(self, files: t.List[pl.Path], udpipe: FilePath, optimal_topics: bool,
                  parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 
