@@ -3,56 +3,41 @@ import typing as t
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
+import gui.widgets.notification_server as ns
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
-from gui.widgets import style
-from gui.widgets.topics_definition.window import TopicsDefinitionWindow
-from gui.widgets.common.note_button import NoteButton
+from gui.widgets.common.setup import BaseSetup
 from gui.widgets.common.hseparator import HSeparator
+from gui.widgets.topics_definition.window import TopicsDefinitionWindow
 
 
-class TopicsDefinitionSetup(qw.QWidget):
-    def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
-        super().__init__(parent, f)
+class TopicsDefinitionSetup(BaseSetup):
+    def __init__(self, parent: t.Optional[qw.QWidget] = None,
+                 f: qq.WindowFlags = qq.WindowFlags()):
+        super().__init__('Тематика', 'Определить тематику', parent, f)
 
-        # other
+        # [other]
 
         model = TextFilesModel()
         udpipe = FilePath()
 
-        # widgets
+        # [widgets]
 
         optimal_chb = qw.QCheckBox('Согласованность тем')
 
-        separator_hs = HSeparator()
-
-        define_btn = qw.QPushButton(style.icons.play_circle, 'Определить тематику')
-        note_btn = NoteButton()
-
-        # connect
-
-        define_btn.clicked.connect(self._on_define_click)
-
-        # layout
-
-        hbox = qw.QHBoxLayout()
-        hbox.addWidget(note_btn, 1)
-        hbox.addWidget(define_btn, 0, qq.AlignRight)
+        # [layout]
 
         vbox = qw.QVBoxLayout()
         vbox.addWidget(optimal_chb)
-        vbox.addWidget(separator_hs)
-        vbox.addLayout(hbox)
         vbox.addStretch(1)
         self.setLayout(vbox)
 
-        # fields
+        # [fields]
 
         self._model = model
         self._udpipe = udpipe
 
         self._optimal_chk = optimal_chb
-        self._note_btn = note_btn
 
     @property
     def texts_model(self) -> TextFilesModel:
@@ -70,7 +55,7 @@ class TopicsDefinitionSetup(qw.QWidget):
     def udpipe_file(self, value: FilePath):
         self._udpipe = value
 
-    def _on_define_click(self):
+    def analysis(self):
         try:
             files = self._model.checked(exists_only=True)
             if len(files) <= 1:
@@ -78,11 +63,12 @@ class TopicsDefinitionSetup(qw.QWidget):
             udpipe_path = self._udpipe.path
             if not udpipe_path.exists():
                 raise ValueError('Файл UDPipe недоступен')
+
         except ValueError as v:
-            self._note_btn.show_warn(v.args[0])
-            return
+            ns.global_server.notify(v.args[0])
 
-        self._note_btn.hide()
+        else:
+            ns.global_server.clear()
 
-        dialog = TopicsDefinitionWindow(files, self._udpipe, self._optimal_chk.isChecked(), self)
-        dialog.exec_()
+            dialog = TopicsDefinitionWindow(files, self._udpipe, self._optimal_chk.isChecked(), self)
+            dialog.exec_()

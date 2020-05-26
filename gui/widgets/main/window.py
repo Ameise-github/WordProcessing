@@ -8,6 +8,7 @@ from gui import config
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel, AlgorithmList
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
+from gui.widgets.common.analysis_widget import AnalysisWidget
 from gui.widgets.common.file_path_select import FilePathSelect
 from gui.widgets.main.text_files_list import TextFilesList
 from gui.widgets.comparison.setup import ComparisonSetup
@@ -59,11 +60,11 @@ class MainWindow(qw.QWidget):
         morph_syntax_w.texts_model = texts_model
         morph_syntax_w.set_nltk_file(nltk_file, True)
 
-        analysis_tw = qw.QTabWidget()
-        analysis_tw.addTab(comparator_w, 'Сравнение')
-        analysis_tw.addTab(topics_definer_w, 'Тематика')
-        analysis_tw.addTab(pragmatic_w, 'Прагматическая адекватность')
-        analysis_tw.addTab(morph_syntax_w, 'Морфология и Синтаксис')
+        analysis_w = AnalysisWidget()
+        analysis_w.add_setup(comparator_w)
+        analysis_w.add_setup(topics_definer_w)
+        analysis_w.add_setup(pragmatic_w)
+        analysis_w.add_setup(morph_syntax_w)
 
         # layout
 
@@ -71,7 +72,7 @@ class MainWindow(qw.QWidget):
         vbox.addWidget(udpipe_fps)
         vbox.addWidget(text_lbl)
         vbox.addWidget(text_man)
-        vbox.addWidget(analysis_tw)
+        vbox.addWidget(analysis_w)
         self.setLayout(vbox)
 
         # fields

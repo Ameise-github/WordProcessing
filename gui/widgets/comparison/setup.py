@@ -5,23 +5,24 @@ import PySide2.QtCore as qc
 import PySide2.QtWidgets as qw
 from PySide2.QtCore import Qt as qq
 
+import gui.widgets.notification_server as ns
 from gui.models.roles import Roles
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
 from gui.models.comparison.algorithms import ComparisonAlgorithmsModel
 from gui.models.proxy.text_files import TextFilesProxyModel
 from gui.widgets import style
+from gui.widgets.common.setup import BaseSetup
 from gui.widgets.common.checkable_list import CheckableList
-from gui.widgets.common.note_button import NoteButton
-from gui.widgets.common.hseparator import HSeparator
 from gui.widgets.comparison.window import ComparisonWindow
 
 
-class ComparisonSetup(qw.QWidget):
-    def __init__(self, parent: t.Optional[qw.QWidget] = None, f: qq.WindowFlags = qq.WindowFlags()):
-        super().__init__(parent, f)
+class ComparisonSetup(BaseSetup):
+    def __init__(self, parent: t.Optional[qw.QWidget] = None,
+                 f: qq.WindowFlags = qq.WindowFlags()):
+        super().__init__('Сравнение', 'Выполнить сравнение', parent, f)
 
-        # models
+        # [models]
 
         algorithms_model = ComparisonAlgorithmsModel()
         texts_model = TextFilesModel()
@@ -29,7 +30,7 @@ class ComparisonSetup(qw.QWidget):
         texts_proxy_model = TextFilesProxyModel()
         texts_proxy_model.setSourceModel(texts_model)
 
-        # widgets
+        # [widgets]
 
         reference_lbl = qw.QLabel('Эталонный текст:')
         reference_cbx = qw.QComboBox()
@@ -46,31 +47,20 @@ class ComparisonSetup(qw.QWidget):
         order_tb.insertAction(first_act, info_act)
         order_tb.insertSeparator(first_act)
 
-        compare_btn = qw.QPushButton(style.icons.play_circle, 'Выполнить сравнение')
-        separator_hs = HSeparator()
-        note_btn = NoteButton()
-
-        # connect
+        # [connect]
 
         info_act.triggered.connect(self._on_algorithm_info)
-        compare_btn.clicked.connect(self._on_run_comparison)
 
-        # layout
-
-        hbox = qw.QHBoxLayout()
-        hbox.addWidget(note_btn, 1)
-        hbox.addWidget(compare_btn, 0, qq.AlignRight)
+        # [layout]
 
         vbox = qw.QVBoxLayout()
         vbox.addWidget(reference_lbl)
         vbox.addWidget(reference_cbx)
         vbox.addWidget(algorithms_lbl)
         vbox.addWidget(algorithms_chl)
-        vbox.addWidget(separator_hs)
-        vbox.addLayout(hbox, 1)
         self.setLayout(vbox)
 
-        # fields
+        # [fields]
 
         self._algorithms_model = algorithms_model
         self._texts_model = texts_model
@@ -78,11 +68,8 @@ class ComparisonSetup(qw.QWidget):
 
         self._algorithms_chl = algorithms_chl
         self._reference_cbx = reference_cbx
-        self._note_btn = note_btn
 
         self._udpipe_file = FilePath()
-
-        # setup
 
     @property
     def algorithms_model(self) -> ComparisonAlgorithmsModel:
@@ -119,7 +106,7 @@ class ComparisonSetup(qw.QWidget):
         alg_desc: str = index.data(Roles.DescriptionRole)
         qw.QMessageBox.information(self, f'Описание алгоритма: {alg_name}', alg_desc)
 
-    def _on_run_comparison(self):
+    def analysis(self):
         try:
             other_files = self._texts_model.checked(exists_only=True)
 
@@ -139,11 +126,12 @@ class ComparisonSetup(qw.QWidget):
             udpipe_path = self.udpipe_file.path
             if not udpipe_path.exists():
                 raise ValueError('Файл UDPipe недоступен')
+
         except ValueError as v:
-            self._note_btn.show_warn(v.args[0])
-            return
+            ns.global_server.notify(v.args[0])
 
-        self._note_btn.hide()
+        else:
+            ns.global_server.clear()
 
-        proc_w = ComparisonWindow(udpipe_path, checked_algs, ref_file, other_files, self)
-        proc_w.exec_()
+            proc_w = ComparisonWindow(udpipe_path, checked_algs, ref_file, other_files, self)
+            proc_w.exec_()
