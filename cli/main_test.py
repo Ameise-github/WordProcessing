@@ -20,34 +20,41 @@ trainTextNLTK4russian = '../resource/data/trainText.tab'
 textOriginal1 = "../resource/data/text1.txt"
 textOriginal2 = "../resource/data/text2.txt"
 textOriginal3 = "../resource/data/text3.txt"
-textOriginal4 = "../resource/data/Evgeniy_Onegin.txt"
+textOriginal4 = "../resource/data/text_brain1.txt"
+textOriginal5 = "../resource/data/text_brain2.txt"
+textOriginal6 = "../resource/data/text_brain3.txt"
+textOriginal7 = "../resource/data/Evgeniy_Onegin.txt"
 
 
 def main():
     # nltk.download('punkt')
     # nltk.download('stopwords')
 
-    s = StochasticAlgorithm()
-    res = s.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    res1 = s.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    print("StochasticAlgorithm:  " + str(res) + "; " + str(res1))
-
-    c = CosineSimilarityAlgorithm()
-    res2 = c.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    res3 = c.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    print("CosineSimilarityAlgorithm:  " + str(res2) + "; " + str(res3))
-
-    j = JaccardAlgorithm()
-    res4 = j.process(trainTextUdpipe, textOriginal1, textOriginal2)
-    res5 = j.process(trainTextUdpipe, textOriginal1, textOriginal3)
-    print("JaccardAlgorithm:  " + str(res4) + "; " + str(res5))
+    # s = StochasticAlgorithm()
+    # res = s.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    # res1 = s.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    # print("StochasticAlgorithm:  " + str(res) + "; " + str(res1))
+    #
+    # c = CosineSimilarityAlgorithm()
+    # res2 = c.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    # res3 = c.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    # print("CosineSimilarityAlgorithm:  " + str(res2) + "; " + str(res3))
+    #
+    # j = JaccardAlgorithm()
+    # res4 = j.process(trainTextUdpipe, textOriginal1, textOriginal2)
+    # res5 = j.process(trainTextUdpipe, textOriginal1, textOriginal3)
+    # print("JaccardAlgorithm:  " + str(res4) + "; " + str(res5))
 
     # Изменения одного текста
-    # one_text = PragmaticAdequacy()
-    # one_text.set_trainTextUdpipe(trainTextUdpipe)
-    # one_text.set_text_standart(textOriginal1)
-    # one_text.set_text(textOriginal3)
-    # print(one_text.run())
+    PragmaticAdequacy = PragmaticAdequacyAlgorithm()
+    I1 = PragmaticAdequacy.process(trainTextUdpipe, textOriginal4, textOriginal5)
+    print("text 4-5: " + str(I1))
+    I2 = PragmaticAdequacy.process(trainTextUdpipe, textOriginal4, textOriginal6)
+    print("text 4-6: " + str(I2))
+    I3 = PragmaticAdequacy.process(trainTextUdpipe, textOriginal5, textOriginal6)
+    print("text 5-6: " + str(I3))
+    I4 = PragmaticAdequacy.process(trainTextUdpipe, textOriginal6, textOriginal4)
+    print("text 6-4: " + str(I4))
 
     # Тематика текстов
     # list_path_text = [textOriginal1, textOriginal2, textOriginal3]
