@@ -12,7 +12,7 @@ from gui.models.comparison.algorithms import AlgorithmList
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
-class ComparisonWindow(BaseProcessDialog):
+class ComparisonDialog(BaseProcessDialog):
     def __init__(self,
                  udpipe: t.Optional[pl.Path], algorithms: AlgorithmList,
                  reference: t.Optional[pl.Path], others: t.List[pl.Path],
@@ -75,10 +75,6 @@ class ComparisonWindow(BaseProcessDialog):
         self._thread.abort()
         return True
 
-    def _increment_progress(self, inc=1):
-        value = self.progress_bar.value() + inc
-        self.progress_bar.setValue(value)
-
     def _on_prepared(self, count: int):
         self.progress_bar.setMaximum(count)
         self.update()
@@ -96,7 +92,7 @@ class ComparisonWindow(BaseProcessDialog):
             alg, other,
             ComparisonResult(ComparisonResult.SUCCESS, result)
         )
-        self._increment_progress()
+        self.progress_value += 1
 
     def _on_process_error(self, data: ComparisionData, text: str):
         alg, other = data
@@ -105,7 +101,7 @@ class ComparisonWindow(BaseProcessDialog):
             alg, other,
             ComparisonResult(ComparisonResult.ERROR, text)
         )
-        self._increment_progress()
+        self.progress_value += 1
 
     def _on_finished(self):
         self.finish_him()

@@ -10,3 +10,4 @@ def resolve(path: str) -> pl.Path:
 
 
 DEFAULT_UDPIPE_FILE = resolve('../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe')
+DEFAULT_NLTK_FILE = resolve('../resource/data/trainText.tab')

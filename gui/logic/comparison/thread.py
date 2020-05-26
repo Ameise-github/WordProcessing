@@ -12,8 +12,8 @@ ComparisionData = t.Tuple[BaseAlgorithm, pl.Path]
 
 class ComparisionThread(BasePoolThread):
     def __init__(self,
-                 udpipe: t.Optional[pl.Path], algorithms: AlgorithmList,
-                 reference: t.Optional[pl.Path], others: t.List[pl.Path],
+                 udpipe: pl.Path, algorithms: AlgorithmList,
+                 reference: pl.Path, others: t.List[pl.Path],
                  parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
 

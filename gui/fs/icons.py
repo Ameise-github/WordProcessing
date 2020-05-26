@@ -10,7 +10,7 @@ from gui.exception import LoadError
 
 class IconStorage:
     def __init__(self):
-        self.icons: t.Dict[str, qg.QIcon] = {}
+        self._icons: t.Dict[str, qg.QIcon] = {}
 
     def load(self, dir_path: pl.Path, size: qc.QSize):
         # load
@@ -47,10 +47,10 @@ class IconStorage:
             name2icon_dict[name.replace('-', '_')] = icon
 
         # result
-        self.icons = name2icon_dict
+        self._icons = name2icon_dict
 
     def __getattr__(self, item: str) -> qg.QIcon:
-        icon = self.icons.get(item)
+        icon = self._icons.get(item)
         if not icon:
             raise AttributeError(f'Icon <{item}> not found')
         return icon

@@ -6,11 +6,11 @@ import PySide2.QtCore as qc
 OptPath = t.Optional[pl.Path]
 
 
-class UDPipeFile(qc.QObject):
+class FilePath(qc.QObject):
     path_changed = qc.Signal(pl.Path, pl.Path)
 
     def __init__(self, path=pl.Path(), parent: qc.QObject = None):
-        super(UDPipeFile, self).__init__(parent)
+        super(FilePath, self).__init__(parent)
 
         self._path = path
 
