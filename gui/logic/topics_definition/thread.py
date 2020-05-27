@@ -30,5 +30,6 @@ class TopicsDefinitionThread(BasePoolThread):
     @staticmethod
     def _process(udpipe, files, optimal_topics):
         topics_text = ThemsText(files, udpipe, optimal_topics)
-        view_str, _ = topics_text.view_thems()
-        return view_str
+        view_str, lda_model = topics_text.view_thems()
+        list_topics_doc = topics_text.topics_document(lda_model)
+        return view_str, list_topics_doc

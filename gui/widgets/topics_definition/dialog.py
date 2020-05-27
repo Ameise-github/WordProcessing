@@ -6,7 +6,7 @@ import PySide2.QtWebEngineWidgets as qweb
 from PySide2.QtCore import Qt as qq
 
 from gui.logic.topics_definition.thread import TopicsDefinitionThread
-from gui.models.common.file_path import FilePath
+from gui.models.topics_definition.topics import TopicDefinitionModel
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
@@ -18,6 +18,7 @@ class TopicsDefinitionDialog(BaseProcessDialog):
 
         # other
 
+        model = TopicDefinitionModel()
         thread = TopicsDefinitionThread(files, udpipe, optimal_topics)
 
         # widget
@@ -26,6 +27,15 @@ class TopicsDefinitionDialog(BaseProcessDialog):
 
         frame = qw.QFrame()
         frame.setFrameShape(qw.QFrame.StyledPanel)
+
+        table_tv = qw.QTableView()
+        table_tv.setModel(model)
+
+        splitter = qw.QSplitter(qq.Horizontal)
+        splitter.addWidget(frame)
+        splitter.addWidget(table_tv)
+        splitter.setOpaqueResize(False)
+        splitter.setSizes([999999, 999999])
 
         # connect
 
@@ -43,12 +53,12 @@ class TopicsDefinitionDialog(BaseProcessDialog):
         wv_vbox.addWidget(webview)
         frame.setLayout(wv_vbox)
 
-        vbox = qw.QVBoxLayout()
-        vbox.addWidget(frame)
-        self.content_layout = vbox
+        hbox = qw.QHBoxLayout()
+        hbox.addWidget(splitter)
+        self.content_layout = hbox
 
         # fields
-
+        self._model = model
         self._thread = thread
 
         self._webview = webview
@@ -69,7 +79,9 @@ class TopicsDefinitionDialog(BaseProcessDialog):
 
     def _on_process_finished(self, data: None, result: str):
         if not self.is_aborted:
-            self._webview.setHtml(result)
+            html, table = result
+            self._model.set_source(table)
+            self._webview.setHtml(html)
         else:
             self.finish_him()
 
