@@ -49,7 +49,6 @@ from spacy.tokens import Doc
 # download Russian model
 # spacy_udpipe.download("ru")
 # text = "соседнем дворе рос маленький одинокий одуванчик тянулся солнцу своими зелеными листьями листья напитаны зеленой жижей"
-text = "соседнем дворе рос маленький одинокий \"одуванчик\". тянулся солнцу своими зелеными листьями, которые были напуганы."
 # nlp = spacy_udpipe.load("ru")
 
 #Объект spaCy
@@ -59,18 +58,18 @@ text = "соседнем дворе рос маленький одинокий \
 
 #Загрузить пользовательскую модель
 # print("\nС другой моделью  не по умолчанию (Получилось одинаково, попробовать другоую модель)")
-nlp1 = spacy_udpipe.load_from_path(lang="ru",
-                                  path="../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe",
-                                  meta={"description": "Custom 'ru' model"})
-doc1 = nlp1(text)
+# nlp1 = spacy_udpipe.load_from_path(lang="ru",
+#                                   path="../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe",
+#                                   meta={"description": "Custom 'ru' model"})
+# doc1 = nlp1(text)
 # for token1 in doc1:
 #     print(token1.text, token1.lemma_, token1.pos_, token1.dep_)
 
 #Построение дерева
 #Строится дерево по 1-му предложению. Выводит код в html
-print("\nДерево")
-html = displacy.render(doc1, style="dep")
-print(html)
+# print("\nДерево")
+# html = displacy.render(doc1, style="dep")
+# print(html)
 
 #Обход по дереву
 # print("\nПроход по дереву:")
@@ -104,3 +103,42 @@ print(html)
 # for token in doc1:
 #     for child in token.children:
 #         print(token.i, token.text, [child.i, child])
+
+
+#Рисование дерева зависимостей
+from nltk.tree import Tree
+from nltk.draw import TreeView
+
+
+def nltk_spacy_tree(text):
+    """
+    Visualize the SpaCy dependency tree with nltk.tree
+    """
+    nlp = spacy_udpipe.load_from_path(lang="ru",
+                                       path="../resource/trainModel/russian-syntagrus-ud-2.5-191206.udpipe",
+                                       meta={"description": "Custom 'ru' model"})
+    doc = nlp(text)
+
+    def token_format(token):
+        # return "_".join([token.orth_, token.tag_, token.dep_])
+        return "_".join([token.orth_, token.pos_])
+
+    def to_nltk_tree(node):
+        if node.n_lefts + node.n_rights > 0:
+            return Tree(token_format(node),
+                        [to_nltk_tree(child)
+                         for child in node.children]
+                        )
+            # return Tree(node.orth_, [to_nltk_tree(child) for child in node.children])
+        else:
+            return token_format(node)
+
+    tree = [to_nltk_tree(sent.root) for sent in doc.sents]
+    # Первый элемент в списке - полное дерево
+    # tree[0].draw()
+    # ttt = TreeView(tree[0])._cframe.print_to_file('output.ps')
+    ttt = TreeView(tree[0])._cframe
+    # вернуть путь
+    print()
+
+nltk_spacy_tree("В соседнем дворе рос маленький и одинокий одуванчик Он тянулся к солнцу своими зелеными листьями.")
