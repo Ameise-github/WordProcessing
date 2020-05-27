@@ -4,8 +4,8 @@ from PySide2.QtCore import Qt as qq
 import PySide2.QtCore as qc
 
 
-class MorphologyModel(qc.QAbstractTableModel):
-    _HEADERS = ['№', 'Слово', 'Лемма', 'Часть речи', 'Теги']
+class TopicDefinitionModel(qc.QAbstractTableModel):
+    _HEADERS = ['№', 'Номер темы', '% содержания', 'Ключевые слова', 'Текст']
 
     def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)
