@@ -67,8 +67,6 @@ class MorphSyntaxDialog(BaseProcessDialog):
 
         self.setWindowTitle('Морфология и Синтаксис')
         self.progress_bar.setMaximum(200)  # Morph and Syntax
-
-    def on_show(self):
         self._thread.start()
 
     def on_abort(self) -> bool:

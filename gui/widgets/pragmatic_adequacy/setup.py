@@ -9,7 +9,7 @@ from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
 from gui.widgets.common.setup import BaseSetup
-from gui.widgets.pragmatic_adequacy.window import PragmaticAdequacyWindow
+from gui.widgets.pragmatic_adequacy.dialog import PragmaticAdequacyDialog
 
 
 class PragmaticAdequacySetup(BaseSetup):
@@ -101,5 +101,5 @@ class PragmaticAdequacySetup(BaseSetup):
         else:
             ns.global_server.clear()
 
-            proc_w = PragmaticAdequacyWindow(udpipe_path, files, interlace, self._direction_bg.checkedId(), self)
+            proc_w = PragmaticAdequacyDialog(udpipe_path, files, interlace, self._direction_bg.checkedId(), self)
             proc_w.exec_()

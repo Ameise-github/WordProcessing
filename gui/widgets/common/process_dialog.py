@@ -104,6 +104,7 @@ class BaseProcessDialog(qw.QDialog):
 
         self.setMinimumSize(500, 500)
         self._machine.start()
+        self._timer_tl.set_work(True)
 
     @property
     def progress_bar(self):
@@ -129,13 +130,6 @@ class BaseProcessDialog(qw.QDialog):
     @property
     def is_aborted(self):
         return self._aborted
-
-    def showEvent(self, arg__1: qg.QShowEvent):
-        self._timer_tl.set_work(True)
-        self.on_show()
-
-    def on_show(self):
-        pass
 
     def abort(self):
         if self.on_abort():

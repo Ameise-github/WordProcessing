@@ -67,8 +67,6 @@ class ComparisonDialog(BaseProcessDialog):
         self.setMinimumWidth(650)
         self.setWindowTitle('Сравнение')
         self.progress_bar.setFormat('  %v из %m')
-
-    def on_show(self):
         self._thread.start()
 
     def on_abort(self) -> bool:
