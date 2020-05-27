@@ -9,7 +9,7 @@ from gui.logic.pragmatic_adequacy.thread import PragmaticAdequacyThread
 from gui.models.common.text_files import TextFilesModel
 from gui.models.common.file_path import FilePath
 from gui.widgets.common.setup import BaseSetup
-from gui.widgets.pragmatic_adequacy.window import PragmaticAdequacyWindow
+from gui.widgets.pragmatic_adequacy.dialog import PragmaticAdequacyDialog
 
 
 class PragmaticAdequacySetup(BaseSetup):
@@ -80,8 +80,14 @@ class PragmaticAdequacySetup(BaseSetup):
         self._udpipe = value
 
     def analysis(self):
-        try:
+        if self._interlace_chb.isChecked():
             files = self._model.items(exists_only=True)
+            interlace = self._model.checked(exists_only=True)
+        else:
+            files = self._model.checked(exists_only=True)
+            interlace = []
+
+        try:
             if not files:
                 raise ValueError('Нечего сравнивать')
 
@@ -95,7 +101,5 @@ class PragmaticAdequacySetup(BaseSetup):
         else:
             ns.global_server.clear()
 
-            interlace = self._model.checked(exists_only=True) if self._interlace_chb.isChecked() else []
-
-            proc_w = PragmaticAdequacyWindow(udpipe_path, files, interlace, self._direction_bg.checkedId(), self)
+            proc_w = PragmaticAdequacyDialog(udpipe_path, files, interlace, self._direction_bg.checkedId(), self)
             proc_w.exec_()

@@ -56,8 +56,6 @@ class TopicsDefinitionDialog(BaseProcessDialog):
         # setup
 
         self.setWindowTitle('Определение тематики')
-
-    def on_show(self):
         self.progress_bar.setRange(0, 0)
         self._thread.start()
 

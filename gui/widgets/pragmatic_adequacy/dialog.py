@@ -10,7 +10,7 @@ from gui.models.pragmatic_adequacy.process import PragmaticAdequacyProcessModel,
 from gui.widgets.common.process_dialog import BaseProcessDialog
 
 
-class PragmaticAdequacyWindow(BaseProcessDialog):
+class PragmaticAdequacyDialog(BaseProcessDialog):
     def __init__(self,
                  udpipe: t.Optional[pl.Path], text_files: t.List[pl.Path],
                  interlace: t.List[pl.Path], direction: int,
@@ -61,8 +61,6 @@ class PragmaticAdequacyWindow(BaseProcessDialog):
 
         self.setWindowTitle('Сравнение')
         self.progress_bar.setFormat('  %v из %m')
-
-    def on_show(self):
         self._thread.start()
 
     def on_abort(self) -> bool:
