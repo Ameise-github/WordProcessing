@@ -84,7 +84,7 @@ class MainWindow(qw.QWidget):
 
         # setup
 
-        self.setWindowTitle('Анализ и сравнение текстов')
+        self.setWindowTitle('Идентификация подобных систем на основе текстовой информации')
         self.setMinimumSize(650, 400)
 
     @property

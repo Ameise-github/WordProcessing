@@ -36,7 +36,7 @@ class PragmaticAdequacySetup(BaseSetup):
         direction_bg.addButton(d_reverse_rdb, PragmaticAdequacyThread.REVERSE_ONLY)
         direction_bg.addButton(d_both_rdb, PragmaticAdequacyThread.BOTH)
 
-        interlace_chb = qw.QCheckBox('Чересстрочное сравнение')
+        interlace_chb = qw.QCheckBox('Сравнение с выделенными документами')
 
         info_lbl = qw.QLabel(PragmaticAdequacyAlgorithm.__doc__)
 

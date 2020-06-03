@@ -5,7 +5,7 @@ import PySide2.QtCore as qc
 
 
 class TopicDefinitionModel(qc.QAbstractTableModel):
-    _HEADERS = ['№', 'Номер темы', '% содержания', 'Ключевые слова', 'Текст']
+    _HEADERS = ['№', 'Номер темы', '% содержание', 'Ключевые слова', 'Текст']
 
     def __init__(self, parent: t.Optional[qc.QObject] = None):
         super().__init__(parent)

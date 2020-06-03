@@ -35,7 +35,7 @@ class BasePoolThread(qc.QThread):
         raise NotImplementedError()
 
     def run(self):
-        with mp.Pool() as pool:
+        with mp.Pool(processes=3) as pool:
             prepared_data = self.prepare()
             self.prepared.emit(prepared_data)
 

@@ -102,7 +102,7 @@ class BaseProcessDialog(qw.QDialog):
 
         # [setup]
 
-        self.setMinimumSize(500, 500)
+        self.setMinimumSize(200, 200)
         self._machine.start()
         self._timer_tl.set_work(True)
 
